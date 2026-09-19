@@ -8,7 +8,24 @@ export default async function handler(req, res) {
       });
     }
 
-    const path = req.query.path || "";
+    let path = req.query.path || "";
+
+    const routeMap = {
+      "trending": "trending/movie/day",
+      "popular": "movie/popular",
+      "now-playing": "movie/now_playing",
+      "upcoming": "movie/upcoming",
+      "genres": "genre/movie/list",
+      "tv/popular": "tv/popular",
+      "tv/trending": "trending/tv/day",
+      "tv/today": "tv/airing_today",
+      "tv/genres": "genre/tv/list"
+    };
+
+    if (routeMap[path]) {
+      path = routeMap[path];
+    }
+
     const params = new URLSearchParams();
 
     for (const [key, value] of Object.entries(req.query)) {
@@ -35,6 +52,7 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     return res.status(response.status).json(data);
+
   } catch (error) {
     return res.status(500).json({
       error: error.message
