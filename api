@@ -1,88 +1,28 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const TOKEN = process.env.TMDB_READ_TOKEN || process.env.TMDB_BEARER_TOKEN;
-
-async function tmdb(endpoint, params = {}) {
-  const url = new URL(`https://api.themoviedb.org/3${endpoint}`);
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
-  }
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      accept: 'application/json',
-      authorization: `Bearer ${TOKEN}`
-    }
-  });
-
-  if (!res.ok) {
-    throw new Error(`TMDB error ${res.status}`);
-  }
-  return res.json();
-}
-
 export default async function handler(req, res) {
-  // CORS Headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
-  const path = req.query.path || '';
-  const pathStr = Array.isArray(path) ? path.join('/') : path;
+  const { path = '', ...queryParams } = req.query;
+  const apiKey = '38870ed292ca97bf270c57c4df297771';
 
   try {
-    let data;
-    if (pathStr === 'trending') {
-      data = await tmdb('/trending/movie/day', { language: 'en-US' });
-    } else if (pathStr === 'popular') {
-      data = await tmdb('/movie/popular', { language: 'en-US', region: 'IN' });
-    } else if (pathStr === 'now-playing') {
-      data = await tmdb('/movie/now_playing', { language: 'en-US', region: 'IN' });
-    } else if (pathStr === 'upcoming') {
-      data = await tmdb('/movie/upcoming', { language: 'en-US', region: 'IN' });
-    } else if (pathStr === 'genres') {
-      data = await tmdb('/genre/movie/list', { language: 'en-US' });
-    } else if (pathStr === 'tv/popular') {
-      data = await tmdb('/tv/popular', { language: 'en-US', region: 'IN' });
-    } else if (pathStr === 'tv/trending') {
-      data = await tmdb('/trending/tv/day', { language: 'en-US' });
-    } else if (pathStr === 'tv/today') {
-      data = await tmdb('/tv/airing_today', { language: 'en-US', region: 'IN' });
-    } else if (pathStr === 'tv/genres') {
-      data = await tmdb('/genre/tv/list', { language: 'en-US' });
-    } else if (pathStr === 'search') {
-      data = await tmdb('/search/multi', {
-        language: 'en-US',
-        include_adult: 'false',
-        query: req.query.q || '',
-        page: req.query.page || 1
-      });
-    } else if (pathStr.startsWith('movie/')) {
-      const id = pathStr.replace('movie/', '');
-      data = await tmdb(`/movie/${encodeURIComponent(id)}`, {
-        language: 'en-US',
-        append_to_response: 'videos,credits,similar'
-      });
-    } else if (pathStr.startsWith('tv/')) {
-      const id = pathStr.replace('tv/', '');
-      data = await tmdb(`/tv/${encodeURIComponent(id)}`, {
-        language: 'en-US',
-        append_to_response: 'videos,credits,similar'
-      });
-    } else {
-      return res.status(404).json({ error: 'Endpoint not found' });
-    }
+    const url = new URL(`https://api.themoviedb.org/3${path}`);
+    url.searchParams.set('api_key', apiKey);
+    url.searchParams.set('language', 'en-US');
 
-    return res.status(200).json(data);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+    Object.keys(queryParams).forEach(key => {
+      url.searchParams.set(key, queryParams[key]);
+    });
+
+    const response = await fetch(url.toString());
+    const data = await response.json();
+
+    return res.status(response.status).json(data);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch TMDB data', details: error.message });
   }
 }
