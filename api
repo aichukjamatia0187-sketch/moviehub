@@ -26,4 +26,4 @@ app.get('/api/movie/:id',route(()=>tmdb(`/movie/${encodeURIComponent(req.params.
 app.get('/api/tv/:id',route(()=>tmdb(`/tv/${encodeURIComponent(req.params.id)}`,{language:'en-US',append_to_response:'videos,credits,images'})));
 app.use(express.static(PUBLIC));
 app.get('*',(_req,res)=>res.sendFile(path.join(PUBLIC,'index.html')));
-app.listen(PORT,()=>console.log(`MovieHub running at http://localhost:${PORT}`));
+export default app;
