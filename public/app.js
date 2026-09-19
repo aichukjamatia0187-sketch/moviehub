@@ -1,6 +1,5 @@
 const $=s=>document.querySelector(s);
 const IMG='https://image.tmdb.org/t/p/';
-const KEY='38870ed292ca97bf270c57c4df297771';
 
 const state={trending:[],popular:[],now:[],upcoming:[],tvPopular:[],tvTrending:[],tvToday:[],genres:[],tvGenres:[],hero:null};
 
@@ -9,18 +8,19 @@ const poster=m=>m?.poster_path?IMG+'w500'+m.poster_path:'';
 const backdrop=m=>m?.backdrop_path?IMG+'original'+m.backdrop_path:'';
 const isTV=m=>m?.media_type==='tv'||m?.name!==undefined;
 
-async function api(path, params={}){
+async function api(path, params = {}) {
   try {
-    const tmdbUrl = new URL(`https://api.themoviedb.org/3${path}`);
-    tmdbUrl.searchParams.set('api_key', KEY);
-    tmdbUrl.searchParams.set('language', 'en-US');
-    for (const [k, v] of Object.entries(params)) tmdbUrl.searchParams.set(k, v);
+    const url = new URL('/api', window.location.origin);
+    url.searchParams.set('path', path);
+    
+    for (const [key, value] of Object.entries(params)) {
+      url.searchParams.set(key, value);
+    }
 
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(tmdbUrl.toString())}`;
-    const r = await fetch(proxyUrl);
-    if (!r.ok) throw new Error(`HTTP Error: ${r.status}`);
-    const d = await r.json();
-    return d;
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+    const data = await res.json();
+    return data;
   } catch (err) {
     console.error("API Error:", err);
     throw err;
@@ -50,13 +50,13 @@ function bindCards(root=document){
 }
 
 function setHero(m){
-  if(!m) return;
+  if(!m || (!m.title && !m.name)) return;
   state.hero=m;
   const tv=isTV(m);
   const title=tv?m.name:m.title;
   const date=tv?m.first_air_date:m.release_date;
   
-  if($('#heroTitle')) $('#heroTitle').textContent=title||'Untitled';
+  if($('#heroTitle')) $('#heroTitle').textContent=title;
   if($('#heroOverview')) $('#heroOverview').textContent=m.overview||'No synopsis available.';
   if($('#heroBg') && backdrop(m)) $('#heroBg').style.backgroundImage=`url("${backdrop(m)}")`;
   if($('#heroMeta')) $('#heroMeta').innerHTML=`<span class="score">${m.vote_average?m.vote_average.toFixed(1):'—'}</span><span>★</span><span>${m.vote_count?m.vote_count.toLocaleString():'0'} votes</span><span>${(date||'').slice(0,4)}</span><span>${tv?'TV':'FILM'}</span>`;
@@ -86,7 +86,8 @@ async function load(){
     state.tvToday=ta.results||[];
     state.tvGenres=tg.genres||[];
 
-    setHero(state.trending[0]||state.tvTrending[0]||state.popular[0]||{});
+    const topHero = state.trending[0] || state.popular[0] || state.tvTrending[0];
+    if(topHero) setHero(topHero);
 
     fill('#trendingRail',state.trending,'movie');
     fill('#popularRail',state.popular,'movie');
