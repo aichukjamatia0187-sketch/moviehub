@@ -1,0 +1,29 @@
+import express from 'express';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+const app=express();
+const PORT=process.env.PORT||3000;
+const TOKEN=process.env.TMDB_BEARER_TOKEN;
+const __filename=fileURLToPath(import.meta.url),__dirname=path.dirname(__filename),PUBLIC=path.join(__dirname,'..','public');
+if(!TOKEN||TOKEN.includes('PASTE_YOUR')) console.warn('TMDB_BEARER_TOKEN is not configured. Add it to .env before starting the site.');
+const cache=new Map();
+async function tmdb(endpoint,params={}){const url=new URL(`https://api.themoviedb.org/3${endpoint}`);for(const[k,v]of Object.entries(params))if(v!==undefined&&v!=='')url.searchParams.set(k,v);const key=url.toString();const c=cache.get(key);if(c&&Date.now()-c.time<10*60*1000)return c.data;if(!TOKEN||TOKEN.includes('PASTE_YOUR'))throw new Error('TMDB token is missing');const r=await fetch(url,{headers:{Authorization:`Bearer ${TOKEN}`,accept:'application/json'}});if(!r.ok)throw new Error(`TMDB request failed: ${r.status}`);const data=await r.json();cache.set(key,{time:Date.now(),data});return data;}
+const route=(fn)=>(req,res)=>fn().then(d=>res.json(d)).catch(e=>res.status(500).json({error:e.message}));
+app.get('/api/trending',route(()=>tmdb('/trending/movie/day',{language:'en-US'})));
+app.get('/api/popular',route(()=>tmdb('/movie/popular',{language:'en-US',region:'IN'})));
+app.get('/api/now-playing',route(()=>tmdb('/movie/now_playing',{language:'en-US',region:'IN'})));
+app.get('/api/upcoming',route(()=>tmdb('/movie/upcoming',{language:'en-US',region:'IN'})));
+app.get('/api/genres',route(()=>tmdb('/genre/movie/list',{language:'en-US'})));
+app.get('/api/tv/popular',route(()=>tmdb('/tv/popular',{language:'en-US',region:'IN'})));
+app.get('/api/tv/trending',route(()=>tmdb('/trending/tv/day',{language:'en-US'})));
+app.get('/api/tv/today',route(()=>tmdb('/tv/airing_today',{language:'en-US',region:'IN'})));
+app.get('/api/tv/genres',route(()=>tmdb('/genre/tv/list',{language:'en-US'})));
+app.get('/api/search',route(()=>tmdb('/search/multi',{language:'en-US',include_adult:'false',query:req.query.q||'',page:req.query.page||1,region:'IN'})));
+app.get('/api/movie/:id',route(()=>tmdb(`/movie/${encodeURIComponent(req.params.id)}`,{language:'en-US',append_to_response:'videos,credits,images'})));
+app.get('/api/tv/:id',route(()=>tmdb(`/tv/${encodeURIComponent(req.params.id)}`,{language:'en-US',append_to_response:'videos,credits,images'})));
+app.use(express.static(PUBLIC));
+app.get('*',(_req,res)=>res.sendFile(path.join(PUBLIC,'index.html')));
+app.listen(PORT,()=>console.log(`MovieHub running at http://localhost:${PORT}`));
