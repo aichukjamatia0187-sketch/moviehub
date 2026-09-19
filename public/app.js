@@ -16,9 +16,7 @@ async function api(path, params={}){
     tmdbUrl.searchParams.set('language', 'en-US');
     for (const [k, v] of Object.entries(params)) tmdbUrl.searchParams.set(k, v);
 
-    // Using CORS proxy to bypass browser restrictions
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(tmdbUrl.toString())}`;
-
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(tmdbUrl.toString())}`;
     const r = await fetch(proxyUrl);
     if (!r.ok) throw new Error(`HTTP Error: ${r.status}`);
     const d = await r.json();
