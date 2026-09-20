@@ -33,6 +33,13 @@ function card(m, forcedType){
     </div>
   </article>`;
 }
+function fill(id,arr,type){
+  $(id).innerHTML=arr
+    .filter(x=>x.poster_path)
+    .slice(0,14)
+    .map(x=>card(x,type))
+    .join('')||'<div class="empty">No titles found</div>';
+}
 function bindCards(root=document){root.querySelectorAll('.card[data-id]').forEach(c=>c.onclick=()=>openDetails(c.dataset.id,c.dataset.type))}
 function setHero(m){state.hero=m;const tv=isTV(m);const title=tv?m.name:m.title;const date=tv?m.first_air_date:m.release_date;$('#heroTitle').textContent=title||'Untitled';$('#heroOverview').textContent=m.overview||'No synopsis available.';$('#heroBg').style.backgroundImage=`url("${backdrop(m)}")`;$('#heroMeta').innerHTML=`<span class="score">${m.vote_average?m.vote_average.toFixed(1):'—'}</span><span>★</span><span>${m.vote_count?m.vote_count.toLocaleString():'0'} votes</span><span>${(date||'').slice(0,4)}</span><span>${tv?'TV':'FILM'}</span>`}
 async function load(){try{const [t,p,n,u,g,tp,tt,ta,tg]=await Promise.all([api('/api/trending'),api('/api/popular'),api('/api/now-playing'),api('/api/upcoming'),api('/api/genres'),api('/api/tv/popular'),api('/api/tv/trending'),api('/api/tv/today'),api('/api/tv/genres')]);state.trending=t.results||[];state.popular=p.results||[];state.now=n.results||[];state.upcoming=u.results||[];state.genres=g.genres||[];state.tvPopular=tp.results||[];state.tvTrending=tt.results||[];state.tvToday=ta.results||[];state.tvGenres=tg.genres||[];setHero(state.trending[0]||state.tvTrending[0]||state.popular[0]||{});fill('#trendingRail',state.trending,'movie');fill('#popularRail',state.popular,'movie');fill('#nowRail',state.now,'movie');fill('#upcomingRail',state.upcoming,'movie');fill('#tvPopularRail',state.tvPopular,'tv');fill('#tvTrendingRail',state.tvTrending,'tv');fill('#tvTodayRail',state.tvToday,'tv');const allGenres=[...state.genres,...state.tvGenres.filter(x=>!state.genres.some(g=>g.id===x.id))];$('#genresList').innerHTML=allGenres.map(x=>`<button class="genre" data-genre="${x.id}">${esc(x.name)}</button>`).join('');bindCards();}catch(e){toast('TMDB connection error: '+e.message)}}
