@@ -19,12 +19,7 @@ function card(m, forcedType){
 
       <span class="badge">${tv?'TV':'FILM'}</span>
 
-      <button
-        type="button"
-        class="card-trailer"
-        onclick="event.stopPropagation(); playCardTrailer('${m.id}','${tv?'tv':'movie'}')">
-        WATCH TRAILER
-      </button>
+      
     </div>
 
     <div class="card-info">
@@ -64,7 +59,25 @@ async function playCardTrailer(id,type){
     toast(e.message);
   }
 }
-async function heroAction(){if(!state.hero)return;const type=isTV(state.hero)?'tv':'movie';try{const m=await api(`/api/${type}/${state.hero.id}`);const v=(m.videos?.results||[]).find(x=>x.site==='YouTube'&&x.type==='Trailer')||(m.videos?.results||[]).find(x=>x.site==='YouTube');if(v){openDetails(state.hero.id,type);setTimeout(()=>playTrailer(v.key),80)}else toast('No trailer is listed for this title.')}catch(e){toast(e.message)}}
+async function heroAction(){
+  if(!state.hero)return;
+  const type=isTV(state.hero)?'tv':'movie';
+
+  try{
+    const m=await api(`/api/${type}/${state.hero.id}`);
+    const v=(m.videos?.results||[]).find(x=>x.site==='YouTube'&&x.type==='Trailer')
+      ||(m.videos?.results||[]).find(x=>x.site==='YouTube');
+
+    if(v){
+      await openDetails(state.hero.id,type);
+      playTrailer(v.key);
+    }else{
+      toast('No trailer is listed for this title.');
+    }
+  }catch(e){
+    toast(e.message);
+  }
+}
 $('#trailerBtn').onclick=heroAction;$('#detailsBtn').onclick=()=>state.hero&&openDetails(state.hero.id,isTV(state.hero)?'tv':'movie');$('#modalClose').onclick=()=>{$('#modal').classList.remove('open');$('#modalBox').innerHTML=''};$('#modal').onclick=e=>{if(e.target.id==='modal')$('#modalClose').click()};
 $('#searchBtn').onclick=()=>{$('#searchPanel').classList.add('open');$('#searchInput').focus()};$('#searchClose').onclick=()=>$('#searchPanel').classList.remove('open');
 let timer;$('#searchInput').oninput=()=>{clearTimeout(timer);const q=$('#searchInput').value.trim();if(!q){$('#searchResults').innerHTML='';return}timer=setTimeout(async()=>{try{const d=await api('/api/search?q='+encodeURIComponent(q));$('#searchResults').innerHTML=(d.results||[]).filter(x=>x.poster_path&&(x.media_type==='movie'||x.media_type==='tv')).slice(0,20).map(x=>card(x)).join('');bindCards($('#searchResults'))}catch(e){toast(e.message)}},300)};
