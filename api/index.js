@@ -37,7 +37,13 @@ export default async function handler(req, res) {
     if (!params.has("language")) {
       params.set("language", "en-US");
     }
+if (path.startsWith("movie/providers/")) {
+  path = `movie/${path.split("/")[2]}/watch/providers`;
+}
 
+if (path.startsWith("tv/providers/")) {
+  path = `tv/${path.split("/")[2]}/watch/providers`;
+}
     const url = `https://api.themoviedb.org/3/${path}${
       params.toString() ? "?" + params.toString() : ""
     }`;
