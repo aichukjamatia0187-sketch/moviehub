@@ -7,7 +7,9 @@ dotenv.config();
 const app=express();
 const PORT=process.env.PORT||3000;
 const TOKEN=process.env.TMDB_BEARER_TOKEN;
-const __filename=fileURLToPath(import.meta.url),__dirname=path.dirname(__filename),PUBLIC=path.join(__dirname,'..','public');
+const __filename=fileURLToPath(import.meta.url);
+const __dirname=path.dirname(__filename);
+const PUBLIC=path.join(__dirname,'public');
 if(!TOKEN||TOKEN.includes('PASTE_YOUR')) console.warn('TMDB_BEARER_TOKEN is not configured. Add it to .env before starting the site.');
 const cache=new Map();
 async function tmdb(endpoint,params={}){const url=new URL(`https://api.themoviedb.org/3${endpoint}`);for(const[k,v]of Object.entries(params))if(v!==undefined&&v!=='')url.searchParams.set(k,v);const key=url.toString();const c=cache.get(key);if(c&&Date.now()-c.time<10*60*1000)return c.data;if(!TOKEN||TOKEN.includes('PASTE_YOUR'))throw new Error('TMDB token is missing');const r=await fetch(url,{headers:{Authorization:`Bearer ${TOKEN}`,accept:'application/json'}});if(!r.ok)throw new Error(`TMDB request failed: ${r.status}`);const data=await r.json();cache.set(key,{time:Date.now(),data});return data;}
