@@ -23,6 +23,8 @@ app.get('/api/tv/today',route(()=>tmdb('/tv/airing_today',{language:'en-US',regi
 app.get('/api/tv/genres',route(()=>tmdb('/genre/tv/list',{language:'en-US'})));
 app.get('/api/search',route(()=>tmdb('/search/multi',{language:'en-US',include_adult:'false',query:req.query.q||'',page:req.query.page||1,region:'IN'})));
 app.get('/api/movie/:id',route(()=>tmdb(`/movie/${encodeURIComponent(req.params.id)}`,{language:'en-US',append_to_response:'videos,credits,images'})));
+app.get('/api/movie/providers/:id',route((req)=>tmdb(`/movie/${encodeURIComponent(req.params.id)}/watch/providers`,{watch_region:req.query.watch_region||'IN'})));
+app.get('/api/tv/providers/:id',route((req)=>tmdb(`/tv/${encodeURIComponent(req.params.id)}/watch/providers`,{watch_region:req.query.watch_region||'IN'})));
 app.get('/api/tv/:id',route(()=>tmdb(`/tv/${encodeURIComponent(req.params.id)}`,{language:'en-US',append_to_response:'videos,credits,images'})));
 app.use(express.static(PUBLIC));
 app.get('*',(_req,res)=>res.sendFile(path.join(PUBLIC,'index.html')));
