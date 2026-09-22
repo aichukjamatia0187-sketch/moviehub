@@ -16,6 +16,7 @@ export default async function handler(req, res) {
       "now-playing": "movie/now_playing",
       "upcoming": "movie/upcoming",
       "genres": "genre/movie/list",
+
       "tv/popular": "tv/popular",
       "tv/trending": "trending/tv/day",
       "tv/today": "tv/airing_today",
@@ -29,7 +30,10 @@ export default async function handler(req, res) {
     const params = new URLSearchParams();
 
     for (const [key, value] of Object.entries(req.query)) {
-      if (key !== "path" && value !== undefined) {
+      if (
+        key !== "path" &&
+        value !== undefined
+      ) {
         params.set(key, value);
       }
     }
@@ -37,31 +41,94 @@ export default async function handler(req, res) {
     if (!params.has("language")) {
       params.set("language", "en-US");
     }
-if (path.startsWith("movie/providers/")) {
-  path = `movie/${path.split("/")[2]}/watch/providers`;
-}
 
-if (path.startsWith("tv/providers/")) {
-  path = `tv/${path.split("/")[2]}/watch/providers`;
-}
-    const url = `https://api.themoviedb.org/3/${path}${
-      params.toString() ? "?" + params.toString() : ""
-    }`;
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json"
-      }
-    });
+    /* =========================
+       MOVIE WATCH PROVIDERS
+    ========================= */
 
-    const data = await response.json();
+    if (path.startsWith("movie/providers/")) {
+      const id = path.split("/")[2];
 
-    return res.status(response.status).json(data);
+      path = `movie/${id}/watch/providers`;
+    }
+
+
+    /* =========================
+       TV WATCH PROVIDERS
+    ========================= */
+
+    if (path.startsWith("tv/providers/")) {
+      const id = path.split("/")[2];
+
+      path = `tv/${id}/watch/providers`;
+    }
+
+
+    /* =========================
+       MOVIE / TV DETAILS
+       Add credits + videos
+    ========================= */
+
+    const isMovieDetails =
+      /^movie\/\d+$/.test(path);
+
+    const isTVDetails =
+      /^tv\/\d+$/.test(path);
+
+
+    if (
+      isMovieDetails ||
+      isTVDetails
+    ) {
+      params.set(
+        "append_to_response",
+        "credits,videos"
+      );
+    }
+
+
+    /* =========================
+       TMDB REQUEST
+    ========================= */
+
+    const url =
+      `https://api.themoviedb.org/3/${path}` +
+      (
+        params.toString()
+          ? "?" + params.toString()
+          : ""
+      );
+
+
+    const response =
+      await fetch(url, {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+
+          Accept:
+            "application/json"
+        }
+      });
+
+
+    const data =
+      await response.json();
+
+
+    return res
+      .status(response.status)
+      .json(data);
+
 
   } catch (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+
+    return res
+      .status(500)
+      .json({
+        error: error.message
+      });
+
   }
 }
