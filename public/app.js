@@ -147,23 +147,241 @@ async function openDetails(id,type){
                 <img
                   src="${p.profile_path?IMG+'w185'+p.profile_path:''}"
                   alt="${esc(p.name)}"
-                >
-                <span>${esc(p.name)}</span>
+async function openDetails(id,type){
+  try{
+    const m=await api(`/api/${type==='tv'?'tv':'movie'}/${id}`);
+
+    const tv=type==='tv';
+    const title=tv?m.name:m.title;
+    const date=tv?m.first_air_date:m.release_date;
+
+    const trailer=
+      (m.videos?.results||[]).find(v=>v.site==='YouTube'&&v.type==='Trailer') ||
+      (m.videos?.results||[]).find(v=>v.site==='YouTube');
+
+    const cast=(m.credits?.cast||[]).slice(0,10);
+
+    const runtime=tv
+      ? (m.episode_run_time?.[0]
+          ? m.episode_run_time[0]+' min/episode'
+          : 'Runtime N/A')
+      : (m.runtime
+          ? m.runtime+' min'
+          : 'Runtime N/A');
+
+    let providers=null;
+
+    try{
+      providers=await api(
+        `/api/${tv?'tv':'movie'}/providers/${id}?watch_region=IN`
+      );
+    }catch(e){
+      providers=null;
+    }
+
+    const region=providers?.results?.IN||{};
+
+    const providerList=[
+      ...(region.flatrate||[]),
+      ...(region.free||[]),
+      ...(region.ads||[]),
+      ...(region.rent||[]),
+      ...(region.buy||[])
+    ].filter(
+      (p,i,a)=>a.findIndex(x=>x.provider_id===p.provider_id)===i
+    );
+
+    const watchLink=region.link||'';
+
+    const trailerButton=trailer
+      ? `<button class="btn primary" onclick="playTrailer('${esc(trailer.key)}')">WATCH TRAILER</button>`
+      : '';
+
+    const watchButton=watchLink
+      ? `<a class="btn" href="${esc(watchLink)}" target="_blank" rel="noopener noreferrer">WATCH HERE</a>`
+      : '';
+
+    const providerInfo=providerList.length
+      ? `
+        <div class="watch-providers" style="margin-top:25px">
+          <div class="eyebrow">AVAILABLE ON</div>
+
+          <div style="
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:12px;
+          ">
+            ${providerList.slice(0,8).map(p=>`
+              <div style="
+                display:flex;
+                align-items:center;
+                gap:8px;
+                padding:8px 10px;
+                border:1px solid #302c24;
+                background:#11110f;
+                border-radius:4px;
+              ">
+                ${p.logo_path
+                  ? `<img
+                      src="${IMG+'w92'+p.logo_path}"
+                      alt="${esc(p.provider_name)}"
+                      style="width:28px;height:28px;object-fit:contain"
+                    >`
+                  : ''
+                }
+                <span style="
+                  font:10px var(--mono);
+                  color:#cfc7b8;
+                ">
+                  ${esc(p.provider_name)}
+                </span>
               </div>
             `).join('')}
           </div>
+
+          <small style="
+            display:block;
+            margin-top:10px;
+            color:#777267;
+            font:9px var(--mono);
+          ">
+            Streaming availability powered by JustWatch.
+          </small>
+        </div>
+      `
+      : '';
+
+    $('#modalBox').innerHTML=`
+
+      <div class="details-hero"
+        style="background-image:url('${backdrop(m)}')">
+
+        <div class="details-content">
+
+          <div class="eyebrow">
+            ${tv?'TV SHOW / DRAMA':'FILM'} DETAILS
+          </div>
+
+          <h2>${esc(title)}</h2>
+
+          <div class="meta">
+            <span class="score">
+              ${m.vote_average?.toFixed(1)||'—'}
+            </span>
+
+            <span>★</span>
+
+            <span>
+              ${(date||'').slice(0,4)}
+            </span>
+
+            <span>
+              ${runtime}
+            </span>
+
+            ${
+              tv&&m.number_of_seasons
+                ? `<span>
+                    ${m.number_of_seasons}
+                    season${m.number_of_seasons>1?'s':''}
+                  </span>`
+                : ''
+            }
+          </div>
+
+          <p class="overview">
+            ${esc(m.overview||'No synopsis available.')}
+          </p>
+
+          <div class="actions">
+            ${trailerButton}
+            ${watchButton}
+          </div>
+
+          ${providerInfo}
+
+        </div>
+      </div>
+
+      <div class="details-body">
+
+        <div>
+
+          <h3>Cast</h3>
+
+          <div class="credits">
+
+            ${
+              cast.length
+                ? cast.map(p=>`
+                    <div class="person">
+
+                      ${
+                        p.profile_path
+                          ? `<img
+                              src="${IMG+'w185'+p.profile_path}"
+                              alt="${esc(p.name)}"
+                            >`
+                          : `<div
+                              style="
+                                width:82px;
+                                height:110px;
+                                background:#171715;
+                                display:grid;
+                                place-items:center;
+                                color:#777;
+                                font:9px var(--mono);
+                              "
+                            >
+                              NO PHOTO
+                            </div>`
+                      }
+
+                      <span>${esc(p.name)}</span>
+
+                      ${
+                        p.character
+                          ? `<small style="
+                              display:block;
+                              margin-top:3px;
+                              color:#666;
+                              font-size:9px;
+                            ">
+                              ${esc(p.character)}
+                            </small>`
+                          : ''
+                      }
+
+                    </div>
+                  `).join('')
+                : '<span style="color:#777;font-size:11px">Cast information unavailable.</span>'
+            }
+
+          </div>
+
         </div>
 
         <div class="facts">
 
           <div>
             <b>Genres</b><br>
-            ${(m.genres||[]).map(g=>esc(g.name)).join(' · ')||'—'}
+            ${
+              (m.genres||[])
+                .map(g=>esc(g.name))
+                .join(' · ')||'—'
+            }
           </div>
 
           <div>
             <b>Original title</b><br>
-            ${esc(tv?m.original_name||'—':m.original_title||'—')}
+            ${
+              esc(
+                tv
+                  ? m.original_name||'—'
+                  : m.original_title||'—'
+              )
+            }
           </div>
 
           <div>
@@ -173,15 +391,22 @@ async function openDetails(id,type){
 
           <div>
             <b>Language</b><br>
-            ${esc(m.original_language||'—').toUpperCase()}
+            ${esc(
+              m.original_language||'—'
+            ).toUpperCase()}
           </div>
 
-          ${tv
-            ? `<div>
-                <b>Episodes</b><br>
-                ${m.number_of_episodes||'—'}
-              </div>`
-            : ''}
+          ${
+            tv
+              ? `
+                <div>
+                  <b>Episodes</b><br>
+                  ${m.number_of_episodes||'—'}
+                </div>
+              `
+              : ''
+          }
+
         </div>
 
       </div>
