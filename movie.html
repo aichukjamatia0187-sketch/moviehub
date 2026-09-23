@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#08090d">
+
+  <title>Movie Details — MovieHub</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #08090d;
+      color: #f4f4f6;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+      background: #08090d;
+    }
+
+    /* TOP */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,.82),
+        rgba(0,0,0,0)
+      );
+    }
+
+    .back-btn {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(0,0,0,.45);
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 600px;
+      background: #101217;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center top;
+      filter: brightness(.72);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(8,9,13,.05) 15%,
+          rgba(8,9,13,.30) 42%,
+          #08090d 100%
+        );
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      min-height: 600px;
+      display: flex;
+      align-items: flex-end;
+      padding: 0 24px 42px;
+    }
+
+    .hero-info {
+      width: 100%;
+      max-width: 850px;
+    }
+
+    .poster {
+      width: 130px;
+      height: 190px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      box-shadow: 0 15px 40px rgba(0,0,0,.55);
+    }
+
+    .eyebrow {
+      color: #bfc4d1;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(30px, 7vw, 64px);
+      line-height: 1.02;
+      margin: 0 0 14px;
+      font-weight: 800;
+    }
+
+    .facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      color: #e1e3e8;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .facts span {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .rating {
+      color: #ffd35a;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .action-btn {
+      border: 0;
+      border-radius: 7px;
+      padding: 13px 19px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .trailer-btn {
+      background: white;
+      color: #111;
+    }
+
+    .watch-btn {
+      background: #e5e8f0;
+      color: #111;
+    }
+
+    .overview {
+      max-width: 780px;
+      color: #c9cbd1;
+      line-height: 1.65;
+      font-size: 15px;
+      margin: 0;
+    }
+
+    /* CONTENT */
+    .content {
+      padding: 28px 24px 100px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .section {
+      margin-top: 35px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      margin: 0 0 17px;
+    }
+
+    /* GENRES */
+    .genres {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .genre {
+      padding: 8px 12px;
+      border-radius: 20px;
+      background: #171920;
+      color: #cdd1db;
+      font-size: 13px;
+    }
+
+    /* CAST */
+    .cast-row {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .cast-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cast-card {
+      flex: 0 0 100px;
+    }
+
+    .cast-photo {
+      width: 100px;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 7px;
+      background: #151820;
+    }
+
+    .cast-name {
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 7px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cast-character {
+      color: #8f95a7;
+      font-size: 11px;
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* MORE LIKE THIS */
+    .movies-row {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .movies-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .movie-card {
+      flex: 0 0 145px;
+      cursor: pointer;
+    }
+
+    .movie-poster {
+      width: 145px;
+      height: 215px;
+      object-fit: cover;
+      border-radius: 7px;
+      background: #151820;
+      display: block;
+    }
+
+    .movie-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 8px;
+      line-height: 1.3;
+    }
+
+    .movie-year {
+      color: #8f95a7;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* TRAILERS */
+    .trailer-row {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .trailer-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .trailer-card {
+      flex: 0 0 300px;
+      cursor: pointer;
+    }
+
+    .trailer-thumb {
+      width: 300px;
+      height: 169px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #151820;
+    }
+
+    .trailer-title {
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* LOADING */
+    .loading {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: #9ba1b2;
+      font-size: 16px;
+    }
+
+    /* TRAILER PLAYER */
+    .player {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0,0,0,.94);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .player.active {
+      display: flex;
+    }
+
+    .player-box {
+      width: min(1000px, 100%);
+      aspect-ratio: 16 / 9;
+      position: relative;
+    }
+
+    .player iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 8px;
+    }
+
+    .close-player {
+      position: absolute;
+      right: -2px;
+      top: -48px;
+      width: 40px;
+      height: 40px;
+      border: 0;
+      background: transparent;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+    }
+
+    /* MOBILE */
+    @media (max-width: 600px) {
+
+      .hero {
+        min-height: 590px;
+      }
+
+      .hero-content {
+        min-height: 590px;
+        padding: 0 20px 30px;
+      }
+
+      .poster {
+        width: 105px;
+        height: 155px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      .overview {
+        font-size: 14px;
+      }
+
+      .content {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .movie-card {
+        flex-basis: 135px;
+      }
+
+      .movie-poster {
+        width: 135px;
+        height: 200px;
+      }
+
+      .trailer-card {
+        flex-basis: 270px;
+      }
+
+      .trailer-thumb {
+        width: 270px;
+        height: 152px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="app">
+  <div class="loading">Loading movie...</div>
+</div>
+
+<div id="player" class="player">
+  <div class="player-box">
+    <button class="close-player" onclick="closeTrailer()">×</button>
+    <iframe
+      id="playerFrame"
+      allow="autoplay; encrypted-media; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
+
+<script>
+
+const IMG = "https://image.tmdb.org/t/p/";
+
+const params = new URLSearchParams(location.search);
+
+const id = params.get("id");
+const type = params.get("type") === "tv" ? "tv" : "movie";
+
+function esc(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function poster(path, size = "w500") {
+  return path
+    ? IMG + size + path
+    : "";
+}
+
+function backdrop(path) {
+  return path
+    ? IMG + "original" + path
+    : "";
+}
+
+function year(date) {
+  return date
+    ? date.slice(0, 4)
+    : "—";
+}
+
+function runtimeText(minutes) {
+
+  if (!minutes) return "";
+
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+
+  if (h && m) return `${h}h ${m}m`;
+  if (h) return `${h}h`;
+
+  return `${m}m`;
+}
+
+function getTrailer(videos) {
+
+  const list = videos?.results || [];
+
+  return (
+    list.find(v =>
+      v.site === "YouTube" &&
+      v.type === "Trailer" &&
+      v.official
+    ) ||
+    list.find(v =>
+      v.site === "YouTube" &&
+      v.type === "Trailer"
+    ) ||
+    list.find(v =>
+      v.site === "YouTube" &&
+      v.type === "Teaser"
+    ) ||
+    null
+  );
+}
+
+function providerData(data) {
+
+  const results = data?.results || {};
+
+  return results.IN || results.US || null;
+}
+
+async function getDetails() {
+
+  if (!id) {
+    throw new Error("Movie ID missing");
+  }
+
+  const endpoint =
+    type === "tv"
+      ? `/api/tv/${id}`
+      : `/api/movie/${id}`;
+
+  const providerEndpoint =
+    type === "tv"
+      ? `/api/tv/providers/${id}?watch_region=IN`
+      : `/api/movie/providers/${id}?watch_region=IN`;
+
+  const [detailsResponse, providerResponse] =
+    await Promise.all([
+      fetch(endpoint),
+      fetch(providerEndpoint)
+    ]);
+
+  const details = await detailsResponse.json();
+
+  let providers = null;
+
+  try {
+    const providerDataResponse =
+      await providerResponse.json();
+
+    providers = providerData(providerDataResponse);
+  } catch (_) {}
+
+  return {
+    details,
+    providers
+  };
+}
+
+async function getSimilar() {
+
+  try {
+
+    const endpoint =
+      type === "tv"
+        ? `/api/tv/${id}/similar`
+        : `/api/movie/${id}/similar`;
+
+    const response = await fetch(endpoint);
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+
+    return data.results || [];
+
+  } catch (_) {
+
+    return [];
+
+  }
+}
+
+function renderCast(cast) {
+
+  if (!cast || !cast.length) {
+
+    return `
+      <div style="color:#8f95a7">
+        Cast information unavailable.
+      </div>
+    `;
+
+  }
+
+  return cast
+    .slice(0, 12)
+    .map(person => {
+
+      const image = person.profile_path
+        ? poster(person.profile_path, "w185")
+        : "";
+
+      return `
+        <div class="cast-card">
+
+          ${
+            image
+              ? `<img class="cast-photo"
+                     src="${image}"
+                     alt="${esc(person.name)}">`
+              : `<div class="cast-photo"></div>`
+          }
+
+          <div class="cast-name">
+            ${esc(person.name)}
+          </div>
+
+          <div class="cast-character">
+            ${esc(person.character || "")}
+          </div>
+
+        </div>
+      `;
+
+    })
+    .join("");
+}
+
+function renderSimilar(list) {
+
+  if (!list.length) {
+
+    return `
+      <div style="color:#8f95a7">
+        More movies unavailable.
+      </div>
+    `;
+
+  }
+
+  return list
+    .slice(0, 12)
+    .map(item => {
+
+      const itemType =
+        item.media_type ||
+        type;
+
+      const title =
+        item.title ||
+        item.name ||
+        "Untitled";
+
+      const date =
+        item.release_date ||
+        item.first_air_date ||
+        "";
+
+      return `
+        <div
+          class="movie-card"
+          onclick="openMovie('${item.id}','${itemType}')"
+        >
+
+          ${
+            item.poster_path
+              ? `
+                <img
+                  class="movie-poster"
+                  src="${poster(item.poster_path)}"
+                  alt="${esc(title)}">
+              `
+              : `
+                <div class="movie-poster"></div>
+              `
+          }
+
+          <div class="movie-title">
+            ${esc(title)}
+          </div>
+
+          <div class="movie-year">
+            ${year(date)}
+          </div>
+
+        </div>
+      `;
+
+    })
+    .join("");
+}
+
+function renderTrailers(videos) {
+
+  const list = (videos?.results || [])
+    .filter(v => v.site === "YouTube")
+    .slice(0, 8);
+
+  if (!list.length) {
+
+    return `
+      <div style="color:#8f95a7">
+        No trailers available.
+      </div>
+    `;
+
+  }
+
+  return list
+    .map(video => {
+
+      return `
+        <div
+          class="trailer-card"
+          onclick="playTrailer('${esc(video.key)}')"
+        >
+
+          <img
+            class="trailer-thumb"
+            src="https://img.youtube.com/vi/${encodeURIComponent(video.key)}/hqdefault.jpg"
+            alt="${esc(video.name)}">
+
+          <div class="trailer-title">
+            ${esc(video.name)}
+          </div>
+
+        </div>
+      `;
+
+    })
+    .join("");
+}
+
+function renderProviders(providers) {
+
+  if (!providers) return "";
+
+  const all = [
+    ...(providers.flatrate || []),
+    ...(providers.free || []),
+    ...(providers.ads || []),
+    ...(providers.rent || []),
+    ...(providers.buy || [])
+  ];
+
+  const unique = [];
+
+  for (const item of all) {
+
+    if (!unique.some(x => x.provider_id === item.provider_id)) {
+      unique.push(item);
+    }
+
+  }
+
+  if (!unique.length) return "";
+
+  return `
+    <div class="section">
+
+      <h2 class="section-title">
+        Watch Here
+      </h2>
+
+      <div class="genres">
+
+        ${
+          unique
+            .slice(0, 10)
+            .map(item => `
+              <span class="genre">
+                ${esc(item.provider_name)}
+              </span>
+            `)
+            .join("")
+        }
+
+      </div>
+
+      ${
+        providers.link
+          ? `
+            <div style="margin-top:15px">
+              <a
+                href="${esc(providers.link)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="action-btn watch-btn"
+                style="display:inline-block;text-decoration:none"
+              >
+                ▶ WATCH HERE
+              </a>
+            </div>
+          `
+          : ""
+      }
+
+    </div>
+  `;
+}
+
+async function render() {
+
+  try {
+
+    const [{ details, providers }, similar] =
+      await Promise.all([
+        getDetails(),
+        getSimilar()
+      ]);
+
+    const title =
+      details.title ||
+      details.name ||
+      "Untitled";
+
+    const date =
+      details.release_date ||
+      details.first_air_date ||
+      "";
+
+    const runtime =
+      details.runtime ||
+      (
+        details.episode_run_time &&
+        details.episode_run_time[0]
+      );
+
+    const trailer =
+      getTrailer(details.videos);
+
+    document.title =
+      `${title} — MovieHub`;
+
+    const genres =
+      (details.genres || [])
+        .map(g => `
+          <span class="genre">
+            ${esc(g.name)}
+          </span>
+        `)
+        .join("");
+
+    document.getElementById("app").innerHTML = `
+
+      <div class="page">
+
+        <div class="topbar">
+
+          <button
+            class="back-btn"
+            onclick="goBack()"
+            aria-label="Back">
+            ‹
+          </button>
+
+        </div>
+
+        <section class="hero">
+
+          <div
+            class="hero-bg"
+            style="
+              background-image:
+                url('${backdrop(details.backdrop_path)}')
+            ">
+          </div>
+
+          <div class="hero-content">
+
+            <div class="hero-info">
+
+              ${
+                details.poster_path
+                  ? `
+                    <img
+                      class="poster"
+                      src="${poster(details.poster_path)}"
+                      alt="${esc(title)}">
+                  `
+                  : ""
+              }
+
+              <div class="eyebrow">
+                ${type === "tv" ? "TV SERIES" : "MOVIE"}
+              </div>
+
+              <h1>
+                ${esc(title)}
+              </h1>
+
+              <div class="facts">
+
+                <span class="rating">
+                  ★ ${Number(details.vote_average || 0).toFixed(1)}
+                </span>
+
+                <span>•</span>
+
+                <span>${year(date)}</span>
+
+                ${
+                  runtime
+                    ? `
+                      <span>•</span>
+                      <span>${runtimeText(runtime)}</span>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <div class="actions">
+
+                ${
+                  trailer
+                    ? `
+                      <button
+                        class="action-btn trailer-btn"
+                        onclick="playTrailer('${esc(trailer.key)}')">
+                        ▶ WATCH TRAILER
+                      </button>
+                    `
+                    : ""
+                }
+
+                ${
+                  providers?.link
+                    ? `
+                      <a
+                        href="${esc(providers.link)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="action-btn watch-btn"
+                        style="text-decoration:none">
+                        ▶ WATCH HERE
+                      </a>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <p class="overview">
+                ${esc(details.overview || "Description unavailable.")}
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <main class="content">
+
+          ${
+            genres
+              ? `
+                <section class="section">
+                  <h2 class="section-title">
+                    Genres
+                  </h2>
+
+                  <div class="genres">
+                    ${genres}
+                  </div>
+                </section>
+              `
+              : ""
+          }
+
+          ${renderProviders(providers)}
+
+          <section class="section">
+
+            <h2 class="section-title">
+              Cast
+            </h2>
+
+            <div class="cast-row">
+              ${renderCast(details.credits?.cast)}
+            </div>
+
+          </section>
+
+          <section class="section">
+
+            <h2 class="section-title">
+              More Like This
+            </h2>
+
+            <div class="movies-row">
+              ${renderSimilar(similar)}
+            </div>
+
+          </section>
+
+          <section class="section">
+
+            <h2 class="section-title">
+              Trailers & More
+            </h2>
+
+            <div class="trailer-row">
+              ${renderTrailers(details.videos)}
+            </div>
+
+          </section>
+
+        </main>
+
+      </div>
+
+    `;
+
+  } catch (error) {
+
+    document.getElementById("app").innerHTML = `
+      <div class="loading">
+        Unable to load movie details.
+      </div>
+    `;
+
+    console.error(error);
+
+  }
+
+}
+
+function openMovie(movieId, movieType) {
+
+  location.href =
+    `/movie.html?id=${encodeURIComponent(movieId)}&type=${encodeURIComponent(movieType)}`;
+
+}
+
+function goBack() {
+
+  if (history.length > 1) {
+    history.back();
+  } else {
+    location.href = "/";
+  }
+
+}
+
+function playTrailer(key) {
+
+  if (!key) return;
+
+  const player =
+    document.getElementById("player");
+
+  const frame =
+    document.getElementById("playerFrame");
+
+  frame.src =
+    `https://www.youtube.com/embed/${encodeURIComponent(key)}?autoplay=1&rel=0`;
+
+  player.classList.add("active");
+
+}
+
+function closeTrailer() {
+
+  const player =
+    document.getElementById("player");
+
+  const frame =
+    document.getElementById("playerFrame");
+
+  frame.src = "";
+
+  player.classList.remove("active");
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
