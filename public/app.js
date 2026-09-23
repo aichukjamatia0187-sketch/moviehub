@@ -148,12 +148,20 @@ function bindCards(root = document) {
   root
     .querySelectorAll('.card[data-id]')
     .forEach((c) => {
+
       c.onclick = () => {
-        openDetails(
-          c.dataset.id,
-          c.dataset.type
-        );
+
+        const id =
+          c.dataset.id;
+
+        const type =
+          c.dataset.type || 'movie';
+
+        location.href =
+          `/movie.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+
       };
+
     });
 }
 
