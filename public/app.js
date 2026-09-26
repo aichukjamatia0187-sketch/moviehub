@@ -1453,13 +1453,8 @@ if (genresList) {
     if (!b) return;
 
 
-    location.hash =
-      'genre-' +
-      b.dataset.genre;
-
-  };
-
-}
+    location.href =
+  `/genre.html?id=${encodeURIComponent(b.dataset.genre)}&name=${encodeURIComponent(b.textContent.trim())}`;
 
 
 /* =========================
