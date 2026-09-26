@@ -1455,7 +1455,8 @@ if (genresList) {
 
     location.href =
   `/genre.html?id=${encodeURIComponent(b.dataset.genre)}&name=${encodeURIComponent(b.textContent.trim())}`;
-
+  };
+}
 
 /* =========================
    TOAST
