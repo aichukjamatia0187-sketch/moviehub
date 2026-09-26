@@ -1347,15 +1347,18 @@ if (searchInput) {
 
     clearTimeout(timer);
 
-
     const q =
       searchInput.value.trim();
 
 
     if (!q) {
 
-      $('#searchResults').innerHTML =
-        '';
+      const searchResults =
+        $('#searchResults');
+
+      if (searchResults) {
+        searchResults.innerHTML = '';
+      }
 
       return;
     }
@@ -1366,40 +1369,101 @@ if (searchInput) {
 
         try {
 
-          const d =
-            await api(
-              '/api/search?q=' +
-              encodeURIComponent(q)
-            );
+          /* =========================
+             MOVIE + TV SEARCH
+          ========================= */
+
+          const [movieData, tvData] =
+            await Promise.all([
+
+              api(
+                '/api/search/movie?query=' +
+                encodeURIComponent(q)
+              ),
+
+              api(
+                '/api/search/tv?query=' +
+                encodeURIComponent(q)
+              )
+
+            ]);
 
 
-          const results =
-            (d.results || [])
+          /* =========================
+             MOVIE RESULTS
+          ========================= */
+
+          const movies =
+            (movieData.results || [])
               .filter(
                 (x) =>
-                  x.poster_path &&
-                  (
-                    x.media_type ===
-                      'movie' ||
-                    x.media_type ===
-                      'tv'
-                  )
+                  x.poster_path
               )
-              .slice(0, 20);
+              .map(
+                (x) => ({
+                  ...x,
+                  media_type: 'movie'
+                })
+              );
+
+
+          /* =========================
+             TV RESULTS
+          ========================= */
+
+          const shows =
+            (tvData.results || [])
+              .filter(
+                (x) =>
+                  x.poster_path
+              )
+              .map(
+                (x) => ({
+                  ...x,
+                  media_type: 'tv'
+                })
+              );
+
+
+          /* =========================
+             COMBINE RESULTS
+          ========================= */
+
+          const results = [
+            ...movies,
+            ...shows
+          ];
+
+
+          /* =========================
+             LIMIT RESULTS
+          ========================= */
+
+          const finalResults =
+            results.slice(0, 20);
 
 
           const searchResults =
             $('#searchResults');
+
 
           if (!searchResults) {
             return;
           }
 
 
+          /* =========================
+             SHOW RESULTS
+          ========================= */
+
           searchResults.innerHTML =
-            results
+            finalResults
               .map(
-                (x) => card(x)
+                (x) =>
+                  card(
+                    x,
+                    x.media_type
+                  )
               )
               .join('') ||
 
@@ -1410,12 +1474,22 @@ if (searchInput) {
             `;
 
 
+          /* =========================
+             CARD CLICK
+          ========================= */
+
           bindCards(
             searchResults
           );
 
 
         } catch (e) {
+
+          console.error(
+            'Search error:',
+            e
+          );
+
 
           toast(
             'Search error: ' +
@@ -1431,7 +1505,6 @@ if (searchInput) {
   };
 
 }
-
 
 /* =========================
    GENRE BUTTONS
