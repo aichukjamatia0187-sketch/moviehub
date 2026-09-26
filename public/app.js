@@ -1298,214 +1298,368 @@ if (modal) {
 }
 
 
-/* =========================
-   SEARCH
+ /* =========================
+   PREMIUM SEARCH
 ========================= */
 
-const searchBtn =
-  $('#searchBtn');
+const searchBtn = $('#searchBtn');
+const searchPanel = $('#searchPanel');
+const searchInput = $('#searchInput');
+const searchSubmit = $('#searchSubmit');
+const searchClose = $('#searchClose');
+const searchResults = $('#searchResults');
+
+let searchMovies = [];
+let searchTV = [];
+let currentSearchFilter = 'all';
+
+
+/* OPEN SEARCH */
 
 if (searchBtn) {
 
   searchBtn.onclick = () => {
 
-    $('#searchPanel')
-      ?.classList.add('open');
+    searchPanel?.classList.add('open');
 
-    $('#searchInput')
-      ?.focus();
+    setTimeout(() => {
+      searchInput?.focus();
+    }, 250);
 
   };
 
 }
 
 
-const searchClose =
-  $('#searchClose');
+/* CLOSE SEARCH */
+
+function closeSearch() {
+
+  searchPanel?.classList.remove('open');
+
+  if (searchInput) {
+    searchInput.value = '';
+  }
+
+  if (searchResults) {
+    searchResults.innerHTML = '';
+  }
+
+  searchMovies = [];
+  searchTV = [];
+
+  currentSearchFilter = 'all';
+
+  document
+    .querySelectorAll('.search-filter')
+    .forEach((btn) => {
+
+      btn.classList.toggle(
+        'active',
+        btn.dataset.filter === 'all'
+      );
+
+    });
+
+}
+
 
 if (searchClose) {
 
-  searchClose.onclick = () => {
-
-    $('#searchPanel')
-      ?.classList.remove('open');
-
-  };
+  searchClose.onclick = closeSearch;
 
 }
 
 
-let timer;
+/* ESC KEY */
+
+document.addEventListener('keydown', (e) => {
+
+  if (
+    e.key === 'Escape' &&
+    searchPanel?.classList.contains('open')
+  ) {
+
+    closeSearch();
+
+  }
+
+});
 
 
-const searchInput =
-  $('#searchInput');
+/* SKELETON */
+
+function showSearchSkeleton() {
+
+  if (!searchResults) return;
+
+  searchResults.innerHTML = '';
+
+  for (let i = 0; i < 12; i++) {
+
+    const skeleton =
+      document.createElement('div');
+
+    skeleton.className =
+      'search-skeleton';
+
+    skeleton.style.setProperty(
+      '--i',
+      i
+    );
+
+    searchResults.appendChild(
+      skeleton
+    );
+
+  }
+
+}
+
+
+/* RENDER SEARCH RESULTS */
+
+function renderSearchResults() {
+
+  if (!searchResults) return;
+
+  let results = [];
+
+  if (currentSearchFilter === 'movie') {
+
+    results = searchMovies;
+
+  } else if (currentSearchFilter === 'tv') {
+
+    results = searchTV;
+
+  } else {
+
+    results = [
+      ...searchMovies,
+      ...searchTV
+    ];
+
+  }
+
+
+  results = results
+    .filter((x) => x.poster_path)
+    .slice(0, 30);
+
+
+  if (!results.length) {
+
+    searchResults.innerHTML = `
+      <div
+        class="empty"
+        style="
+          grid-column:1/-1;
+          height:180px;
+        "
+      >
+        NO RESULTS FOUND
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  searchResults.innerHTML =
+    results
+      .map((x, index) => {
+
+        return `
+          <div style="--i:${index}">
+            ${card(
+              x,
+              x.media_type
+            )}
+          </div>
+        `;
+
+      })
+      .join('');
+
+
+  bindCards(searchResults);
+
+}
+
+
+/* SEARCH */
+
+async function performSearch() {
+
+  if (!searchInput) return;
+
+  const q =
+    searchInput.value.trim();
+
+  if (!q) {
+
+    searchInput.focus();
+
+    toast(
+      'Type a movie or TV show name first.'
+    );
+
+    return;
+
+  }
+
+
+  showSearchSkeleton();
+
+
+  try {
+
+    const [
+      movieData,
+      tvData
+    ] = await Promise.all([
+
+      api(
+        '/api/search/movie?query=' +
+        encodeURIComponent(q)
+      ),
+
+      api(
+        '/api/search/tv?query=' +
+        encodeURIComponent(q)
+      )
+
+    ]);
+
+
+    searchMovies =
+      (movieData.results || [])
+        .filter(
+          (x) => x.poster_path
+        )
+        .map(
+          (x) => ({
+            ...x,
+            media_type: 'movie'
+          })
+        );
+
+
+    searchTV =
+      (tvData.results || [])
+        .filter(
+          (x) => x.poster_path
+        )
+        .map(
+          (x) => ({
+            ...x,
+            media_type: 'tv'
+          })
+        );
+
+
+    renderSearchResults();
+
+
+  } catch (e) {
+
+    console.error(
+      'Search error:',
+      e
+    );
+
+    if (searchResults) {
+
+      searchResults.innerHTML = `
+        <div
+          class="empty"
+          style="
+            grid-column:1/-1;
+            height:180px;
+          "
+        >
+          SEARCH ERROR
+        </div>
+      `;
+
+    }
+
+    toast(
+      'Search error: ' +
+      e.message
+    );
+
+  }
+
+}
+
+
+/* SEARCH BUTTON */
+
+if (searchSubmit) {
+
+  searchSubmit.onclick =
+    performSearch;
+
+}
+
+
+/* ENTER TO SEARCH */
 
 if (searchInput) {
 
-  searchInput.oninput = () => {
+  searchInput.onkeydown =
+    (e) => {
 
-    clearTimeout(timer);
+      if (
+        e.key === 'Enter'
+      ) {
 
-    const q =
-      searchInput.value.trim();
+        e.preventDefault();
 
+        performSearch();
 
-    if (!q) {
-
-      const searchResults =
-        $('#searchResults');
-
-      if (searchResults) {
-        searchResults.innerHTML = '';
       }
 
-      return;
-    }
-
-
-    timer = setTimeout(
-      async () => {
-
-        try {
-
-          /* =========================
-             MOVIE + TV SEARCH
-          ========================= */
-
-          const [movieData, tvData] =
-            await Promise.all([
-
-              api(
-                '/api/search/movie?query=' +
-                encodeURIComponent(q)
-              ),
-
-              api(
-                '/api/search/tv?query=' +
-                encodeURIComponent(q)
-              )
-
-            ]);
-
-
-          /* =========================
-             MOVIE RESULTS
-          ========================= */
-
-          const movies =
-            (movieData.results || [])
-              .filter(
-                (x) =>
-                  x.poster_path
-              )
-              .map(
-                (x) => ({
-                  ...x,
-                  media_type: 'movie'
-                })
-              );
-
-
-          /* =========================
-             TV RESULTS
-          ========================= */
-
-          const shows =
-            (tvData.results || [])
-              .filter(
-                (x) =>
-                  x.poster_path
-              )
-              .map(
-                (x) => ({
-                  ...x,
-                  media_type: 'tv'
-                })
-              );
-
-
-          /* =========================
-             COMBINE RESULTS
-          ========================= */
-
-          const results = [
-            ...movies,
-            ...shows
-          ];
-
-
-          /* =========================
-             LIMIT RESULTS
-          ========================= */
-
-          const finalResults =
-            results.slice(0, 20);
-
-
-          const searchResults =
-            $('#searchResults');
-
-
-          if (!searchResults) {
-            return;
-          }
-
-
-          /* =========================
-             SHOW RESULTS
-          ========================= */
-
-          searchResults.innerHTML =
-            finalResults
-              .map(
-                (x) =>
-                  card(
-                    x,
-                    x.media_type
-                  )
-              )
-              .join('') ||
-
-            `
-              <div class="empty">
-                No results found
-              </div>
-            `;
-
-
-          /* =========================
-             CARD CLICK
-          ========================= */
-
-          bindCards(
-            searchResults
-          );
-
-
-        } catch (e) {
-
-          console.error(
-            'Search error:',
-            e
-          );
-
-
-          toast(
-            'Search error: ' +
-            e.message
-          );
-
-        }
-
-      },
-      300
-    );
-
-  };
+    };
 
 }
 
+
+/* FILTER BUTTONS */
+
+document
+  .querySelectorAll('.search-filter')
+  .forEach((btn) => {
+
+    btn.onclick = () => {
+
+      currentSearchFilter =
+        btn.dataset.filter ||
+        'all';
+
+
+      document
+        .querySelectorAll(
+          '.search-filter'
+        )
+        .forEach((item) => {
+
+          item.classList.toggle(
+            'active',
+            item === btn
+          );
+
+        });
+
+
+      renderSearchResults();
+
+    };
+
+  });
 /* =========================
    GENRE BUTTONS
 ========================= */
