@@ -20,7 +20,9 @@ export default async function handler(req, res) {
       "tv/popular": "tv/popular",
       "tv/trending": "trending/tv/day",
       "tv/today": "tv/airing_today",
-      "tv/genres": "genre/tv/list"
+      "tv/genres": "genre/tv/list",
+   "search/movie": "search/movie",
+"search/tv": "search/tv"
     };
 
     if (routeMap[path]) {
