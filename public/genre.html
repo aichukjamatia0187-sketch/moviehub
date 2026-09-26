@@ -11,7 +11,8 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       background: #08090d;
@@ -132,6 +133,7 @@
       place-items: center;
       color: #777d8b;
       font-size: 13px;
+      grid-column: 1 / -1;
     }
 
     .load-more {
@@ -213,15 +215,19 @@
       <h1 id="genreTitle">Genre</h1>
 
       <p class="subtitle" id="subtitle">
-        Discover movies in this genre.
+        Discover titles in this genre.
       </p>
     </section>
 
     <div id="movieGrid" class="grid">
-      <div class="loading">Loading movies...</div>
+      <div class="loading">Loading...</div>
     </div>
 
-    <button id="loadMore" class="load-more" style="display:none">
+    <button
+      id="loadMore"
+      class="load-more"
+      style="display:none"
+    >
       LOAD MORE
     </button>
 
@@ -229,67 +235,141 @@
 </div>
 
 <script>
-  const IMG = "https://image.tmdb.org/t/p/";
 
-  const params = new URLSearchParams(location.search);
+  const IMG =
+    "https://image.tmdb.org/t/p/";
 
-  const genreId = params.get("id");
-  const genreName = params.get("name") || "Genre";
+  const params =
+    new URLSearchParams(location.search);
+
+  const genreId =
+    params.get("id");
+
+  const genreName =
+    params.get("name") || "Genre";
+
+
+  /*
+    =========================
+    TV GENRE IDS
+    =========================
+  */
+
+  const tvGenreIds = new Set([
+    "10759", // Action & Adventure
+    "10762", // Kids
+    "10763", // News
+    "10764", // Reality
+    "10765", // Sci-Fi & Fantasy
+    "10766", // Soap
+    "10767", // Talk
+    "10768"  // War & Politics
+  ]);
+
+
+  const isTV =
+    tvGenreIds.has(String(genreId));
+
 
   let currentPage = 1;
+
   let totalPages = 1;
 
-  const grid = document.getElementById("movieGrid");
-  const title = document.getElementById("genreTitle");
-  const subtitle = document.getElementById("subtitle");
-  const loadMore = document.getElementById("loadMore");
 
-  title.textContent = genreName;
+  const grid =
+    document.getElementById("movieGrid");
+
+  const title =
+    document.getElementById("genreTitle");
+
+  const subtitle =
+    document.getElementById("subtitle");
+
+  const loadMore =
+    document.getElementById("loadMore");
+
+
+  title.textContent =
+    genreName;
+
 
   subtitle.textContent =
-    `Explore ${genreName.toLowerCase()} movies on MovieHub.`;
+    isTV
+      ? `Explore ${genreName.toLowerCase()} TV shows on MovieHub.`
+      : `Explore ${genreName.toLowerCase()} movies on MovieHub.`;
 
-  document.title = `${genreName} Movies — MovieHub`;
+
+  document.title =
+    `${genreName} ${isTV ? "TV Shows" : "Movies"} — MovieHub`;
+
 
   function esc(value) {
+
     return String(value ?? "")
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+
   }
 
+
   function poster(path) {
+
     return path
       ? IMG + "w500" + path
       : "";
+
   }
 
+
+  function getTitle(item) {
+
+    return isTV
+      ? item.name || "Untitled"
+      : item.title || "Untitled";
+
+  }
+
+
+  function getDate(item) {
+
+    return isTV
+      ? item.first_air_date
+      : item.release_date;
+
+  }
+
+
   function year(date) {
+
     return date
       ? date.slice(0, 4)
       : "—";
+
   }
 
-  function movieCard(movie) {
-    const title =
-      movie.title ||
-      "Untitled";
+
+  function movieCard(item) {
+
+    const itemTitle =
+      getTitle(item);
 
     return `
+
       <article
         class="card"
-        onclick="openMovie(${movie.id})"
+        onclick="openTitle(${item.id})"
       >
 
         ${
-          movie.poster_path
+          item.poster_path
             ? `
               <img
                 class="poster"
-                src="${poster(movie.poster_path)}"
-                alt="${esc(title)}"
+                src="${poster(item.poster_path)}"
+                alt="${esc(itemTitle)}"
                 loading="lazy"
               >
             `
@@ -299,107 +379,171 @@
         }
 
         <div class="title">
-          ${esc(title)}
+          ${esc(itemTitle)}
         </div>
 
         <div class="meta">
-          ${year(movie.release_date)}
+
+          ${year(getDate(item))}
 
           ${
-            movie.vote_average
+            item.vote_average
               ? `
                 <span class="rating">
-                  ★ ${Number(movie.vote_average).toFixed(1)}
+                  ★ ${Number(item.vote_average).toFixed(1)}
                 </span>
               `
               : ""
           }
+
         </div>
 
       </article>
+
     `;
+
   }
 
-  async function loadMovies(page = 1) {
+
+  async function loadTitles(page = 1) {
 
     if (!genreId) {
+
       grid.innerHTML =
         `<div class="empty">Genre not found.</div>`;
+
       return;
     }
+
 
     try {
 
       if (page === 1) {
+
         grid.innerHTML =
-          `<div class="loading">Loading movies...</div>`;
+          `<div class="loading">Loading...</div>`;
+
       }
 
-      const response = await fetch(
-        `/api/discover/movie?with_genres=${encodeURIComponent(genreId)}&page=${page}&sort_by=popularity.desc`
-      );
+
+      const endpoint =
+        isTV
+          ? "/api/discover/tv"
+          : "/api/discover/movie";
+
+
+      const response =
+        await fetch(
+          `${endpoint}?with_genres=${encodeURIComponent(genreId)}&page=${page}&sort_by=popularity.desc`
+        );
+
 
       if (!response.ok) {
-        throw new Error("Unable to load movies.");
+
+        throw new Error(
+          "Unable to load titles."
+        );
+
       }
 
-      const data = await response.json();
 
-      const movies =
+      const data =
+        await response.json();
+
+
+      const titles =
         (data.results || [])
-          .filter(movie => movie.poster_path);
+          .filter(item => item.poster_path);
+
 
       totalPages =
         data.total_pages || 1;
 
+
       if (page === 1) {
+
         grid.innerHTML = "";
+
       }
 
-      if (!movies.length && page === 1) {
+
+      if (
+        !titles.length &&
+        page === 1
+      ) {
+
         grid.innerHTML =
-          `<div class="empty">No movies found.</div>`;
-        loadMore.style.display = "none";
+          `<div class="empty">No titles found.</div>`;
+
+        loadMore.style.display =
+          "none";
+
         return;
       }
 
+
       grid.insertAdjacentHTML(
         "beforeend",
-        movies.map(movieCard).join("")
+        titles.map(movieCard).join("")
       );
 
-      currentPage = page;
+
+      currentPage =
+        page;
+
 
       loadMore.style.display =
         currentPage < totalPages
           ? "block"
           : "none";
 
+
     } catch (error) {
 
       console.error(error);
 
+
       if (page === 1) {
+
         grid.innerHTML =
-          `<div class="empty">Unable to load movies.</div>`;
+          `<div class="empty">Unable to load titles.</div>`;
+
       }
 
-      loadMore.style.display = "none";
+
+      loadMore.style.display =
+        "none";
+
     }
+
   }
 
-  function openMovie(id) {
+
+  function openTitle(id) {
+
     location.href =
-      `/movie.html?id=${encodeURIComponent(id)}&type=movie`;
+      `/movie.html?id=${encodeURIComponent(id)}&type=${isTV ? "tv" : "movie"}`;
+
   }
+
 
   loadMore.onclick = () => {
-    if (currentPage < totalPages) {
-      loadMovies(currentPage + 1);
+
+    if (
+      currentPage < totalPages
+    ) {
+
+      loadTitles(
+        currentPage + 1
+      );
+
     }
+
   };
 
-  loadMovies();
+
+  loadTitles();
+
 </script>
 
 </body>
