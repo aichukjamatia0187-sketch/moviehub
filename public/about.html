@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08090d">
+
+  <title>About — MovieHub</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #08090d;
+      color: #f5f5f5;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 90px;
+    }
+
+    .logo {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      text-decoration: none;
+      letter-spacing: -.5px;
+    }
+
+    .back {
+      color: #9da1ad;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .back:hover {
+      color: #fff;
+    }
+
+    .eyebrow {
+      color: #777d8b;
+      font-size: 11px;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 8vw, 72px);
+      line-height: .98;
+      letter-spacing: -2px;
+    }
+
+    .intro {
+      max-width: 650px;
+      margin-top: 28px;
+      color: #aeb3bf;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .line {
+      height: 1px;
+      background: #24262d;
+      margin: 70px 0;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .text {
+      max-width: 680px;
+      color: #8f95a3;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .tmdb-box {
+      margin-top: 35px;
+      padding: 22px;
+      border: 1px solid #24262d;
+      background: #0c0e13;
+      border-radius: 8px;
+    }
+
+    .tmdb-title {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .tmdb-text {
+      color: #8f95a3;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .footer {
+      margin-top: 100px;
+      padding-top: 25px;
+      border-top: 1px solid #1d1f25;
+    }
+
+    .footer a {
+      color: #777d8b;
+      text-decoration: none;
+      font-size: 12px;
+      margin-right: 20px;
+    }
+
+    .footer a:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        padding: 20px;
+      }
+
+      .top {
+        margin-bottom: 65px;
+      }
+
+      h1 {
+        letter-spacing: -1.5px;
+      }
+
+      .intro {
+        font-size: 14px;
+      }
+
+      .line {
+        margin: 55px 0;
+      }
+
+      .footer {
+        margin-top: 70px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="page">
+    <div class="container">
+
+      <header class="top">
+        <a class="logo" href="/">MovieHub</a>
+        <a class="back" href="/">← Back</a>
+      </header>
+
+      <section>
+        <div class="eyebrow">About MovieHub</div>
+
+        <h1>Discover.<br>Watch.<br>Enjoy.</h1>
+
+        <p class="intro">
+          MovieHub is a movie and TV discovery platform built to make
+          finding movies, shows, trailers, ratings, cast and more simple
+          and enjoyable.
+        </p>
+      </section>
+
+      <div class="line"></div>
+
+      <section>
+        <h2 class="section-title">Movie & TV Information</h2>
+
+        <p class="text">
+          MovieHub uses The Movie Database (TMDB) API to provide movie,
+          TV show and related information.
+        </p>
+
+        <div class="tmdb-box">
+          <div class="tmdb-title">TMDB Attribution</div>
+
+          <div class="tmdb-text">
+            This product uses the TMDB API but is not endorsed or certified by TMDB.
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <a href="/">Home</a>
+        <a href="/privacy.html">Privacy</a>
+      </footer>
+
+    </div>
+  </main>
+
+</body>
+</html>
