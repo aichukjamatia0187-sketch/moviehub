@@ -461,7 +461,85 @@
   </div>
 </footer>
 
-  <div class="search" id="searchPanel"><div class="search-top"><input id="searchInput" placeholder="Search movies, TV shows & dramas…" autocomplete="off"><button class="close" id="searchClose">×</button></div><div class="results" id="searchResults"></div></div>
+  <div class="search" id="searchPanel">
+
+  <div class="search-top">
+
+    <input
+      id="searchInput"
+      type="search"
+      placeholder="Search movies, TV shows & dramas…"
+      autocomplete="off"
+      aria-label="Search movies, TV shows and dramas"
+    >
+
+    <button
+      class="search-submit"
+      id="searchSubmit"
+      type="button"
+    >
+      SEARCH
+    </button>
+
+    <button
+      class="close"
+      id="searchClose"
+      type="button"
+      aria-label="Close search"
+    >
+      ×
+    </button>
+
+  </div>
+
+  <div class="search-heading">
+    <div class="search-kicker">
+      MOVIEHUB SEARCH
+    </div>
+
+    <h2>
+      Find something to watch
+    </h2>
+  </div>
+
+  <div class="search-filters">
+
+    <button
+      class="search-filter active"
+      data-filter="all"
+      type="button"
+    >
+      ALL
+    </button>
+
+    <button
+      class="search-filter"
+      data-filter="movie"
+      type="button"
+    >
+      MOVIES
+    </button>
+
+    <button
+      class="search-filter"
+      data-filter="tv"
+      type="button"
+    >
+      TV SHOWS
+    </button>
+
+  </div>
+
+  <div
+    class="results"
+    id="searchResults"
+  ></div>
+
+  <div class="search-hint">
+    PRESS ENTER TO SEARCH · SELECT A TITLE FOR DETAILS
+  </div>
+
+</div>
   <div class="modal" id="modal"><div class="modal-box" id="modalBox"></div><button class="modal-close" id="modalClose">×</button></div>
   <div class="toast" id="toast"></div>
   <script src="app.js"></script>
