@@ -477,7 +477,7 @@ setHero(hero);
     if (loading) {
       loading.style.display = 'none';
     }
-
+console.log('MovieHub LOAD FINISHED');
 
     /* Check if any request failed */
 
