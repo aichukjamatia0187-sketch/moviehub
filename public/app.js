@@ -234,6 +234,63 @@ function setHero(m) {
   }
 }
 
+}
+
+
+/* =========================
+   HERO AUTOPLAY TRAILER
+========================= */
+
+async function loadHeroTrailer(m) {
+  const heroVideo = $('#heroVideo');
+  const heroVideoFrame = $('#heroVideoFrame');
+
+  if (!m || !heroVideo || !heroVideoFrame) return;
+
+  try {
+    const tv = isTV(m);
+
+    const details = await api(
+      tv
+        ? `/api/tv/${m.id}`
+        : `/api/movie/${m.id}`
+    );
+
+    const videos =
+      details?.videos?.results || [];
+
+    const trailer =
+      videos.find(v =>
+        v.site === 'YouTube' &&
+        v.type === 'Trailer'
+      ) ||
+      videos.find(v =>
+        v.site === 'YouTube'
+      );
+
+    if (!trailer?.key) return;
+
+    const videoId = trailer.key;
+
+    heroVideoFrame.src =
+      `https://www.youtube.com/embed/${encodeURIComponent(videoId)}` +
+      `?autoplay=1` +
+      `&mute=1` +
+      `&controls=0` +
+      `&rel=0` +
+      `&playsinline=1` +
+      `&loop=1` +
+      `&playlist=${encodeURIComponent(videoId)}`;
+
+    heroVideo.classList.add('active');
+
+  } catch (error) {
+    console.warn(
+      'Hero trailer could not be loaded:',
+      error
+    );
+  }
+}
 
 /* =========================
    HOME DATA
