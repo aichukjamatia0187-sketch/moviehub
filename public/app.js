@@ -375,12 +375,11 @@ async function load() {
 
     /* HERO */
 
-    setHero(
-      state.trending[0] ||
-      state.tvTrending[0] ||
-      state.popular[0] ||
-      {}
-    );
+    const hero = state.trending[0] || state.tvTrending[0] || state.popular[0] || {};
+
+setHero(hero);
+
+loadHeroTrailer(hero).catch(console.warn);
 
 
     /* MOVIES */
