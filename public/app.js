@@ -234,8 +234,6 @@ function setHero(m) {
   }
 }
 
-}
-
 
 /* =========================
    HERO AUTOPLAY TRAILER
