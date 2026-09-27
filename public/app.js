@@ -379,7 +379,7 @@ async function load() {
 
 setHero(hero);
 
-loadHeroTrailer(hero).catch(console.warn);
+// loadHeroTrailer(hero).catch(console.warn);
 
 
     /* MOVIES */
