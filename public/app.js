@@ -290,7 +290,6 @@ async function loadHeroTrailer(m) {
       error
     );
   }
-}
 
 /* =========================
    HOME DATA
