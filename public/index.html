@@ -554,174 +554,7 @@
 }
 
 /* body */
-.mascot-body{
-  position:absolute;
-  width:52px;
-  height:48px;
-  left:34px;
-  top:61px;
-  background:#171716;
-  border-radius:18px 18px 14px 14px;
-  box-shadow:
-    0 8px 20px rgba(0,0,0,.45);
-}
 
-/* arms */
-
-.mascot-arm{
-  position:absolute;
-  width:13px;
-  height:38px;
-  top:66px;
-  background:#d8d8d2;
-  border-radius:10px;
-}
-
-.arm-left{
-  left:20px;
-  transform:rotate(18deg);
-}
-
-.arm-right{
-  right:20px;
-  transform:rotate(-18deg);
-}
-
-/* legs */
-
-.mascot-leg{
-  position:absolute;
-  width:14px;
-  height:32px;
-  top:101px;
-  background:#171716;
-  border-radius:0 0 10px 10px;
-}
-
-.leg-left{
-  left:39px;
-  transform:rotate(5deg);
-}
-
-.leg-right{
-  right:39px;
-  transform:rotate(-5deg);
-}
-
-/* film reel */
-
-.film-reel{
-  position:absolute;
-  width:38px;
-  height:38px;
-  right:0;
-  top:34px;
-  border:4px solid #d8d8d2;
-  border-radius:50%;
-  animation:reelSpin 2.8s linear infinite;
-}
-
-.film-reel:before,
-.film-reel:after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:7px;
-  background:#080807;
-  border-radius:50%;
-}
-
-.film-reel:before{
-  left:7px;
-  top:7px;
-  box-shadow:
-    14px 0 #080807,
-    7px 14px #080807;
-}
-
-.film-reel:after{
-  width:6px;
-  height:6px;
-  left:12px;
-  top:12px;
-  background:#d8d8d2;
-}
-
-/* loading text */
-
-.loader-title{
-  color:#f2f2ed;
-  font-size:14px;
-  font-weight:700;
-  letter-spacing:4px;
-  margin-bottom:14px;
-}
-
-.loader-subtitle{
-  color:#777773;
-  font-size:10px;
-  letter-spacing:2px;
-  text-transform:uppercase;
-}
-
-/* loading line */
-
-.loader-progress{
-  width:170px;
-  height:2px;
-  margin:18px auto 0;
-  background:#222220;
-  overflow:hidden;
-  border-radius:10px;
-}
-
-.loader-progress span{
-  display:block;
-  width:45%;
-  height:100%;
-  background:#d8d8d2;
-  animation:loaderProgress 1.5s ease-in-out infinite;
-}
-
-/* animations */
-
-@keyframes mascotFloat{
-  0%,100%{
-    transform:translateY(0);
-  }
-
-  50%{
-    transform:translateY(-7px);
-  }
-}
-
-@keyframes reelSpin{
-  to{
-    transform:rotate(360deg);
-  }
-}
-
-@keyframes loaderProgress{
-  0%{
-    transform:translateX(-120%);
-  }
-
-  100%{
-    transform:translateX(360%);
-  }
-}
-
-@keyframes loaderFadeIn{
-  from{
-    opacity:0;
-    transform:translateY(8px);
-  }
-
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
 .mascot-body{
   position:absolute;
   width:55px;
@@ -897,7 +730,30 @@
   </style>
 </head>
 <body>
+ <!-- MovieHub Loading Screen -->
+<div id="movieLoader" class="movie-loader">
+  <div class="loader-scene">
 
+    <div class="movie-mascot">
+      <div class="mascot-head">
+        <span class="eye eye-left"></span>
+        <span class="eye eye-right"></span>
+        <span class="mouth"></span>
+      </div>
+
+      <div class="mascot-body"></div>
+
+      <div class="arm arm-left"></div>
+      <div class="arm arm-right"></div>
+
+      <div class="film-reel">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <i></i>
+      </div>
+    </div>
 
     <div class="loader-brand">
       MOVIE<b>HUB</b>
@@ -929,11 +785,13 @@
   <div class="hero-content">
     <div class="eyebrow">IN THE SPOTLIGHT</div>
 
-    <h1 id="heroTitle"></h1>
+    <h1 id="heroTitle">Loading…</h1>
 
     <div class="meta" id="heroMeta"></div>
 
-    <p class="overview" id="heroOverview"></p>
+    <p class="overview" id="heroOverview">
+      Loading movie information…
+    </p>
 
     <div class="actions">
       <button class="btn primary" id="trailerBtn">WATCH TRAILER</button>
