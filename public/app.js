@@ -1881,22 +1881,30 @@ window.playCardTrailer =
    START MOVIEHUB
 ========================= */
 
-load().finally(() => {
+/* =========================
+   START MOVIEHUB
+========================= */
 
+async function startMovieHub() {
   const movieLoader =
     document.getElementById('movieLoader');
 
-  if (!movieLoader) return;
+  try {
+    await load();
 
-  /*
-    Animated MovieHub loader stays visible
-    until homepage data has been rendered.
-  */
+    // Movies/hero/sections render hone ke baad
+    // hi main animated loader hide hoga.
+    if (movieLoader) {
+      movieLoader.classList.add('hide');
 
-  movieLoader.classList.add('hide');
+      setTimeout(() => {
+        movieLoader.remove();
+      }, 500);
+    }
 
-  setTimeout(() => {
-    movieLoader.remove();
-  }, 500);
+  } catch (error) {
+    console.error('MovieHub startup error:', error);
+  }
+}
 
-});
+startMovieHub();
