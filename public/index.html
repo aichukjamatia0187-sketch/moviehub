@@ -487,6 +487,246 @@
     .toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#e1bd73;color:#18140b;padding:12px 18px;border-radius:3px;font:500 10px var(--mono);letter-spacing:.06em;z-index:200;display:none}.toast.show{display:block}
     footer{border-top:1px solid #211f1a;padding:30px 4vw;color:#777267;font:10px var(--mono);display:flex;justify-content:space-between;gap:20px}.tmdb{color:#aaa}
     @media(max-width:700px){.top{height:62px;padding:0 20px}.brand{font-size:20px}.nav{display:none}.hero{height:690px;min-height:690px}.hero-content{padding:0 20px 45px}.hero h1{font-size:49px}.overview{font-size:13px}.section{padding:0 20px;margin-top:42px}.section h2{font-size:28px}.card{flex-basis:145px}.poster{height:215px}.details-body{grid-template-columns:1fr;padding:0 20px 30px}.details-content{padding:60px 20px 35px}.details-content h2{font-size:38px}.results{grid-template-columns:repeat(3,1fr);gap:10px}.results .poster{height:180px}.search{padding:50px 15px}.actions{flex-wrap:wrap}}
+  /* ==============================
+   MOVIEHUB CINEMATIC LOADER
+================================ */
+
+.movie-loader{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:#080807;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.loader-scene{
+  width:220px;
+  text-align:center;
+  position:relative;
+  animation:loaderFadeIn .7s ease both;
+}
+
+.movie-mascot{
+  width:120px;
+  height:125px;
+  margin:0 auto 22px;
+  position:relative;
+  animation:mascotFloat 2.2s ease-in-out infinite;
+}
+
+/* head */
+
+.mascot-head{
+  position:absolute;
+  width:62px;
+  height:58px;
+  left:28px;
+  top:4px;
+  border-radius:50%;
+  background:#d8d8d2;
+  box-shadow:
+    0 0 25px rgba(255,255,255,.08);
+}
+
+.eye{
+  position:absolute;
+  width:6px;
+  height:8px;
+  border-radius:50%;
+  background:#080807;
+  top:23px;
+}
+
+.eye-left{left:18px}
+.eye-right{right:18px}
+
+.mouth{
+  position:absolute;
+  width:18px;
+  height:8px;
+  border-bottom:2px solid #080807;
+  border-radius:50%;
+  left:22px;
+  top:34px;
+}
+
+/* body */
+
+.mascot-body{
+  position:absolute;
+  width:55px;
+  height:52px;
+  left:31px;
+  top:57px;
+  border-radius:16px 16px 10px 10px;
+  background:#22221f;
+  border:1px solid #44443e;
+}
+
+/* arms */
+
+.arm{
+  position:absolute;
+  width:30px;
+  height:8px;
+  top:70px;
+  border-radius:10px;
+  background:#44443e;
+}
+
+.arm-left{
+  left:7px;
+  transform:rotate(25deg);
+}
+
+.arm-right{
+  right:5px;
+  transform:rotate(-28deg);
+}
+
+/* film reel */
+
+.film-reel{
+  position:absolute;
+  width:42px;
+  height:42px;
+  right:-5px;
+  top:48px;
+  border:4px solid #bdbdb5;
+  border-radius:50%;
+  animation:reelSpin 1.8s linear infinite;
+  box-shadow:0 0 18px rgba(255,255,255,.08);
+}
+
+.film-reel span{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:#080807;
+  border-radius:50%;
+}
+
+.film-reel span:nth-child(1){
+  left:5px;
+  top:5px;
+}
+
+.film-reel span:nth-child(2){
+  right:5px;
+  top:5px;
+}
+
+.film-reel span:nth-child(3){
+  left:5px;
+  bottom:5px;
+}
+
+.film-reel span:nth-child(4){
+  right:5px;
+  bottom:5px;
+}
+
+.film-reel i{
+  position:absolute;
+  width:8px;
+  height:8px;
+  left:13px;
+  top:13px;
+  border-radius:50%;
+  background:#bdbdb5;
+}
+
+/* brand */
+
+.loader-brand{
+  font-size:20px;
+  letter-spacing:4px;
+  font-weight:700;
+  color:#f1f1ec;
+}
+
+.loader-brand b{
+  color:#b9b9b1;
+}
+
+/* loading line */
+
+.loader-line{
+  width:150px;
+  height:2px;
+  margin:17px auto 10px;
+  background:#292925;
+  overflow:hidden;
+  border-radius:10px;
+}
+
+.loader-line span{
+  display:block;
+  width:45%;
+  height:100%;
+  background:#eee;
+  animation:loaderProgress 1.4s ease-in-out infinite;
+}
+
+/* text */
+
+.loader-text{
+  font-size:9px;
+  letter-spacing:3px;
+  color:#66665f;
+}
+
+/* animations */
+
+@keyframes mascotFloat{
+  0%,100%{
+    transform:translateY(0);
+  }
+  50%{
+    transform:translateY(-7px);
+  }
+}
+
+@keyframes reelSpin{
+  from{
+    transform:rotate(0deg);
+  }
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+@keyframes loaderProgress{
+  0%{
+    transform:translateX(-120%);
+  }
+  100%{
+    transform:translateX(330%);
+  }
+}
+
+@keyframes loaderFadeIn{
+  from{
+    opacity:0;
+    transform:scale(.96);
+  }
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+.movie-loader.hide{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:
+    opacity .45s ease,
+    visibility .45s ease;
+}
   </style>
 </head>
 <body>
