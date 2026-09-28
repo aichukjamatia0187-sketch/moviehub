@@ -23,6 +23,9 @@ export default async function handler(req, res) {
       "tv/genres": "genre/tv/list",
    "search/movie": "search/movie",
 "search/tv": "search/tv"
+  "search/person": "search/person",
+"discover/movie": "discover/movie",
+"discover/tv": "discover/tv"
     };
 
     if (routeMap[path]) {
