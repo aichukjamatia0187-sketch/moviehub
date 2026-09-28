@@ -1855,161 +1855,9 @@ function renderSmartResults(
 
 /* SMART SEARCH */
 
-async function performSearch() {
-
-  if (!searchInput) return;
 
 
-  const query =
-    searchInput.value.trim();
-
-
-  if (!query) {
-
-    searchInput.focus();
-
-    toast(
-      'Type a movie, TV show, actor or director.'
-    );
-
-    return;
-
-  }
-
-
-  showSearchSkeleton();
-
-
-  const parsed =
-    parseSmartQuery(query);
-
-
-  try {
-
-    /*
-      PERSON SEARCH
-    */
-
-    const personData =
-      await api(
-        '/api/search/person?query=' +
-        encodeURIComponent(
-          parsed.searchText
-        )
-      );
-
-
-    let results = [];
-
-
-    /*
-      DISCOVER MOVIES
-    */
-
-    if (
-      !parsed.filters.type ||
-      parsed.filters.type === 'movie'
-    ) {
-
-      const params =
-        new URLSearchParams({
-
-          sort_by:
-            'popularity.desc',
-
-          page:
-            '1'
-
-        });
-
-
-      if (parsed.filters.year) {
-
-        params.set(
-          'primary_release_year',
-          parsed.filters.year
-        );
-
-      }
-
-
-      if (parsed.filters.genre) {
-
-        params.set(
-          'with_genres',
-          parsed.filters.genre
-        );
-
-      }
-
-
-      if (parsed.filters.minRating) {
-
-        params.set(
-          'vote_average.gte',
-          parsed.filters.minRating
-        );
-
-      }
-
-
-      const movieData =
-        await api(
-          '/api/discover/movie?' +
-          params.toString()
-        );
-
-
-      results.push(
-        ...(movieData.results || [])
-          .map((x) => ({
-            ...x,
-            media_type: 'movie'
-          }))
-      );
-
-    }
-
-
-    /*
-      DISCOVER TV
-    */
-
-    if (
-      !parsed.filters.type ||
-      parsed.filters.type === 'tv'
-    ) {
-
-      const params =
-        new URLSearchParams({
-
-          sort_by:
-            'popularity.desc',
-
-          page:
-            '1'
-
-        });
-
-
-      if (parsed.filters.year) {
-
-        params.set(
-          'first_air_date_year',
-          parsed.filters.year
-        );
-
-      }
-
-
-      if (parsed.filters.genre) {
-
-        params.set(
-          'with_genres',
-          parsed.filters.genre
-        );
-
-      }
+      
 
 
       if (parsed.filters.minRating) {
@@ -2140,29 +1988,242 @@ async function performSearch() {
     if (searchResults) {
 
       searchResults.innerHTML = `
-        <div
-          class="empty"
-          style="
-            grid-column:1/-1;
-            height:180px;
-          "
-        >
-          SEARCH ERROR
-        </div>
-      `;
+async function performSearch() {
+  const rawQuery = searchInput?.value.trim();
 
+  if (!rawQuery) return;
+
+  showSearchSkeleton();
+
+  try {
+    const parsed = parseSmartQuery(rawQuery);
+    const cleanedQuery = parsed.query.trim();
+
+    const hasSmartFilters =
+      parsed.year ||
+      parsed.rating ||
+      parsed.genre ||
+      parsed.type !== 'all';
+
+    let results = [];
+
+    /*
+      NORMAL SEARCH
+      Example:
+      Spider man
+      Korean drama
+      Interstellar
+      Tom Cruise
+    */
+    if (!hasSmartFilters) {
+      const [movieRes, tvRes, personRes] =
+        await Promise.allSettled([
+          fetch(`/api/search/movie?query=${encodeURIComponent(rawQuery)}&page=1`),
+          fetch(`/api/search/tv?query=${encodeURIComponent(rawQuery)}&page=1`),
+          fetch(`/api/search/person?query=${encodeURIComponent(rawQuery)}&page=1`)
+        ]);
+
+      const movieData =
+        movieRes.status === 'fulfilled' && movieRes.value.ok
+          ? await movieRes.value.json()
+          : { results: [] };
+
+      const tvData =
+        tvRes.status === 'fulfilled' && tvRes.value.ok
+          ? await tvRes.value.json()
+          : { results: [] };
+
+      const personData =
+        personRes.status === 'fulfilled' && personRes.value.ok
+          ? await personRes.value.json()
+          : { results: [] };
+
+      results = [
+        ...(movieData.results || []).map(item => ({
+          ...item,
+          media_type: 'movie'
+        })),
+
+        ...(tvData.results || []).map(item => ({
+          ...item,
+          media_type: 'tv'
+        })),
+
+        ...(personData.results || []).map(item => ({
+          ...item,
+          media_type: 'person'
+        }))
+      ];
+
+      /*
+        Put exact text matches first.
+        This makes searches like "Spider man"
+        show Spider-Man results before unrelated results.
+      */
+      const q = rawQuery.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+      results.sort((a, b) => {
+        const aName = (
+          a.title ||
+          a.name ||
+          ''
+        ).toLowerCase();
+
+        const bName = (
+          b.title ||
+          b.name ||
+          ''
+        ).toLowerCase();
+
+        const aClean = aName.replace(/[^a-z0-9]+/g, ' ').trim();
+        const bClean = bName.replace(/[^a-z0-9]+/g, ' ').trim();
+
+        const aExact = aClean === q;
+        const bExact = bClean === q;
+
+        const aStarts = aClean.startsWith(q);
+        const bStarts = bClean.startsWith(q);
+
+        if (aExact !== bExact) {
+          return aExact ? -1 : 1;
+        }
+
+        if (aStarts !== bStarts) {
+          return aStarts ? -1 : 1;
+        }
+
+        return (b.popularity || 0) - (a.popularity || 0);
+      });
     }
 
+    /*
+      SMART SEARCH
+      Example:
+      Best action movies
+      2025 comedy movies
+      Best sci-fi TV shows
+    */
+    else {
+      const params = new URLSearchParams();
 
-    toast(
-      'Search error: ' +
-      e.message
-    );
+      if (parsed.year) {
+        params.set('primary_release_year', parsed.year);
+      }
 
+      if (parsed.rating) {
+        params.set('vote_average.gte', parsed.rating);
+      }
+
+      if (parsed.genre) {
+        params.set('with_genres', parsed.genre);
+      }
+
+      params.set('sort_by', 'popularity.desc');
+
+      const endpoints = [];
+
+      if (parsed.type === 'all' || parsed.type === 'movie') {
+        endpoints.push(
+          `/api/discover/movie?${params.toString()}`
+        );
+      }
+
+      if (parsed.type === 'all' || parsed.type === 'tv') {
+        const tvParams = new URLSearchParams();
+
+        if (parsed.year) {
+          tvParams.set('first_air_date_year', parsed.year);
+        }
+
+        if (parsed.rating) {
+          tvParams.set('vote_average.gte', parsed.rating);
+        }
+
+        if (parsed.genre) {
+          tvParams.set('with_genres', parsed.genre);
+        }
+
+        tvParams.set('sort_by', 'popularity.desc');
+
+        endpoints.push(
+          `/api/discover/tv?${tvParams.toString()}`
+        );
+      }
+
+      const responses = await Promise.all(
+        endpoints.map(url =>
+          fetch(url).then(res =>
+            res.ok ? res.json() : { results: [] }
+          )
+        )
+      );
+
+      responses.forEach((data, index) => {
+        const type =
+          endpoints[index].includes('/movie/')
+            ? 'movie'
+            : 'tv';
+
+        results.push(
+          ...(data.results || []).map(item => ({
+            ...item,
+            media_type: type
+          }))
+        );
+      });
+    }
+
+    /*
+      Remove duplicates
+    */
+    const unique = new Map();
+
+    results.forEach(item => {
+      const key =
+        `${item.media_type}-${item.id}`;
+
+      if (!unique.has(key)) {
+        unique.set(key, item);
+      }
+    });
+
+    results = Array.from(unique.values());
+
+    /*
+      Current filter button
+    */
+    if (currentSearchFilter !== 'all') {
+      results = results.filter(item => {
+        if (currentSearchFilter === 'movies') {
+          return item.media_type === 'movie';
+        }
+
+        if (currentSearchFilter === 'tv') {
+          return item.media_type === 'tv';
+        }
+
+        return true;
+      });
+    }
+
+    renderSmartResults(results);
+
+  } catch (error) {
+    console.error('Smart search error:', error);
+
+    if (searchResults) {
+      searchResults.innerHTML = `
+        <div style="
+          padding:40px 20px;
+          text-align:center;
+          color:#aaa;
+        ">
+          Search failed. Please try again.
+        </div>
+      `;
+    }
   }
-
 }
-
 
 /* SEARCH BUTTON */
 
