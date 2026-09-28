@@ -245,6 +245,10 @@ async function loadHeroTrailer(m) {
 
   if (!m || !heroVideo || !heroVideoFrame) return;
 
+  // Video ko pehle hidden rakho.
+  // Isliye slow network ya unavailable trailer mein banner hi dikhega.
+  heroVideo.classList.remove('active');
+
   try {
     const tv = isTV(m);
 
@@ -266,27 +270,116 @@ async function loadHeroTrailer(m) {
         v.site === 'YouTube'
       );
 
+    // Trailer hi nahi mila → banner rehne do.
     if (!trailer?.key) return;
 
     const videoId = trailer.key;
 
-    heroVideoFrame.src =
-      `https://www.youtube.com/embed/${encodeURIComponent(videoId)}` +
-      `?autoplay=1` +
-      `&mute=1` +
-      `&controls=0` +
-      `&rel=0` +
-      `&playsinline=1` +
-      `&loop=1` +
-      `&playlist=${encodeURIComponent(videoId)}`;
+    function createHeroPlayer() {
 
-    heroVideo.classList.add('active');
+      if (!window.YT || !window.YT.Player) {
+        return;
+      }
+
+      new YT.Player('heroVideoFrame', {
+
+        videoId: videoId,
+
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          rel: 0,
+          playsinline: 1,
+          loop: 1,
+          playlist: videoId
+        },
+
+        events: {
+
+          onReady: (event) => {
+
+            event.target.mute();
+
+            event.target.playVideo();
+
+          },
+
+          onStateChange: (event) => {
+
+            // Trailer actually start ho gaya.
+            if (
+              event.data ===
+              YT.PlayerState.PLAYING
+            ) {
+
+              heroVideo.classList.add(
+                'active'
+              );
+
+            }
+
+          },
+
+          onError: () => {
+
+            // Owner ne embed disable kiya
+            // ya video unavailable hai.
+            heroVideo.classList.remove(
+              'active'
+            );
+
+            console.warn(
+              'Hero trailer unavailable. Showing banner.'
+            );
+
+          }
+
+        }
+
+      });
+
+    }
+
+
+    // YouTube IFrame API load karo.
+    if (
+      window.YT &&
+      window.YT.Player
+    ) {
+
+      createHeroPlayer();
+
+    } else {
+
+      window.onYouTubeIframeAPIReady =
+        createHeroPlayer;
+
+      const script =
+        document.createElement('script');
+
+      script.src =
+        'https://www.youtube.com/iframe_api';
+
+      script.async = true;
+
+      document.head.appendChild(
+        script
+      );
+
+    }
 
   } catch (error) {
+
+    // Kisi bhi error par banner hi rahega.
+    heroVideo.classList.remove(
+      'active'
+    );
+
     console.warn(
-      'Hero trailer could not be loaded:',
+      'Hero trailer unavailable. Showing banner:',
       error
     );
+
   }
 }
 /* =========================
