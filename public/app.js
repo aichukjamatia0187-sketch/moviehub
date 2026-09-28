@@ -1877,13 +1877,26 @@ window.playCardTrailer =
    START MOVIEHUB
 ========================= */
 
-load();
-const movieLoader = document.getElementById('movieLoader');
+/* =========================
+   START MOVIEHUB
+========================= */
 
-if (movieLoader) {
+load().finally(() => {
+
+  const movieLoader =
+    document.getElementById('movieLoader');
+
+  if (!movieLoader) return;
+
+  /*
+    Animated MovieHub loader stays visible
+    until homepage data has been rendered.
+  */
+
   movieLoader.classList.add('hide');
 
   setTimeout(() => {
     movieLoader.remove();
   }, 500);
-}
+
+});
