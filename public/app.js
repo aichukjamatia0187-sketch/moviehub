@@ -1878,3 +1878,12 @@ window.playCardTrailer =
 ========================= */
 
 load();
+const movieLoader = document.getElementById('movieLoader');
+
+if (movieLoader) {
+  movieLoader.classList.add('hide');
+
+  setTimeout(() => {
+    movieLoader.remove();
+  }, 500);
+}
