@@ -2254,39 +2254,6 @@ if (searchInput) {
 
 }
 
-
-/* FILTER BUTTONS */
-
-document
-  .querySelectorAll('.search-filter')
-  .forEach((btn) => {
-
-    btn.onclick = () => {
-
-      currentSearchFilter =
-        btn.dataset.filter ||
-        'all';
-
-
-      document
-        .querySelectorAll(
-          '.search-filter'
-        )
-        .forEach((item) => {
-
-          item.classList.toggle(
-            'active',
-            item === btn
-          );
-
-        });
-
-
-      renderSearchResults();
-
-    };
-
-  });
 /* =========================
    GENRE BUTTONS
 ========================= */
