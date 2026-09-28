@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       "tv/today": "tv/airing_today",
       "tv/genres": "genre/tv/list",
    "search/movie": "search/movie",
-"search/tv": "search/tv"
+"search/tv": "search/tv",
   "search/person": "search/person",
 "discover/movie": "discover/movie",
 "discover/tv": "discover/tv"
