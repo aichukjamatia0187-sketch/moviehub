@@ -1753,15 +1753,745 @@ if (searchSubmit) {
 
 
 /* ENTER TO SEARCH */
+/* =========================
+   SMART SEARCH
+========================= */
+
+const searchBtn = $('#searchBtn');
+const searchPanel = $('#searchPanel');
+const searchInput = $('#searchInput');
+const searchSubmit = $('#searchSubmit');
+const searchClose = $('#searchClose');
+const searchResults = $('#searchResults');
+
+let currentSearchFilter = 'all';
+
+
+/* OPEN SEARCH */
+
+if (searchBtn) {
+  searchBtn.onclick = () => {
+
+    searchPanel?.classList.add('open');
+
+    setTimeout(() => {
+      searchInput?.focus();
+    }, 250);
+
+  };
+}
+
+
+/* CLOSE SEARCH */
+
+function closeSearch() {
+
+  searchPanel?.classList.remove('open');
+
+  if (searchInput) {
+    searchInput.value = '';
+  }
+
+  if (searchResults) {
+    searchResults.innerHTML = '';
+  }
+
+}
+
+
+if (searchClose) {
+  searchClose.onclick = closeSearch;
+}
+
+
+/* ESC KEY */
+
+document.addEventListener('keydown', (e) => {
+
+  if (
+    e.key === 'Escape' &&
+    searchPanel?.classList.contains('open')
+  ) {
+    closeSearch();
+  }
+
+});
+
+
+/* SEARCH SKELETON */
+
+function showSearchSkeleton() {
+
+  if (!searchResults) return;
+
+  searchResults.innerHTML = '';
+
+  for (let i = 0; i < 12; i++) {
+
+    const skeleton =
+      document.createElement('div');
+
+    skeleton.className =
+      'search-skeleton';
+
+    skeleton.style.setProperty(
+      '--i',
+      i
+    );
+
+    searchResults.appendChild(
+      skeleton
+    );
+
+  }
+
+}
+
+
+/* SMART QUERY PARSER */
+
+function parseSmartQuery(query) {
+
+  const original = query.trim();
+
+  let text = original;
+
+  const filters = {
+    year: null,
+    genre: null,
+    type: null,
+    minRating: null
+  };
+
+
+  /* YEAR */
+
+  const yearMatch =
+    text.match(/\b(19|20)\d{2}\b/);
+
+  if (yearMatch) {
+
+    filters.year =
+      Number(yearMatch[0]);
+
+    text =
+      text.replace(
+        yearMatch[0],
+        ''
+      );
+
+  }
+
+
+  /* RATING */
+
+  const ratingMatch =
+    text.match(
+      /\b(?:rating|rated|score|above)\s*(?:of|over|above|:)?\s*(\d(?:\.\d)?)\b/i
+    );
+
+  if (ratingMatch) {
+
+    filters.minRating =
+      Number(ratingMatch[1]);
+
+    text =
+      text.replace(
+        ratingMatch[0],
+        ''
+      );
+
+  }
+
+
+  /* TV */
+
+  if (
+    /\b(tv|tv shows|tv series|series|shows)\b/i.test(text)
+  ) {
+
+    filters.type = 'tv';
+
+    text =
+      text.replace(
+        /\b(tv shows|tv series|tv|series|shows)\b/gi,
+        ''
+      );
+
+  }
+
+
+  /* MOVIE */
+
+  if (
+    /\b(movie|movies|film|films)\b/i.test(text)
+  ) {
+
+    filters.type = 'movie';
+
+    text =
+      text.replace(
+        /\b(movies|movie|films|film)\b/gi,
+        ''
+      );
+
+  }
+
+
+  /* GENRES */
+
+  const genres = {
+
+    action: 28,
+    adventure: 12,
+    animation: 16,
+    comedy: 35,
+    crime: 80,
+    documentary: 99,
+    drama: 18,
+    family: 10751,
+    fantasy: 14,
+    horror: 27,
+    mystery: 9648,
+    romance: 10749,
+    'science fiction': 878,
+    'sci fi': 878,
+    'sci-fi': 878,
+    thriller: 53,
+    war: 10752,
+    western: 37
+
+  };
+
+
+  for (const [name, id] of Object.entries(genres)) {
+
+    const regex =
+      new RegExp(
+        `\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
+        'i'
+      );
+
+    if (regex.test(text)) {
+
+      filters.genre = id;
+
+      text =
+        text.replace(
+          regex,
+          ''
+        );
+
+      break;
+
+    }
+
+  }
+
+
+  /* REMOVE COMMON SEARCH WORDS */
+
+  text =
+    text
+      .replace(
+        /\b(best|top|good|popular|highly rated|latest|new|recent|movies|movie|films|film|shows|show|series|tv)\b/gi,
+        ' '
+      )
+      .replace(
+        /\s+/g,
+        ' '
+      )
+      .trim();
+
+
+  return {
+    original,
+    searchText: text || original,
+    filters
+  };
+
+}
+
+
+/* RENDER SEARCH RESULTS */
+
+function renderSmartResults(
+  results
+) {
+
+  if (!searchResults) return;
+
+
+  const filtered =
+    results.filter((item) => {
+
+      if (
+        currentSearchFilter === 'movie' &&
+        item.media_type !== 'movie'
+      ) {
+        return false;
+      }
+
+      if (
+        currentSearchFilter === 'tv' &&
+        item.media_type !== 'tv'
+      ) {
+        return false;
+      }
+
+      if (
+        currentSearchFilter === 'person' &&
+        item.media_type !== 'person'
+      ) {
+        return false;
+      }
+
+      return true;
+
+    });
+
+
+  if (!filtered.length) {
+
+    searchResults.innerHTML = `
+      <div
+        class="empty"
+        style="
+          grid-column:1/-1;
+          height:180px;
+        "
+      >
+        NO RESULTS FOUND
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  searchResults.innerHTML =
+    filtered
+      .slice(0, 30)
+      .map((item, index) => {
+
+        if (
+          item.media_type === 'person'
+        ) {
+
+          return `
+            <article
+              class="card"
+              data-person-id="${item.id}"
+              style="--i:${index}"
+            >
+
+              <div class="poster">
+
+                ${
+                  item.profile_path
+
+                    ? `
+                      <img
+                        loading="lazy"
+                        src="${IMG}w500${item.profile_path}"
+                        alt="${esc(item.name)}"
+                      >
+                    `
+
+                    : `
+                      <div class="empty">
+                        NO PHOTO
+                      </div>
+                    `
+                }
+
+              </div>
+
+              <div class="card-info">
+
+                <span class="card-title">
+                  ${esc(item.name)}
+                </span>
+
+                <span class="year">
+                  PERSON
+                </span>
+
+              </div>
+
+            </article>
+          `;
+
+        }
+
+
+        return `
+          <div style="--i:${index}">
+            ${card(
+              item,
+              item.media_type
+            )}
+          </div>
+        `;
+
+      })
+      .join('');
+
+
+  bindCards(searchResults);
+
+
+  searchResults
+    .querySelectorAll(
+      '[data-person-id]'
+    )
+    .forEach((personCard) => {
+
+      personCard.onclick = () => {
+
+        const id =
+          personCard.dataset.personId;
+
+        location.href =
+          `/person.html?id=${encodeURIComponent(id)}`;
+
+      };
+
+    });
+
+}
+
+
+/* SMART SEARCH */
+
+async function performSearch() {
+
+  if (!searchInput) return;
+
+
+  const query =
+    searchInput.value.trim();
+
+
+  if (!query) {
+
+    searchInput.focus();
+
+    toast(
+      'Type a movie, TV show, actor or director.'
+    );
+
+    return;
+
+  }
+
+
+  showSearchSkeleton();
+
+
+  const parsed =
+    parseSmartQuery(query);
+
+
+  try {
+
+    /*
+      PERSON SEARCH
+    */
+
+    const personData =
+      await api(
+        '/api/search/person?query=' +
+        encodeURIComponent(
+          parsed.searchText
+        )
+      );
+
+
+    let results = [];
+
+
+    /*
+      DISCOVER MOVIES
+    */
+
+    if (
+      !parsed.filters.type ||
+      parsed.filters.type === 'movie'
+    ) {
+
+      const params =
+        new URLSearchParams({
+
+          sort_by:
+            'popularity.desc',
+
+          page:
+            '1'
+
+        });
+
+
+      if (parsed.filters.year) {
+
+        params.set(
+          'primary_release_year',
+          parsed.filters.year
+        );
+
+      }
+
+
+      if (parsed.filters.genre) {
+
+        params.set(
+          'with_genres',
+          parsed.filters.genre
+        );
+
+      }
+
+
+      if (parsed.filters.minRating) {
+
+        params.set(
+          'vote_average.gte',
+          parsed.filters.minRating
+        );
+
+      }
+
+
+      const movieData =
+        await api(
+          '/api/discover/movie?' +
+          params.toString()
+        );
+
+
+      results.push(
+        ...(movieData.results || [])
+          .map((x) => ({
+            ...x,
+            media_type: 'movie'
+          }))
+      );
+
+    }
+
+
+    /*
+      DISCOVER TV
+    */
+
+    if (
+      !parsed.filters.type ||
+      parsed.filters.type === 'tv'
+    ) {
+
+      const params =
+        new URLSearchParams({
+
+          sort_by:
+            'popularity.desc',
+
+          page:
+            '1'
+
+        });
+
+
+      if (parsed.filters.year) {
+
+        params.set(
+          'first_air_date_year',
+          parsed.filters.year
+        );
+
+      }
+
+
+      if (parsed.filters.genre) {
+
+        params.set(
+          'with_genres',
+          parsed.filters.genre
+        );
+
+      }
+
+
+      if (parsed.filters.minRating) {
+
+        params.set(
+          'vote_average.gte',
+          parsed.filters.minRating
+        );
+
+      }
+
+
+      const tvData =
+        await api(
+          '/api/discover/tv?' +
+          params.toString()
+        );
+
+
+      results.push(
+        ...(tvData.results || [])
+          .map((x) => ({
+            ...x,
+            media_type: 'tv'
+          }))
+      );
+
+    }
+
+
+    /*
+      NORMAL MOVIE SEARCH
+    */
+
+    const movieSearch =
+      await api(
+        '/api/search/movie?query=' +
+        encodeURIComponent(
+          parsed.searchText
+        )
+      );
+
+
+    results.push(
+      ...(movieSearch.results || [])
+        .map((x) => ({
+          ...x,
+          media_type: 'movie'
+        }))
+    );
+
+
+    /*
+      NORMAL TV SEARCH
+    */
+
+    const tvSearch =
+      await api(
+        '/api/search/tv?query=' +
+        encodeURIComponent(
+          parsed.searchText
+        )
+      );
+
+
+    results.push(
+      ...(tvSearch.results || [])
+        .map((x) => ({
+          ...x,
+          media_type: 'tv'
+        }))
+    );
+
+
+    /*
+      PEOPLE
+    */
+
+    results.push(
+      ...(personData.results || [])
+        .slice(0, 10)
+        .map((x) => ({
+          ...x,
+          media_type: 'person'
+        }))
+    );
+
+
+    /*
+      REMOVE DUPLICATES
+    */
+
+    results =
+      Array.from(
+        new Map(
+          results.map((item) => [
+            `${item.media_type}-${item.id}`,
+            item
+          ])
+        ).values()
+      );
+
+
+    /*
+      SORT
+    */
+
+    results.sort(
+      (a, b) =>
+        (b.popularity || 0) -
+        (a.popularity || 0)
+    );
+
+
+    renderSmartResults(
+      results
+    );
+
+
+  } catch (e) {
+
+    console.error(
+      'Smart search error:',
+      e
+    );
+
+
+    if (searchResults) {
+
+      searchResults.innerHTML = `
+        <div
+          class="empty"
+          style="
+            grid-column:1/-1;
+            height:180px;
+          "
+        >
+          SEARCH ERROR
+        </div>
+      `;
+
+    }
+
+
+    toast(
+      'Search error: ' +
+      e.message
+    );
+
+  }
+
+}
+
+
+/* SEARCH BUTTON */
+
+if (searchSubmit) {
+
+  searchSubmit.onclick =
+    performSearch;
+
+}
+
+
+/* ENTER KEY */
 
 if (searchInput) {
 
   searchInput.onkeydown =
     (e) => {
 
-      if (
-        e.key === 'Enter'
-      ) {
+      if (e.key === 'Enter') {
 
         e.preventDefault();
 
