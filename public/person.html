@@ -559,27 +559,37 @@ function renderList(container, items) {
       .map(createCard)
       .join("");
 }
-
 function renderUpcoming(items) {
-
   const today =
     new Date().toISOString().slice(0, 10);
 
   const upcoming = items
     .filter(item => {
-
       const date = getDate(item);
 
       return date &&
              date > today &&
-             !item.adult;
-
+             !item.adult &&
+             item.poster_path;
     })
     .sort((a, b) =>
       getDate(a).localeCompare(getDate(b))
     );
 
-  if (!upcoming.length) {
+  const unique = [];
+  const seen = new Set();
+
+  upcoming.forEach(item => {
+    const key =
+      `${getType(item)}-${item.id}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(item);
+    }
+  });
+
+  if (!unique.length) {
     return;
   }
 
@@ -589,9 +599,10 @@ function renderUpcoming(items) {
 
   renderList(
     document.getElementById("upcoming"),
-    upcoming.slice(0, 12)
+    unique.slice(0, 12)
   );
 }
+
 
 loadPerson()
   .catch(error => {
