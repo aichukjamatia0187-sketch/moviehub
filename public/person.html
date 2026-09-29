@@ -491,14 +491,6 @@ function renderCredits(data) {
     return popularityB - popularityA;
 
   });
-
-  const movies = credits.filter(
-    item => getType(item) === "movie"
-  );
-
-  const tv = credits.filter(
-    item => getType(item) === "tv"
-  );
 const popularWorks = [...credits]
   .filter(item => !item.adult)
   .sort((a, b) =>
@@ -510,6 +502,14 @@ renderList(
   document.getElementById("popularWorks"),
   popularWorks.slice(0, 12)
 );
+  const movies = credits.filter(
+    item => getType(item) === "movie"
+  );
+
+  const tv = credits.filter(
+    item => getType(item) === "tv"
+  );
+
   renderList(
     document.getElementById("movies"),
     movies
