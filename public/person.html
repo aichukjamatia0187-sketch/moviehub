@@ -1,641 +1,610 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>Person — MovieHub</title>
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width,initial-scale=1">    <title>Person — MovieHub</title>    <style>  
+    * {  
+      box-sizing: border-box;  
+    }  
+  
+    html, body {  
+      margin: 0;  
+      padding: 0;  
+      background: #08090d;  
+      color: #fff;  
+      font-family: Arial, Helvetica, sans-serif;  
+    }  
+  
+    a {  
+      color: inherit;  
+      text-decoration: none;  
+    }  
+  
+    .container {  
+      width: min(1200px, 92%);  
+      margin: auto;  
+    }  
+  
+    header {  
+      position: sticky;  
+      top: 0;  
+      z-index: 20;  
+      background: rgba(8, 9, 13, .92);  
+      backdrop-filter: blur(14px);  
+      border-bottom: 1px solid rgba(255,255,255,.08);  
+    }  
+  
+    .nav {  
+      height: 64px;  
+      display: flex;  
+      align-items: center;  
+      justify-content: space-between;  
+    }  
+  
+    .logo {  
+      font-size: 22px;  
+      font-weight: 800;  
+      letter-spacing: -.5px;  
+    }  
+  
+    .back {  
+      border: 1px solid rgba(255,255,255,.12);  
+      background: #11131a;  
+      color: #fff;  
+      padding: 9px 15px;  
+      border-radius: 10px;  
+      cursor: pointer;  
+    }  
+  
+    .hero {  
+      padding: 45px 0 30px;  
+    }  
+  
+    .person {  
+      display: grid;  
+      grid-template-columns: 220px 1fr;  
+      gap: 30px;  
+      align-items: start;  
+    }  
+  
+    .profile {  
+      width: 220px;  
+      aspect-ratio: 2 / 3;  
+      object-fit: cover;  
+      border-radius: 16px;  
+      background: #151720;  
+      box-shadow: 0 15px 45px rgba(0,0,0,.4);  
+    }  
+  
+    .name {  
+      font-size: clamp(32px, 6vw, 58px);  
+      line-height: 1;  
+      margin: 0 0 12px;  
+      font-weight: 800;  
+    }  
+  
+    .department {  
+      color: #aaa;  
+      font-size: 15px;  
+      margin-bottom: 22px;  
+    }  
+  
+    .bio {  
+      max-width: 800px;  
+      color: #c8c8cc;  
+      line-height: 1.7;  
+      font-size: 15px;  
+    }  
+  
+    .meta {  
+      display: flex;  
+      flex-wrap: wrap;  
+      gap: 10px;  
+      margin-top: 20px;  
+    }  
+  
+    .meta span {  
+      background: #11131a;  
+      border: 1px solid rgba(255,255,255,.08);  
+      padding: 8px 12px;  
+      border-radius: 9px;  
+      color: #bbb;  
+      font-size: 13px;  
+    }  
+  
+    section {  
+      padding: 25px 0 40px;  
+    }  
+  
+    .section-title {  
+      font-size: 24px;  
+      margin: 0 0 18px;  
+    }  
+  
+    .grid {  
+      display: grid;  
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));  
+      gap: 16px;  
+    }  
+  
+    .card {  
+      cursor: pointer;  
+      min-width: 0;  
+    }  
+  
+    .poster-wrap {  
+      position: relative;  
+      overflow: hidden;  
+      border-radius: 12px;  
+      background: #12141b;  
+      aspect-ratio: 2 / 3;  
+    }  
+  
+    .poster {  
+      width: 100%;  
+      height: 100%;  
+      display: block;  
+      object-fit: cover;  
+      transition: transform .25s ease;  
+    }  
+  
+    .card:hover .poster {  
+      transform: scale(1.04);  
+    }  
+  
+    .type {  
+      position: absolute;  
+      left: 8px;  
+      top: 8px;  
+      background: rgba(0,0,0,.75);  
+      padding: 5px 8px;  
+      border-radius: 7px;  
+      font-size: 10px;  
+      text-transform: uppercase;  
+      font-weight: 700;  
+    }  
+  
+    .card-title {  
+      margin-top: 9px;  
+      font-size: 14px;  
+      font-weight: 700;  
+      white-space: nowrap;  
+      overflow: hidden;  
+      text-overflow: ellipsis;  
+    }  
+  
+    .year {  
+      color: #8f929b;  
+      font-size: 12px;  
+      margin-top: 5px;  
+    }  
+  
+    .status {  
+      padding: 60px 0;  
+      text-align: center;  
+      color: #999;  
+    }  
+  
+    .hidden {  
+      display: none;  
+    }  
+  
+    @media (max-width: 700px) {  
+      .person {  
+        grid-template-columns: 130px 1fr;  
+        gap: 18px;  
+      }  
+  
+      .profile {  
+        width: 130px;  
+        border-radius: 12px;  
+      }  
+  
+      .name {  
+        font-size: 30px;  
+      }  
+  
+      .bio {  
+        grid-column: 1 / -1;  
+      }  
+  
+      .meta {  
+        grid-column: 1 / -1;  
+        margin-top: 0;  
+      }  
+  
+      .grid {  
+        grid-template-columns: repeat(2, 1fr);  
+        gap: 12px;  
+      }  
+    }  
+  </style>  </head>  <body>  <header>  
+  <div class="container nav">  
+    <div class="logo">MovieHub</div>  
+    <button class="back" onclick="history.back()">← Back</button>  
+  </div>  
+</header>  <main class="container">    <div id="loading" class="status">  
+    Loading person...  
+  </div>    <div id="content" class="hidden">  <section class="hero">  
+  <div class="person">  
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <img id="profile"  
+         class="profile"  
+         src=""  
+         alt="">  
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #08090d;
-      color: #fff;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+    <div>  
+      <h1 id="name" class="name"></h1>  
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+      <div id="department" class="department"></div>  
 
-    .container {
-      width: min(1200px, 92%);
-      margin: auto;
-    }
+      <div id="bio" class="bio"></div>  
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(8, 9, 13, .92);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
+      <div id="meta" class="meta"></div>  
+    </div>  
 
-    .nav {
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -.5px;
-    }
-
-    .back {
-      border: 1px solid rgba(255,255,255,.12);
-      background: #11131a;
-      color: #fff;
-      padding: 9px 15px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .hero {
-      padding: 45px 0 30px;
-    }
-
-    .person {
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      gap: 30px;
-      align-items: start;
-    }
-
-    .profile {
-      width: 220px;
-      aspect-ratio: 2 / 3;
-      object-fit: cover;
-      border-radius: 16px;
-      background: #151720;
-      box-shadow: 0 15px 45px rgba(0,0,0,.4);
-    }
-
-    .name {
-      font-size: clamp(32px, 6vw, 58px);
-      line-height: 1;
-      margin: 0 0 12px;
-      font-weight: 800;
-    }
-
-    .department {
-      color: #aaa;
-      font-size: 15px;
-      margin-bottom: 22px;
-    }
-
-    .bio {
-      max-width: 800px;
-      color: #c8c8cc;
-      line-height: 1.7;
-      font-size: 15px;
-    }
-
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .meta span {
-      background: #11131a;
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 8px 12px;
-      border-radius: 9px;
-      color: #bbb;
-      font-size: 13px;
-    }
-
-    section {
-      padding: 25px 0 40px;
-    }
-
-    .section-title {
-      font-size: 24px;
-      margin: 0 0 18px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      cursor: pointer;
-      min-width: 0;
-    }
-
-    .poster-wrap {
-      position: relative;
-      overflow: hidden;
-      border-radius: 12px;
-      background: #12141b;
-      aspect-ratio: 2 / 3;
-    }
-
-    .poster {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      transition: transform .25s ease;
-    }
-
-    .card:hover .poster {
-      transform: scale(1.04);
-    }
-
-    .type {
-      position: absolute;
-      left: 8px;
-      top: 8px;
-      background: rgba(0,0,0,.75);
-      padding: 5px 8px;
-      border-radius: 7px;
-      font-size: 10px;
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-
-    .card-title {
-      margin-top: 9px;
-      font-size: 14px;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .year {
-      color: #8f929b;
-      font-size: 12px;
-      margin-top: 5px;
-    }
-
-    .status {
-      padding: 60px 0;
-      text-align: center;
-      color: #999;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    @media (max-width: 700px) {
-      .person {
-        grid-template-columns: 130px 1fr;
-        gap: 18px;
-      }
-
-      .profile {
-        width: 130px;
-        border-radius: 12px;
-      }
-
-      .name {
-        font-size: 30px;
-      }
-
-      .bio {
-        grid-column: 1 / -1;
-      }
-
-      .meta {
-        grid-column: 1 / -1;
-        margin-top: 0;
-      }
-
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-<header>
-  <div class="container nav">
-    <div class="logo">MovieHub</div>
-    <button class="back" onclick="history.back()">← Back</button>
-  </div>
-</header>
-
-<main class="container">
-
-  <div id="loading" class="status">
-    Loading person...
-  </div>
-
-  <div id="content" class="hidden">
-
-    <section class="hero">
-      <div class="person">
-
-        <img id="profile"
-             class="profile"
-             src=""
-             alt="">
-
-        <div>
-          <h1 id="name" class="name"></h1>
-
-          <div id="department" class="department"></div>
-
-          <div id="bio" class="bio"></div>
-
-          <div id="meta" class="meta"></div>
-        </div>
-
-      </div>
-    </section>
-<section>
-  <h2 class="section-title">Popular Works</h2>
-  <div id="popularWorks" class="grid"></div>
+  </div>  
 </section>
-    <section id="upcomingSection" class="hidden">
-      <h2 class="section-title">Upcoming Projects</h2>
-      <div id="upcoming" class="grid"></div>
-    </section>
 
-    <section>
-      <h2 class="section-title">Movies</h2>
-      <div id="movies" class="grid"></div>
-    </section>
-
-    <section>
-      <h2 class="section-title">TV Shows</h2>
-      <div id="tv" class="grid"></div>
-    </section>
-
-  </div>
-
-</main>
-
-<script>
-
-const params = new URLSearchParams(location.search);
-const personId = params.get("id");
-
-const IMG = "https://image.tmdb.org/t/p/w500";
-const PLACEHOLDER =
-  "https://via.placeholder.com/500x750/11131a/777?text=No+Image";
-
-function escapeHTML(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function getDate(item) {
-  return item.release_date ||
-         item.first_air_date ||
-         "";
-}
-
-function getTitle(item) {
-  return item.title ||
-         item.name ||
-         "Untitled";
-}
-
-function getType(item) {
-  return item.media_type === "tv" || item.first_air_date
-    ? "tv"
-    : "movie";
-}
-
-function createCard(item) {
-
-  const type = getType(item);
-  const title = getTitle(item);
-  const date = getDate(item);
-  const year = date ? date.slice(0, 4) : "";
-
-  const poster = item.poster_path
-    ? IMG + item.poster_path
-    : PLACEHOLDER;
-
-  return `
-    <div class="card"
-         onclick="openTitle('${item.id}', '${type}')">
-
-      <div class="poster-wrap">
-
-        <img
-          class="poster"
-          src="${poster}"
-          alt="${escapeHTML(title)}"
-          loading="lazy"
-        >
-
-        <div class="type">
-          ${type === "tv" ? "TV" : "Movie"}
-        </div>
-
-      </div>
-
-      <div class="card-title">
-        ${escapeHTML(title)}
-      </div>
-
-      <div class="year">
-        ${year || "Release date unknown"}
-      </div>
-
-    </div>
-  `;
-}
-
-function openTitle(id, type) {
-  location.href =
-    `/movie.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
-}
-
-async function api(url) {
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("API request failed");
-  }
-
-  return response.json();
-}
-
-async function loadPerson() {
-
-  if (!personId) {
-    throw new Error("Person ID missing");
-  }
-
-  const [person, credits] = await Promise.all([
-
-    api(`/api/person/${personId}?language=en-US`),
-
-    api(`/api/person/${personId}/combined_credits?language=en-US`)
-
-  ]);
-
-  renderPerson(person);
-  renderCredits(credits);
-
-  document.title =
-    `${person.name || "Person"} — MovieHub`;
-
-  document.getElementById("loading").classList.add("hidden");
-  document.getElementById("content").classList.remove("hidden");
-}
-
-function renderPerson(person) {
-
-  const profile = document.getElementById("profile");
-
-  profile.src = person.profile_path
-    ? IMG + person.profile_path
-    : PLACEHOLDER;
-
-  profile.alt = person.name || "";
-
-  document.getElementById("name").textContent =
-    person.name || "Unknown Person";
-
-  document.getElementById("department").textContent =
-    person.known_for_department
-      ? `Known for ${person.known_for_department}`
-      : "";
-
-  document.getElementById("bio").textContent =
-    person.biography ||
-    "No biography available.";
-
-  const meta = document.getElementById("meta");
-
-  const items = [];
-
-  if (person.birthday) {
-    items.push(`Born: ${person.birthday}`);
-  }
-
-  if (person.place_of_birth) {
-    items.push(person.place_of_birth);
-  }
-
-  if (person.also_known_as &&
-      person.also_known_as.length) {
-
-    items.push(
-      `Also known as: ${person.also_known_as[0]}`
-    );
-  }
-
-  meta.innerHTML = items
-    .map(item => `<span>${escapeHTML(item)}</span>`)
-    .join("");
-}
-
-function renderCredits(data) {
-
-  const cast = Array.isArray(data.cast)
-    ? data.cast
-    : [];
-
-  const crew = Array.isArray(data.crew)
-    ? data.crew
-    : [];
-
-  const all = [...cast, ...crew];
-
-  const unique = new Map();
-
-  all.forEach(item => {
-
-    const type = getType(item);
-
-    if (!item.id) return;
-
-    const key = `${type}-${item.id}`;
-
-    if (!unique.has(key)) {
-      unique.set(key, item);
-    }
-
-  });
-
-  const credits = [...unique.values()];
-
-  credits.sort((a, b) => {
-
-    const popularityA =
-      Number(a.popularity || 0);
-
-    const popularityB =
-      Number(b.popularity || 0);
-
-    return popularityB - popularityA;
-
-  });
-const popularWorks = [...credits]
-  .filter(item =>
-    !item.adult &&
-    item.poster_path &&
-    Number(item.vote_count || 0) >= 20
-  )
-  .sort((a, b) => {
-
-    const scoreA =
-      Number(a.vote_average || 0) *
-      Math.log10(Number(a.vote_count || 0) + 1);
-
-    const scoreB =
-      Number(b.vote_average || 0) *
-      Math.log10(Number(b.vote_count || 0) + 1);
-
-    return scoreB - scoreA;
-  });
-
-renderList(
-  document.getElementById("popularWorks"),
-  popularWorks.slice(0, 12)
-);
-
-  const today = new Date().toISOString().slice(0, 10);
-
-const movies = credits
-  .filter(item => getType(item) === "movie")
-  .sort((a, b) => {
-    const dateA = getDate(a);
-    const dateB = getDate(b);
-
-    const upcomingA = dateA && dateA > today;
-    const upcomingB = dateB && dateB > today;
-
-    if (upcomingA !== upcomingB) {
-      return upcomingA ? 1 : -1;
-    }
-
-    return dateB.localeCompare(dateA);
-  });
-
-const tv = credits
-  .filter(item => getType(item) === "tv")
-  .sort((a, b) => {
-    const dateA = getDate(a);
-    const dateB = getDate(b);
-
-    const upcomingA = dateA && dateA > today;
-    const upcomingB = dateB && dateB > today;
-
-    if (upcomingA !== upcomingB) {
-      return upcomingA ? 1 : -1;
-    }
-
-    return dateB.localeCompare(dateA);
-  });
-  renderList(
-    document.getElementById("movies"),
-    movies
-  );
-
-  renderList(
-    document.getElementById("tv"),
-    tv
-  );
-
-  renderUpcoming(credits);
-}
-
-function renderList(container, items) {
-
-  if (!items.length) {
-
-    container.innerHTML = `
-      <div class="status">
-        No titles found.
-      </div>
-    `;
-
-    return;
-  }
-
-  container.innerHTML =
-    items
-      .slice(0, 30)
-      .map(createCard)
-      .join("");
-}
-function renderUpcoming(items) {
-  const today =
-    new Date().toISOString().slice(0, 10);
-
-  const upcoming = items
-    .filter(item => {
-      const date = getDate(item);
-
-      return date &&
-             date > today &&
-             !item.adult &&
-             item.poster_path;
-    })
-    .sort((a, b) =>
-      getDate(a).localeCompare(getDate(b))
-    );
-
-  const unique = [];
-  const seen = new Set();
-
-  upcoming.forEach(item => {
-    const key =
-      `${getType(item)}-${item.id}`;
-
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(item);
-    }
-  });
-
-  if (!unique.length) {
-    return;
-  }
-
-  document
-    .getElementById("upcomingSection")
-    .classList.remove("hidden");
-
-  renderList(
-    document.getElementById("upcoming"),
-    unique.slice(0, 12)
-  );
-}
-
-
-loadPerson()
-  .catch(error => {
-
-    console.error(error);
-
-    document.getElementById("loading").textContent =
-      "Unable to load this person.";
-
-  });
-
-</script>
-
-</body>
-</html>
+<section>  
+  <h2 class="section-title">Popular Works</h2>  
+  <div id="popularWorks" class="grid"></div>  
+</section>  
+    <section id="upcomingSection" class="hidden">  
+      <h2 class="section-title">Upcoming Projects</h2>  
+      <div id="upcoming" class="grid"></div>  
+    </section>  <section>  
+  <h2 class="section-title">Movies</h2>  
+  <div id="movies" class="grid"></div>  
+</section>  
+
+<section>  
+  <h2 class="section-title">TV Shows</h2>  
+  <div id="tv" class="grid"></div>  
+</section>
+
+  </div>  </main>  <script>  
+  
+const params = new URLSearchParams(location.search);  
+const personId = params.get("id");  
+  
+const IMG = "https://image.tmdb.org/t/p/w500";  
+const PLACEHOLDER =  
+  "https://via.placeholder.com/500x750/11131a/777?text=No+Image";  
+  
+function escapeHTML(value) {  
+  return String(value || "")  
+    .replace(/&/g, "&amp;")  
+    .replace(/</g, "&lt;")  
+    .replace(/>/g, "&gt;")  
+    .replace(/"/g, "&quot;")  
+    .replace(/'/g, "&#039;");  
+}  
+  
+function getDate(item) {  
+  return item.release_date ||  
+         item.first_air_date ||  
+         "";  
+}  
+  
+function getTitle(item) {  
+  return item.title ||  
+         item.name ||  
+         "Untitled";  
+}  
+  
+function getType(item) {  
+  return item.media_type === "tv" || item.first_air_date  
+    ? "tv"  
+    : "movie";  
+}  
+  
+function createCard(item) {  
+  
+  const type = getType(item);  
+  const title = getTitle(item);  
+  const date = getDate(item);  
+  const year = date ? date.slice(0, 4) : "";  
+  
+  const poster = item.poster_path  
+    ? IMG + item.poster_path  
+    : PLACEHOLDER;  
+  
+  return `  
+    <div class="card"  
+         onclick="openTitle('${item.id}', '${type}')">  
+  
+      <div class="poster-wrap">  
+  
+        <img  
+          class="poster"  
+          src="${poster}"  
+          alt="${escapeHTML(title)}"  
+          loading="lazy"  
+        >  
+  
+        <div class="type">  
+          ${type === "tv" ? "TV" : "Movie"}  
+        </div>  
+  
+      </div>  
+  
+      <div class="card-title">  
+        ${escapeHTML(title)}  
+      </div>  
+  
+      <div class="year">  
+        ${year || "Release date unknown"}  
+      </div>  
+  
+    </div>  
+  `;  
+}  
+  
+function openTitle(id, type) {  
+  location.href =  
+    `/movie.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;  
+}  
+  
+async function api(url) {  
+  
+  const response = await fetch(url);  
+  
+  if (!response.ok) {  
+    throw new Error("API request failed");  
+  }  
+  
+  return response.json();  
+}  
+  
+async function loadPerson() {  
+  
+  if (!personId) {  
+    throw new Error("Person ID missing");  
+  }  
+  
+  const [person, credits] = await Promise.all([  
+  
+    api(`/api/person/${personId}?language=en-US`),  
+  
+    api(`/api/person/${personId}/combined_credits?language=en-US`)  
+  
+  ]);  
+  
+  renderPerson(person);  
+  renderCredits(credits);  
+  
+  document.title =  
+    `${person.name || "Person"} — MovieHub`;  
+  
+  document.getElementById("loading").classList.add("hidden");  
+  document.getElementById("content").classList.remove("hidden");  
+}  
+  
+function renderPerson(person) {  
+  
+  const profile = document.getElementById("profile");  
+  
+  profile.src = person.profile_path  
+    ? IMG + person.profile_path  
+    : PLACEHOLDER;  
+  
+  profile.alt = person.name || "";  
+  
+  document.getElementById("name").textContent =  
+    person.name || "Unknown Person";  
+  
+  document.getElementById("department").textContent =  
+    person.known_for_department  
+      ? `Known for ${person.known_for_department}`  
+      : "";  
+  
+  document.getElementById("bio").textContent =  
+    person.biography ||  
+    "No biography available.";  
+  
+  const meta = document.getElementById("meta");  
+  
+  const items = [];  
+  
+  if (person.birthday) {  
+    items.push(`Born: ${person.birthday}`);  
+  }  
+  
+  if (person.place_of_birth) {  
+    items.push(person.place_of_birth);  
+  }  
+  
+  if (person.also_known_as &&  
+      person.also_known_as.length) {  
+  
+    items.push(  
+      `Also known as: ${person.also_known_as[0]}`  
+    );  
+  }  
+  
+  meta.innerHTML = items  
+    .map(item => `<span>${escapeHTML(item)}</span>`)  
+    .join("");  
+}  
+  
+function renderCredits(data) {  
+  
+  const cast = Array.isArray(data.cast)  
+    ? data.cast  
+    : [];  
+  
+  const crew = Array.isArray(data.crew)  
+    ? data.crew  
+    : [];  
+  
+  const all = [...cast, ...crew];  
+  
+  const unique = new Map();  
+  
+  all.forEach(item => {  
+  
+    const type = getType(item);  
+  
+    if (!item.id) return;  
+  
+    const key = `${type}-${item.id}`;  
+  
+    if (!unique.has(key)) {  
+      unique.set(key, item);  
+    }  
+  
+  });  
+  
+  const credits = [...unique.values()];  
+  
+  credits.sort((a, b) => {  
+  
+    const popularityA =  
+      Number(a.popularity || 0);  
+  
+    const popularityB =  
+      Number(b.popularity || 0);  
+  
+    return popularityB - popularityA;  
+  
+  });  
+const popularWorks = [...credits]  
+  .filter(item =>  
+    !item.adult &&  
+    item.poster_path &&  
+    Number(item.vote_count || 0) >= 20  
+  )  
+  .sort((a, b) => {  
+  
+    const scoreA =  
+      Number(a.vote_average || 0) *  
+      Math.log10(Number(a.vote_count || 0) + 1);  
+  
+    const scoreB =  
+      Number(b.vote_average || 0) *  
+      Math.log10(Number(b.vote_count || 0) + 1);  
+  
+    return scoreB - scoreA;  
+  });  
+  
+renderList(  
+  document.getElementById("popularWorks"),  
+  popularWorks.slice(0, 12)  
+);  
+  
+const today = new Date().toISOString().slice(0, 10);  
+  
+const movies = credits  
+  .filter(item => {  
+    const date = getDate(item);  
+  
+    return getType(item) === "movie" &&  
+           date &&  
+           date <= today;  
+  })  
+  .sort((a, b) =>  
+    getDate(b).localeCompare(getDate(a))  
+  );  
+  
+const tv = credits  
+  .filter(item => {  
+    const date = getDate(item);  
+  
+    return getType(item) === "tv" &&  
+           date &&  
+           date <= today;  
+  })  
+  .sort((a, b) =>  
+    getDate(b).localeCompare(getDate(a))  
+  );    
+  renderList(  
+    document.getElementById("movies"),  
+    movies  
+  );  
+  
+  renderList(  
+    document.getElementById("tv"),  
+    tv  
+  );  
+  
+  renderUpcoming(credits);  
+}  
+  
+function renderList(container, items) {  
+  
+  if (!items.length) {  
+  
+    container.innerHTML = `  
+      <div class="status">  
+        No titles found.  
+      </div>  
+    `;  
+  
+    return;  
+  }  
+  
+  container.innerHTML =  
+    items  
+      .slice(0, 30)  
+      .map(createCard)  
+      .join("");  
+}  
+function renderUpcoming(items) {  
+  const today =  
+    new Date().toISOString().slice(0, 10);  
+  
+  const upcoming = items  
+    .filter(item => {  
+      const date = getDate(item);  
+  
+      return date &&  
+             date > today &&  
+             !item.adult &&  
+             item.poster_path;  
+    })  
+    .sort((a, b) =>  
+      getDate(a).localeCompare(getDate(b))  
+    );  
+  
+  const unique = [];  
+  const seen = new Set();  
+  
+  upcoming.forEach(item => {  
+    const key =  
+      `${getType(item)}-${item.id}`;  
+  
+    if (!seen.has(key)) {  
+      seen.add(key);  
+      unique.push(item);  
+    }  
+  });  
+  
+  if (!unique.length) {  
+    return;  
+  }  
+  
+  document  
+    .getElementById("upcomingSection")  
+    .classList.remove("hidden");  
+  
+  renderList(  
+    document.getElementById("upcoming"),  
+    unique.slice(0, 12)  
+  );  
+}  
+  
+  
+loadPerson()  
+  .catch(error => {  
+  
+    console.error(error);  
+  
+    document.getElementById("loading").textContent =  
+      "Unable to load this person.";  
+  
+  });  
+  
+</script>  </body>  
+</html>  
