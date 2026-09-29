@@ -537,11 +537,39 @@ function isUpcoming(item) {
   return releaseDate > now;
 }
 
+const today = new Date();
+
+today.setHours(0, 0, 0, 0);
+
 const movies = credits
   .filter(item => {
-    return getType(item) === "movie" &&
-           getDate(item) &&
-           !isUpcoming(item);
+
+    if (getType(item) !== "movie") {
+      return false;
+    }
+
+    const date = getDate(item);
+
+    if (!date) {
+      return false;
+    }
+
+    const parts = date.split("-").map(Number);
+
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    const releaseDate = new Date(
+      parts[0],
+      parts[1] - 1,
+      parts[2]
+    );
+
+    releaseDate.setHours(0, 0, 0, 0);
+
+    return releaseDate <= today;
+
   })
   .sort((a, b) =>
     getDate(b).localeCompare(getDate(a))
