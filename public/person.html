@@ -499,7 +499,17 @@ function renderCredits(data) {
   const tv = credits.filter(
     item => getType(item) === "tv"
   );
+const popularWorks = [...credits]
+  .filter(item => !item.adult)
+  .sort((a, b) =>
+    Number(b.popularity || 0) -
+    Number(a.popularity || 0)
+  );
 
+renderList(
+  document.getElementById("popularWorks"),
+  popularWorks.slice(0, 12)
+);
   renderList(
     document.getElementById("movies"),
     movies
