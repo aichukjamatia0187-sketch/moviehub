@@ -1856,138 +1856,7 @@ function renderSmartResults(
 /* SMART SEARCH */
 
 
-
-      
-
-
-      if (parsed.filters.minRating) {
-
-        params.set(
-          'vote_average.gte',
-          parsed.filters.minRating
-        );
-
-      }
-
-
-      const tvData =
-        await api(
-          '/api/discover/tv?' +
-          params.toString()
-        );
-
-
-      results.push(
-        ...(tvData.results || [])
-          .map((x) => ({
-            ...x,
-            media_type: 'tv'
-          }))
-      );
-
-    }
-
-
-    /*
-      NORMAL MOVIE SEARCH
-    */
-
-    const movieSearch =
-      await api(
-        '/api/search/movie?query=' +
-        encodeURIComponent(
-          parsed.searchText
-        )
-      );
-
-
-    results.push(
-      ...(movieSearch.results || [])
-        .map((x) => ({
-          ...x,
-          media_type: 'movie'
-        }))
-    );
-
-
-    /*
-      NORMAL TV SEARCH
-    */
-
-    const tvSearch =
-      await api(
-        '/api/search/tv?query=' +
-        encodeURIComponent(
-          parsed.searchText
-        )
-      );
-
-
-    results.push(
-      ...(tvSearch.results || [])
-        .map((x) => ({
-          ...x,
-          media_type: 'tv'
-        }))
-    );
-
-
-    /*
-      PEOPLE
-    */
-
-    results.push(
-      ...(personData.results || [])
-        .slice(0, 10)
-        .map((x) => ({
-          ...x,
-          media_type: 'person'
-        }))
-    );
-
-
-    /*
-      REMOVE DUPLICATES
-    */
-
-    results =
-      Array.from(
-        new Map(
-          results.map((item) => [
-            `${item.media_type}-${item.id}`,
-            item
-          ])
-        ).values()
-      );
-
-
-    /*
-      SORT
-    */
-
-    results.sort(
-      (a, b) =>
-        (b.popularity || 0) -
-        (a.popularity || 0)
-    );
-
-
-    renderSmartResults(
-      results
-    );
-
-
-  } catch (e) {
-
-    console.error(
-      'Smart search error:',
-      e
-    );
-
-
-    if (searchResults) {
-
-      searchResults.innerHTML = `
+    
 async function performSearch() {
   const rawQuery = searchInput?.value.trim();
 
@@ -1997,13 +1866,12 @@ async function performSearch() {
 
   try {
     const parsed = parseSmartQuery(rawQuery);
-    const cleanedQuery = parsed.query.trim();
 
     const hasSmartFilters =
-      parsed.year ||
-      parsed.rating ||
-      parsed.genre ||
-      parsed.type !== 'all';
+  parsed.filters.year ||
+  parsed.filters.minRating ||
+  parsed.filters.genre ||
+  parsed.filters.type;
 
     let results = [];
 
@@ -2106,46 +1974,70 @@ async function performSearch() {
     else {
       const params = new URLSearchParams();
 
-      if (parsed.year) {
-        params.set('primary_release_year', parsed.year);
-      }
+      if (parsed.filters.year) {
+  params.set(
+    'primary_release_year',
+    parsed.filters.year
+  );
+}
 
-      if (parsed.rating) {
-        params.set('vote_average.gte', parsed.rating);
-      }
+if (parsed.filters.minRating) {
+  params.set(
+    'vote_average.gte',
+    parsed.filters.minRating
+  );
+}
 
-      if (parsed.genre) {
-        params.set('with_genres', parsed.genre);
-      }
+if (parsed.filters.genre) {
+  params.set(
+    'with_genres',
+    parsed.filters.genre
+  );
+}
 
       params.set('sort_by', 'popularity.desc');
 
       const endpoints = [];
 
-      if (parsed.type === 'all' || parsed.type === 'movie') {
+      if (
+  !parsed.filters.type ||
+  parsed.filters.type === 'movie'
+) {
         endpoints.push(
           `/api/discover/movie?${params.toString()}`
         );
       }
 
-      if (parsed.type === 'all' || parsed.type === 'tv') {
+      if (
+  !parsed.filters.type ||
+  parsed.filters.type === 'tv'
+) {
         const tvParams = new URLSearchParams();
 
-        if (parsed.year) {
-          tvParams.set('first_air_date_year', parsed.year);
-        }
+if (parsed.filters.year) {
+  tvParams.set(
+    'first_air_date_year',
+    parsed.filters.year
+  );
+}
 
-        if (parsed.rating) {
-          tvParams.set('vote_average.gte', parsed.rating);
-        }
+if (parsed.filters.minRating) {
+  tvParams.set(
+    'vote_average.gte',
+    parsed.filters.minRating
+  );
+}
 
-        if (parsed.genre) {
-          tvParams.set('with_genres', parsed.genre);
-        }
+if (parsed.filters.genre) {
+  tvParams.set(
+    'with_genres',
+    parsed.filters.genre
+  );
+}
 
-        tvParams.set('sort_by', 'popularity.desc');
+tvParams.set('sort_by', 'popularity.desc');
 
-        endpoints.push(
+endpoints.push(
           `/api/discover/tv?${tvParams.toString()}`
         );
       }
