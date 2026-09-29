@@ -515,18 +515,39 @@ renderList(
   popularWorks.slice(0, 12)
 );
 
-  const movies = credits
+  const today = new Date().toISOString().slice(0, 10);
+
+const movies = credits
   .filter(item => getType(item) === "movie")
-  .sort((a, b) =>
-    getDate(b).localeCompare(getDate(a))
-  );
+  .sort((a, b) => {
+    const dateA = getDate(a);
+    const dateB = getDate(b);
+
+    const upcomingA = dateA && dateA > today;
+    const upcomingB = dateB && dateB > today;
+
+    if (upcomingA !== upcomingB) {
+      return upcomingA ? 1 : -1;
+    }
+
+    return dateB.localeCompare(dateA);
+  });
 
 const tv = credits
   .filter(item => getType(item) === "tv")
-  .sort((a, b) =>
-    getDate(b).localeCompare(getDate(a))
-  );
+  .sort((a, b) => {
+    const dateA = getDate(a);
+    const dateB = getDate(b);
 
+    const upcomingA = dateA && dateA > today;
+    const upcomingB = dateB && dateB > today;
+
+    if (upcomingA !== upcomingB) {
+      return upcomingA ? 1 : -1;
+    }
+
+    return dateB.localeCompare(dateA);
+  });
   renderList(
     document.getElementById("movies"),
     movies
