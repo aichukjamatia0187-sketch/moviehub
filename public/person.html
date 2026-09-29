@@ -515,12 +515,16 @@ renderList(
   popularWorks.slice(0, 12)
 );
 
-  const movies = credits.filter(
-    item => getType(item) === "movie"
+  const movies = credits
+  .filter(item => getType(item) === "movie")
+  .sort((a, b) =>
+    getDate(b).localeCompare(getDate(a))
   );
 
-  const tv = credits.filter(
-    item => getType(item) === "tv"
+const tv = credits
+  .filter(item => getType(item) === "tv")
+  .sort((a, b) =>
+    getDate(b).localeCompare(getDate(a))
   );
 
   renderList(
