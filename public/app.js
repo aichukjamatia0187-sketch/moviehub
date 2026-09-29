@@ -139,7 +139,203 @@ function fill(id, arr, type) {
     `;
 }
 
+/* =========================
+   HOME WATCHLIST
+========================= */
 
+function loadHomeWatchlist() {
+
+  const section =
+    $('#watchlistSection');
+
+  const rail =
+    $('#watchlistRail');
+
+  if (!section || !rail) return;
+
+  let movies = [];
+  let tv = [];
+
+  try {
+
+    movies = JSON.parse(
+      localStorage.getItem(
+        'moviehub_tracking_movie'
+      ) || '[]'
+    );
+
+    tv = JSON.parse(
+      localStorage.getItem(
+        'moviehub_tracking_tv'
+      ) || '[]'
+    );
+
+  } catch (error) {
+
+    console.warn(
+      'Watchlist could not be loaded:',
+      error
+    );
+
+    return;
+  }
+
+
+  const items = [
+
+    ...movies.map(item => ({
+      ...item,
+      media_type: 'movie'
+    })),
+
+    ...tv.map(item => ({
+      ...item,
+      media_type: 'tv'
+    }))
+
+  ];
+
+
+  /* Latest tracked first */
+
+  items.sort((a, b) =>
+    String(b.added_at || '')
+      .localeCompare(
+        String(a.added_at || '')
+      )
+  );
+
+
+  /* Nothing tracked */
+
+  if (!items.length) {
+
+    section.style.display = 'none';
+
+    return;
+  }
+
+
+  /* Show Watchlist */
+
+  section.style.display = 'block';
+
+
+  rail.innerHTML =
+    items
+      .slice(0, 14)
+      .map(item => {
+
+        const type =
+          item.media_type === 'tv'
+            ? 'tv'
+            : 'movie';
+
+        return `
+          <article
+            class="card"
+            data-id="${item.id}"
+            data-type="${type}"
+          >
+
+            <div class="poster">
+
+              <div class="empty">
+                LOADING
+              </div>
+
+            </div>
+
+            <div class="card-info">
+
+              <span class="card-title">
+                ${esc(item.title || 'Untitled')}
+              </span>
+
+              <span class="year">
+                ${(item.release_date || '').slice(0, 4)}
+              </span>
+
+            </div>
+
+          </article>
+        `;
+
+      })
+      .join('');
+
+
+  /*
+    Load actual TMDB details
+    so poster is available.
+  */
+
+  items
+    .slice(0, 14)
+    .forEach(async (item) => {
+
+      try {
+
+        const type =
+          item.media_type === 'tv'
+            ? 'tv'
+            : 'movie';
+
+        const data =
+          await api(
+            `/api/${type}/${item.id}`
+          );
+
+        const element =
+          rail.querySelector(
+            `.card[data-id="${item.id}"][data-type="${type}"]`
+          );
+
+        if (!element) return;
+
+        const posterBox =
+          element.querySelector('.poster');
+
+        if (!posterBox) return;
+
+        posterBox.innerHTML =
+          data.poster_path
+            ? `
+              <img
+                loading="lazy"
+                src="${poster(data)}"
+                alt="${esc(
+                  type === 'tv'
+                    ? data.name
+                    : data.title
+                )}"
+              >
+
+              <span class="badge">
+                ${type === 'tv' ? 'TV' : 'FILM'}
+              </span>
+            `
+            : `
+              <div class="empty">
+                NO POSTER
+              </div>
+            `;
+
+      } catch (error) {
+
+        console.warn(
+          'Watchlist item failed:',
+          item.id,
+          error
+        );
+
+      }
+
+    });
+
+
+  bindCards(rail);
+}
 /* =========================
    CARD CLICK
 ========================= */
@@ -553,10 +749,11 @@ loadHeroTrailer(hero).catch(console.warn);
           .join('');
     }
 
+/* CARD EVENTS */
 
-    /* CARD EVENTS */
+loadHomeWatchlist();
 
-    bindCards();
+bindCards();
 
 
     /* REMOVE LOADING ELEMENT
