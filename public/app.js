@@ -2086,7 +2086,7 @@ endpoints.push(
     */
     if (currentSearchFilter !== 'all') {
       results = results.filter(item => {
-        if (currentSearchFilter === 'movies') {
+        if (currentSearchFilter === 'movie') {
           return item.media_type === 'movie';
         }
 
