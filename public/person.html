@@ -341,7 +341,22 @@ function createCard(item) {
     </div>  
   `;  
 }  
-  
+  function renderList(container, items) {
+
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = "";
+
+  if (!Array.isArray(items) || !items.length) {
+    return;
+  }
+
+  container.innerHTML = items
+    .map(item => createCard(item))
+    .join("");
+}
 function openTitle(id, type) {  
   location.href =  
     `/movie.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;  
@@ -494,107 +509,132 @@ renderList(
   popularWorks.slice(0, 12)  
 );  
   
-const today = new Date().toISOString().slice(0, 10);  
+const now = new Date();
+
+now.setHours(0, 0, 0, 0);
+
+function isUpcoming(item) {
+  const date = getDate(item);
+
+  if (!date) {
+    return false;
+  }
+
+  const parts = date.split("-").map(Number);
+
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  const releaseDate = new Date(
+    parts[0],
+    parts[1] - 1,
+    parts[2]
+  );
+
+  releaseDate.setHours(0, 0, 0, 0);
+
+  return releaseDate > now;
+}
+
+const movies = credits
+  .filter(item => {
+    return getType(item) === "movie" &&
+           getDate(item) &&
+           !isUpcoming(item);
+  })
+  .sort((a, b) =>
+    getDate(b).localeCompare(getDate(a))
+  );
+
+const tv = credits
+  .filter(item => {
+    return getType(item) === "tv" &&
+           getDate(item) &&
+           !isUpcoming(item);
+  })
+  .sort((a, b) =>
+    getDate(b).localeCompare(getDate(a))
+  );
   
-const movies = credits  
-  .filter(item => {  
-    const date = getDate(item);  
-  
-    return getType(item) === "movie" &&  
-           date &&  
-           date <= today;  
-  })  
-  .sort((a, b) =>  
-    getDate(b).localeCompare(getDate(a))  
-  );  
-  
-const tv = credits  
-  .filter(item => {  
-    const date = getDate(item);  
-  
-    return getType(item) === "tv" &&  
-           date &&  
-           date <= today;  
-  })  
-  .sort((a, b) =>  
-    getDate(b).localeCompare(getDate(a))  
-  );    
-  renderList(  
-    document.getElementById("movies"),  
-    movies  
-  );  
-  
-  renderList(  
-    document.getElementById("tv"),  
-    tv  
-  );  
-  
-  renderUpcoming(credits);  
+    renderList(
+    document.getElementById("movies"),
+    movies
+  );
+
+  renderList(
+    document.getElementById("tv"),
+    tv
+  );
+
+  renderUpcoming(credits);
 }  
-  
-function renderList(container, items) {  
-  
-  if (!items.length) {  
-  
-    container.innerHTML = `  
-      <div class="status">  
-        No titles found.  
-      </div>  
-    `;  
-  
-    return;  
-  }  
-  
-  container.innerHTML =  
-    items  
-      .slice(0, 30)  
-      .map(createCard)  
-      .join("");  
-}  
-function renderUpcoming(items) {  
-  const today =  
-    new Date().toISOString().slice(0, 10);  
-  
-  const upcoming = items  
-    .filter(item => {  
-      const date = getDate(item);  
-  
-      return date &&  
-             date > today &&  
-             !item.adult &&  
-             item.poster_path;  
-    })  
-    .sort((a, b) =>  
-      getDate(a).localeCompare(getDate(b))  
-    );  
-  
-  const unique = [];  
-  const seen = new Set();  
-  
-  upcoming.forEach(item => {  
-    const key =  
-      `${getType(item)}-${item.id}`;  
-  
-    if (!seen.has(key)) {  
-      seen.add(key);  
-      unique.push(item);  
-    }  
-  });  
-  
-  if (!unique.length) {  
-    return;  
-  }  
-  
-  document  
-    .getElementById("upcomingSection")  
-    .classList.remove("hidden");  
-  
-  renderList(  
-    document.getElementById("upcoming"),  
-    unique.slice(0, 12)  
-  );  
-}  
-  
+  function renderUpcoming(items) {
+
+  const now = new Date();
+
+  now.setHours(0, 0, 0, 0);
+
+  const upcoming = items
+    .filter(item => {
+
+      const date = getDate(item);
+
+      if (!date) {
+        return false;
+      }
+
+      const parts = date.split("-").map(Number);
+
+      if (parts.length !== 3) {
+        return false;
+      }
+
+      const releaseDate = new Date(
+        parts[0],
+        parts[1] - 1,
+        parts[2]
+      );
+
+      releaseDate.setHours(0, 0, 0, 0);
+
+      return releaseDate > now &&
+             !item.adult &&
+             item.poster_path;
+
+    })
+    .sort((a, b) =>
+      getDate(a).localeCompare(getDate(b))
+    );
+
+  const unique = [];
+  const seen = new Set();
+
+  upcoming.forEach(item => {
+
+    const key =
+      `${getType(item)}-${item.id}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(item);
+    }
+
+  });
+
+  if (!unique.length) {
+    return;
+  }
+
+  document
+    .getElementById("upcomingSection")
+    .classList.remove("hidden");
+
+  renderList(
+    document.getElementById("upcoming"),
+    unique.slice(0, 12)
+  );
+}
   
 loadPerson()  
   .catch(error => {  
