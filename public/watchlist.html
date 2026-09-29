@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#080807"
+  >
+
+  <title>My Watchlist — MovieHub</title>
+
+  <style>
+
+    @import url(
+      'https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap'
+    );
+
+    :root{
+      --bg:#080807;
+      --panel:#0d0d0c;
+      --line:#2a261d;
+      --gold:#d7ae61;
+      --text:#f4f0e9;
+      --muted:#9b958a;
+      --serif:'Playfair Display',Georgia,serif;
+      --sans:'DM Sans',Arial,sans-serif;
+      --mono:'DM Mono',monospace;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      overflow-x:hidden;
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    /* HEADER */
+
+    .top{
+      height:74px;
+      background:rgba(8,8,7,.96);
+      border-bottom:1px solid #14130f;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 4vw;
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter:blur(14px);
+    }
+
+    .brand{
+      font-family:var(--serif);
+      font-size:24px;
+      letter-spacing:.01em;
+    }
+
+    .brand b{
+      color:var(--gold);
+      font-weight:500;
+    }
+
+    .back{
+      border:1px solid #3b3529;
+      background:transparent;
+      color:#cfc7b8;
+      padding:10px 16px;
+      border-radius:4px;
+      font:500 10px var(--mono);
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+
+    .back:hover{
+      border-color:#756044;
+      color:#fff;
+    }
+
+    /* MAIN */
+
+    main{
+      min-height:calc(100vh - 74px);
+      padding:58px 4vw 100px;
+    }
+
+    .page-head{
+      border-bottom:1px solid #29251e;
+      padding-bottom:20px;
+      margin-bottom:28px;
+    }
+
+    .kicker{
+      font:500 9px var(--mono);
+      letter-spacing:.28em;
+      color:#847e73;
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+
+    h1{
+      margin:0;
+      font:600 clamp(38px,5vw,58px)/1 var(--serif);
+      letter-spacing:-.035em;
+    }
+
+    .count{
+      margin-top:10px;
+      color:#8f897e;
+      font:400 10px var(--mono);
+      letter-spacing:.08em;
+    }
+
+    /* WATCHLIST GRID */
+
+    .watchlist-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(176px,1fr));
+      gap:32px 18px;
+    }
+
+    .card{
+      min-width:0;
+      cursor:pointer;
+    }
+
+    .poster{
+      height:260px;
+      position:relative;
+      overflow:hidden;
+      border:1px solid #292820;
+      border-radius:4px;
+      background:#151513;
+    }
+
+    .poster img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      transition:
+        transform .35s ease;
+    }
+
+    .card:hover .poster img{
+      transform:scale(1.04);
+    }
+
+    .badge{
+      position:absolute;
+      top:10px;
+      left:9px;
+      background:rgba(5,5,4,.78);
+      border:1px solid #514b3e;
+      border-radius:2px;
+      padding:4px 6px;
+      font:500 8px var(--mono);
+      letter-spacing:.16em;
+    }
+
+    .remove{
+      position:absolute;
+      top:9px;
+      right:9px;
+      width:30px;
+      height:30px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:50%;
+      background:rgba(5,5,4,.82);
+      color:#ddd;
+      font-size:15px;
+      z-index:5;
+    }
+
+    .remove:hover{
+      background:#fff;
+      color:#111;
+    }
+
+    .card-info{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      margin-top:9px;
+    }
+
+    .card-title{
+      min-width:0;
+      font:600 14px var(--serif);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .year{
+      flex:0 0 auto;
+      font:400 10px var(--mono);
+      color:#777269;
+      padding-top:3px;
+    }
+
+    /* EMPTY */
+
+    .empty-state{
+      min-height:45vh;
+      border:1px solid #24221d;
+      background:#0c0c0b;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:40px;
+    }
+
+    .empty-icon{
+      font-size:38px;
+      margin-bottom:18px;
+      opacity:.75;
+    }
+
+    .empty-state h2{
+      margin:0 0 10px;
+      font:600 30px var(--serif);
+    }
+
+    .empty-state p{
+      margin:0 0 22px;
+      color:#888177;
+      font:400 11px var(--mono);
+    }
+
+    .browse{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      height:42px;
+      padding:0 20px;
+      border:1px solid var(--gold);
+      background:var(--gold);
+      color:#16130c;
+      border-radius:4px;
+      font:500 10px var(--mono);
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+
+    /* FOOTER */
+
+    footer{
+      border-top:1px solid #211f1a;
+      padding:30px 4vw;
+      color:#777267;
+      font:10px var(--mono);
+    }
+
+    /* MOBILE */
+
+    @media(max-width:700px){
+
+      .top{
+        height:62px;
+        padding:0 20px;
+      }
+
+      .brand{
+        font-size:20px;
+      }
+
+      main{
+        padding:42px 20px 80px;
+      }
+
+      .watchlist-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:28px 12px;
+      }
+
+      .poster{
+        height:245px;
+      }
+
+      .card-title{
+        font-size:13px;
+      }
+
+    }
+
+    @media(max-width:420px){
+
+      .watchlist-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .poster{
+        height:220px;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header class="top">
+
+    <a
+      class="brand"
+      href="/"
+    >
+      MOVIE<b>HUB</b>
+    </a>
+
+    <a
+      class="back"
+      href="/"
+    >
+      ← HOME
+    </a>
+
+  </header>
+
+
+  <main>
+
+    <div class="page-head">
+
+      <div class="kicker">
+        YOUR COLLECTION
+      </div>
+
+      <h1>
+        My Watchlist
+      </h1>
+
+      <div
+        class="count"
+        id="watchlistCount"
+      >
+        Loading...
+      </div>
+
+    </div>
+
+
+    <div
+      class="watchlist-grid"
+      id="watchlistGrid"
+    ></div>
+
+  </main>
+
+
+  <footer>
+    MovieHub — Movies, TV Shows & Dramas
+  </footer>
+
+
+  <script>
+
+    const IMG =
+      'https://image.tmdb.org/t/p/';
+
+    const grid =
+      document.getElementById(
+        'watchlistGrid'
+      );
+
+    const count =
+      document.getElementById(
+        'watchlistCount'
+      );
+
+
+    function esc(value){
+
+      return String(value ?? '')
+        .replace(
+          /[&<>"']/g,
+          (c) => ({
+            '&':'&amp;',
+            '<':'&lt;',
+            '>':'&gt;',
+            '"':'&quot;',
+            "'":'&#039;'
+          }[c])
+        );
+
+    }
+
+
+    function poster(item){
+
+      return item?.poster_path
+        ? IMG + 'w500' + item.poster_path
+        : '';
+
+    }
+
+
+    function getItems(){
+
+      let movies = [];
+      let tv = [];
+
+      try{
+
+        movies = JSON.parse(
+          localStorage.getItem(
+            'moviehub_tracking_movie'
+          ) || '[]'
+        );
+
+        tv = JSON.parse(
+          localStorage.getItem(
+            'moviehub_tracking_tv'
+          ) || '[]'
+        );
+
+      }catch(error){
+
+        console.error(
+          'Watchlist storage error:',
+          error
+        );
+
+      }
+
+
+      return [
+
+        ...movies.map(item => ({
+          ...item,
+          media_type:'movie'
+        })),
+
+        ...tv.map(item => ({
+          ...item,
+          media_type:'tv'
+        }))
+
+      ].sort((a,b) =>
+        String(b.added_at || '')
+          .localeCompare(
+            String(a.added_at || '')
+          )
+      );
+
+    }
+
+
+    function showEmpty(){
+
+      count.textContent =
+        '0 TITLES SAVED';
+
+      grid.innerHTML = `
+
+        <div
+          class="empty-state"
+          style="grid-column:1/-1"
+        >
+
+          <div class="empty-icon">
+            🎬
+          </div>
+
+          <h2>
+            Your watchlist is empty
+          </h2>
+
+          <p>
+            Track movies and TV shows to save them here.
+          </p>
+
+          <a
+            class="browse"
+            href="/"
+          >
+            BROWSE MOVIES
+          </a>
+
+        </div>
+
+      `;
+
+    }
+
+
+    async function loadWatchlist(){
+
+      const items =
+        getItems();
+
+
+      if(!items.length){
+
+        showEmpty();
+
+        return;
+
+      }
+
+
+      count.textContent =
+        `${items.length} ${
+          items.length === 1
+            ? 'TITLE'
+            : 'TITLES'
+        } SAVED`;
+
+
+      grid.innerHTML =
+        items.map(item => {
+
+          const type =
+            item.media_type === 'tv'
+              ? 'tv'
+              : 'movie';
+
+          return `
+
+            <article
+              class="card"
+              data-id="${esc(item.id)}"
+              data-type="${type}"
+            >
+
+              <div class="poster">
+
+                <div class="empty">
+                  LOADING
+                </div>
+
+                <button
+                  class="remove"
+                  type="button"
+                  data-remove-id="${esc(item.id)}"
+                  data-remove-type="${type}"
+                  aria-label="Remove from watchlist"
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              <div class="card-info">
+
+                <span class="card-title">
+                  ${esc(
+                    item.title ||
+                    'Untitled'
+                  )}
+                </span>
+
+                <span class="year">
+                  ${(
+                    item.release_date ||
+                    ''
+                  ).slice(0,4)}
+                </span>
+
+              </div>
+
+            </article>
+
+          `;
+
+        }).join('');
+
+
+      await Promise.all(
+
+        items.map(
+          async (item) => {
+
+            const type =
+              item.media_type === 'tv'
+                ? 'tv'
+                : 'movie';
+
+
+            try{
+
+              const response =
+                await fetch(
+                  `/api/${type}/${item.id}`
+                );
+
+
+              if(!response.ok){
+
+                throw new Error(
+                  `HTTP ${response.status}`
+                );
+
+              }
+
+
+              const data =
+                await response.json();
+
+
+              const card =
+                grid.querySelector(
+                  `.card[data-id="${CSS.escape(String(item.id))}"][data-type="${type}"]`
+                );
+
+
+              if(!card) return;
+
+
+              const posterBox =
+                card.querySelector(
+                  '.poster'
+                );
+
+
+              if(!posterBox) return;
+
+
+              posterBox.innerHTML = `
+
+                ${
+                  data.poster_path
+                    ? `
+                      <img
+                        loading="lazy"
+                        src="${poster(data)}"
+                        alt="${esc(
+                          type === 'tv'
+                            ? data.name
+                            : data.title
+                        )}"
+                      >
+
+                      <span class="badge">
+                        ${
+                          type === 'tv'
+                            ? 'TV'
+                            : 'FILM'
+                        }
+                      </span>
+                    `
+                    : `
+                      <div class="empty">
+                        NO POSTER
+                      </div>
+                    `
+                }
+
+                <button
+                  class="remove"
+                  type="button"
+                  data-remove-id="${esc(item.id)}"
+                  data-remove-type="${type}"
+                  aria-label="Remove from watchlist"
+                >
+                  ×
+                </button>
+
+              `;
+
+            }catch(error){
+
+              console.warn(
+                'Watchlist item failed:',
+                item.id,
+                error
+              );
+
+            }
+
+          }
+        )
+
+      );
+
+
+      bindCards();
+
+    }
+
+
+    function bindCards(){
+
+      grid
+        .querySelectorAll(
+          '.card[data-id]'
+        )
+        .forEach(card => {
+
+          card.onclick =
+            (event) => {
+
+              if(
+                event.target.closest(
+                  '.remove'
+                )
+              ){
+
+                return;
+
+              }
+
+
+              const id =
+                card.dataset.id;
+
+              const type =
+                card.dataset.type ||
+                'movie';
+
+
+              location.href =
+                `/movie.html?id=${
+                  encodeURIComponent(id)
+                }&type=${
+                  encodeURIComponent(type)
+                }`;
+
+            };
+
+        });
+
+
+      grid
+        .querySelectorAll(
+          '.remove'
+        )
+        .forEach(button => {
+
+          button.onclick =
+            (event) => {
+
+              event.stopPropagation();
+
+
+              const id =
+                String(
+                  button.dataset.removeId
+                );
+
+              const type =
+                button.dataset.removeType === 'tv'
+                  ? 'tv'
+                  : 'movie';
+
+
+              const key =
+                `moviehub_tracking_${type}`;
+
+
+              let items = [];
+
+
+              try{
+
+                items = JSON.parse(
+                  localStorage.getItem(
+                    key
+                  ) || '[]'
+                );
+
+              }catch(_){
+
+                items = [];
+
+              }
+
+
+              items =
+                items.filter(
+                  item =>
+                    String(item.id) !== id
+                );
+
+
+              localStorage.setItem(
+                key,
+                JSON.stringify(items)
+              );
+
+
+              loadWatchlist();
+
+            };
+
+        });
+
+    }
+
+
+    loadWatchlist();
+
+  </script>
+
+</body>
+</html>
