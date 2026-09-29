@@ -154,7 +154,38 @@
       gap: 10px;
       margin-bottom: 18px;
     }
+.track-btn {
+  background: #171920;
+  color: #ffffff;
+  border: 1px solid #30333d;
+}
 
+.track-btn.tracking {
+  background: #ffffff;
+  color: #111111;
+  border-color: #ffffff;
+}
+
+.release-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 18px;
+}
+
+.release-label {
+  color: #8f95a7;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.release-date {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
     .action-btn {
       border: 0;
       border-radius: 7px;
@@ -479,7 +510,24 @@ function year(date) {
     ? date.slice(0, 4)
     : "—";
 }
+function formatReleaseDate(date) {
 
+  if (!date) {
+    return "Release date unavailable";
+  }
+
+  const parsed = new Date(`${date}T00:00:00`);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return date;
+  }
+
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+}
 function runtimeText(minutes) {
 
   if (!minutes) return "";
@@ -514,7 +562,85 @@ function getTrailer(videos) {
     null
   );
 }
+function getTrackKey() {
+  return `moviehub_tracking_${type}`;
+}
 
+function getTrackedItems() {
+  try {
+    return JSON.parse(
+      localStorage.getItem(getTrackKey()) || "[]"
+    );
+  } catch (_) {
+    return [];
+  }
+}
+
+function isTracked(movieId) {
+  return getTrackedItems().some(
+    item => String(item.id) === String(movieId)
+  );
+}
+
+function toggleTrack() {
+
+  const key = getTrackKey();
+  let items = getTrackedItems();
+
+  const index = items.findIndex(
+    item => String(item.id) === String(id)
+  );
+
+  if (index >= 0) {
+
+    items.splice(index, 1);
+
+  } else {
+
+    const title =
+      document.querySelector("h1")?.textContent.trim() ||
+      "Untitled";
+
+    const date =
+      document.querySelector("[data-release-date]")?.dataset.releaseDate ||
+      "";
+
+    items.push({
+      id,
+      type,
+      title,
+      release_date: date,
+      added_at: new Date().toISOString()
+    });
+  }
+
+  localStorage.setItem(
+    key,
+    JSON.stringify(items)
+  );
+
+  updateTrackButton();
+}
+
+function updateTrackButton() {
+
+  const button =
+    document.getElementById("trackButton");
+
+  if (!button) return;
+
+  const tracked = isTracked(id);
+
+  button.classList.toggle(
+    "tracking",
+    tracked
+  );
+
+  button.innerHTML =
+    tracked
+      ? "✓ TRACKING"
+      : "🔔 TRACK";
+}
 function providerData(data) {
 
   const results = data?.results || {};
@@ -912,7 +1038,25 @@ async function render() {
                     `
                     : ""
                 }
+${
+  date
+    ? `
+      <div
+        class="release-box"
+        data-release-date="${esc(date)}">
 
+        <span class="release-label">
+          Release Date
+        </span>
+
+        <span class="release-date">
+          ${formatReleaseDate(date)}
+        </span>
+
+      </div>
+    `
+    : ""
+}
               </div>
 
               <div class="actions">
@@ -943,7 +1087,12 @@ async function render() {
                     `
                     : ""
                 }
-
+<button
+  id="trackButton"
+  class="action-btn track-btn"
+  onclick="toggleTrack()">
+  🔔 TRACK
+</button>
               </div>
 
               <p class="overview">
@@ -1017,7 +1166,7 @@ async function render() {
       </div>
 
     `;
-
+updateTrackButton();
   } catch (error) {
 
     document.getElementById("app").innerHTML = `
