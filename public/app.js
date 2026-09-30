@@ -2627,20 +2627,12 @@ await loadGenres();
 }
 
 startMovieHub();
-/* =========================
-   PERSON CARD CLICK
-========================= */
-
 document.addEventListener('click', (e) => {
 
-  const person = e.target.closest('.person[data-person-id]');
+  const person = e.target.closest('.person');
 
   if (!person) return;
 
-  const id = person.dataset.personId;
-
-  if (!id) return;
-
-  location.href = `/person.html?id=${encodeURIComponent(id)}`;
+  alert('PERSON CLICK WORKING');
 
 });
