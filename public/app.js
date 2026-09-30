@@ -1291,150 +1291,82 @@ async function openDetails(id, type) {
 
           <div class="credits">
 
-            ${
-              cast.length
+${
+  cast.length
+    ? cast
+        .map(
+          (p) => `
 
-                ? cast
-                    .map(
-  (p) => `
-
-    <div
-      class="person"
-      data-person-id="${p.id}"
-      role="button"
-      tabindex="0"
-      onclick="location.href='/person.html?id=${encodeURIComponent(p.id)}'"
-    >
-
-      ${
-        p.profile_path
-
-          ? `
-            <img
-              src="${IMG + 'w185' + p.profile_path}"
-              alt="${esc(p.name)}"
-            >
-          `
-
-          : `
             <div
-              style="
-                width:82px;
-                height:110px;
-                background:#171715;
-                display:grid;
-                place-items:center;
-                color:#777;
-                font:9px var(--mono);
-              "
+              class="person"
+              data-person-id="${p.id}"
+              role="button"
+              tabindex="0"
+              onclick="location.href='/person.html?id=${encodeURIComponent(p.id)}'"
             >
-              NO PHOTO
+
+              ${
+                p.profile_path
+                  ? `
+                    <img
+                      src="${IMG + 'w185' + p.profile_path}"
+                      alt="${esc(p.name)}"
+                    >
+                  `
+                  : `
+                    <div
+                      style="
+                        width:82px;
+                        height:110px;
+                        background:#171715;
+                        display:grid;
+                        place-items:center;
+                        color:#777;
+                        font:9px var(--mono);
+                      "
+                    >
+                      NO PHOTO
+                    </div>
+                  `
+              }
+
+              <span>${esc(p.name)}</span>
+
+              ${
+                p.character
+                  ? `
+                    <small
+                      style="
+                        display:block;
+                        margin-top:3px;
+                        color:#666;
+                        font-size:9px;
+                      "
+                    >
+                      ${esc(p.character)}
+                    </small>
+                  `
+                  : ''
+              }
+
             </div>
+
           `
-      }
+        )
+        .join('')
 
-      <span>
-        ${esc(p.name)}
-      </span>
-
-      ${
-        p.character
-          ? `
-            <small
-              style="
-                display:block;
-                margin-top:3px;
-                color:#666;
-                font-size:9px;
-              "
-            >
-              ${esc(p.character)}
-            </small>
-          `
-          : ''
-      }
-
-    </div>
-
-  `
-)
-                          ${
-                            p.profile_path
-
-                              ? `
-                                <img
-                                  src="${
-                                    IMG +
-                                    'w185' +
-                                    p.profile_path
-                                  }"
-                                  alt="${esc(
-                                    p.name
-                                  )}"
-                                >
-                              `
-
-                              : `
-                                <div
-                                  style="
-                                    width:82px;
-                                    height:110px;
-                                    background:#171715;
-                                    display:grid;
-                                    place-items:center;
-                                    color:#777;
-                                    font:9px var(--mono);
-                                  "
-                                >
-                                  NO PHOTO
-                                </div>
-                              `
-                          }
-
-
-                          <span>
-                            ${esc(p.name)}
-                          </span>
-
-
-                          ${
-                            p.character
-
-                              ? `
-                                <small
-                                  style="
-                                    display:block;
-                                    margin-top:3px;
-                                    color:#666;
-                                    font-size:9px;
-                                  "
-                                >
-                                  ${esc(
-                                    p.character
-                                  )}
-                                </small>
-                              `
-
-                              : ''
-                          }
-
-                        </div>
-
-                      `
-                    )
-                    .join('')
-
-                : `
-                  <span
-                    style="
-                      color:#777;
-                      font-size:11px;
-                    "
-                  >
-                    Cast information unavailable.
-                  </span>
-                `
-            }
+    : `
+        <span
+          style="
+            color:#777;
+            font-size:11px;
+          "
+        >
+          Cast information unavailable.
+        </span>
+      `
+}
+    
 
           </div>
 
@@ -1798,12 +1730,12 @@ if (modalClose) {
 }
 
 
-const modal =
+const modalCloseOverlay =
   $('#modal');
 
-if (modal) {
+if (modalCloseOverlay) {
 
-  modal.onclick = (e) => {
+  modalCloseOverlay.onclick = (e) => {
 
     if (
       e.target.id === 'modal'
