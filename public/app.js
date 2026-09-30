@@ -1484,48 +1484,6 @@ if (modal) {
 }
 
 
-/* =========================
-   CAST PERSON CLICK
-========================= */
-
-modalBox
-  .querySelectorAll('.person[data-person-id]')
-  .forEach((person) => {
-
-    const goToPerson = () => {
-
-      const id =
-        person.dataset.personId;
-
-      if (!id) return;
-
-      location.href =
-        `/person.html?id=${encodeURIComponent(id)}`;
-
-    };
-
-
-    person.onclick =
-      goToPerson;
-
-
-    person.onkeydown =
-      (e) => {
-
-        if (
-          e.key === 'Enter' ||
-          e.key === ' '
-        ) {
-
-          e.preventDefault();
-
-          goToPerson();
-
-        }
-
-      };
-
-  });
 
   } catch (e) {
 
