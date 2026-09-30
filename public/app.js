@@ -2461,7 +2461,82 @@ if (searchInput) {
     };
 
 }
+/* =========================
+   LOAD & RENDER GENRES
+========================= */
 
+async function loadGenres() {
+
+  const genresList = $('#genresList');
+
+  if (!genresList) return;
+
+  try {
+
+    const results = await Promise.allSettled([
+      api('/api/genres'),
+      api('/api/tv/genres')
+    ]);
+
+    const allGenres = [];
+
+    results.forEach((result) => {
+
+      if (
+        result.status === 'fulfilled' &&
+        Array.isArray(result.value?.genres)
+      ) {
+        allGenres.push(
+          ...result.value.genres
+        );
+      }
+
+    });
+
+    const uniqueGenres =
+      Array.from(
+        new Map(
+          allGenres.map((genre) => [
+            genre.id,
+            genre
+          ])
+        ).values()
+      );
+
+    uniqueGenres.sort((a, b) =>
+      String(a.name).localeCompare(
+        String(b.name)
+      )
+    );
+
+    genresList.innerHTML =
+      uniqueGenres
+        .map((genre) => `
+          <button
+            type="button"
+            class="genre"
+            data-genre="${genre.id}"
+          >
+            ${esc(genre.name)}
+          </button>
+        `)
+        .join('');
+
+    console.log(
+      'MovieHub genres loaded:',
+      uniqueGenres
+    );
+
+  } catch (error) {
+
+    console.error(
+      'Genre loading failed:',
+      error
+    );
+
+    genresList.innerHTML = '';
+  }
+}
 /* =========================
    GENRE BUTTONS
 ========================= */
@@ -2547,7 +2622,7 @@ async function startMovieHub() {
 
   try {
     await load();
-
+await loadGenres();
     // Movies/hero/sections render hone ke baad
     // hi main animated loader hide hoga.
     if (movieLoader) {
