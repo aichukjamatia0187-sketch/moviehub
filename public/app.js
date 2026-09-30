@@ -1297,14 +1297,11 @@ ${
         .map(
           (p) => `
 
-            <div
+          <a
   class="person"
-  data-person-id="${p.id}"
-  role="button"
-  tabindex="0"
-  style="cursor:pointer;"
-  onclick="window.location.href='/person.html?id=${encodeURIComponent(p.id)}';"
->
+  href="/person.html?id=${encodeURIComponent(p.id)}"
+  style="cursor:pointer; text-decoration:none;"
+>  
 
               ${
                 p.profile_path
