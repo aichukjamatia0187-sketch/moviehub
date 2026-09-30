@@ -798,33 +798,67 @@
 </section>
 
 <main>
-    <section class="section" id="movies"><div class="section-head"><div><div class="section-kicker">ACROSS FILM AND TELEVISION</div><h2>Trending now</h2></div><span class="see">UPDATED DAILY</span></div><div class="rail" id="trendingRail"></div></section>
-    <section class="section"><div class="section-head"><div><div class="section-kicker">MOST WATCHED THIS WEEK</div><h2>Popular films</h2></div><span class="see">EXPLORE</span></div><div class="rail" id="popularRail"></div></section>
-    <section class="section"><div class="section-head"><div><div class="section-kicker">NEW RELEASES</div><h2>Now playing</h2></div><span class="see">IN CINEMAS</span></div><div class="rail" id="nowRail"></div></section>
-    <section class="section"><div class="section-head"><div><div class="section-kicker">COMING SOON</div><h2>Upcoming movies</h2></div><a class="see" href="/upcoming.html">VIEW ALL</a></div><div class="rail" id="upcomingRail"></div></section>
-    <section class="section" id="watchlistSection" style="display:none">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">YOUR COLLECTION</div>
-      <h2>My Watchlist</h2>
-    </div>
-    <a class="see" href="/watchlist.html">VIEW ALL</a>
-  </div>
-
-  <div class="rail" id="watchlistRail"></div>
-</section>
-  <section class="section" id="shows"><div class="section-head"><div><div class="section-kicker">REAL TELEVISION</div><h2>Popular TV shows</h2></div><span class="see">EXPLORE</span></div><div class="rail" id="tvPopularRail"></div></section>
-    <section class="section" id="dramas"><div class="section-head"><div><div class="section-kicker">SERIES & DRAMAS</div><h2>Trending dramas</h2></div><span class="see">UPDATED DAILY</span></div><div class="rail" id="tvTrendingRail"></div></section>
-    <section class="section"><div class="section-head"><div><div class="section-kicker">ON TELEVISION</div><h2>TV airing today</h2></div><span class="see">NEW EPISODES</span></div><div class="rail" id="tvTodayRail"></div></section>
-    <section class="section" id="genres"><div class="section-head"><div><div class="section-kicker">BROWSE BY MOOD</div><h2>Genres</h2></div></div><div class="genres" id="genresList"></div></section>
-<!-- =========================
+    <!-- =========================
      DISCOVERY COLLECTIONS
 ========================= -->
 
+<!-- 1. TRENDING TODAY -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">ROMANCE</div>
+      <div class="section-kicker">🔥 TRENDING TODAY</div>
+      <h2>Trending Today</h2>
+    </div>
+    <span class="see">EXPLORE</span>
+  </div>
+  <div class="rail" id="trendingRail"></div>
+</section>
+
+
+<!-- 2. HIGHLY RATED -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">⭐ HIGHLY RATED</div>
+      <h2>Highly Rated</h2>
+    </div>
+    <span class="see">EXPLORE</span>
+  </div>
+  <div class="rail" id="popularRail"></div>
+</section>
+
+
+<!-- 3. NEW RELEASES -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🎬 NEW RELEASES</div>
+      <h2>New Releases</h2>
+    </div>
+    <span class="see">EXPLORE</span>
+  </div>
+  <div class="rail" id="nowRail"></div>
+</section>
+
+
+<!-- 4. WEBSERIES -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">📺 WEBSERIES</div>
+      <h2>Webseries</h2>
+    </div>
+    <span class="see">EXPLORE</span>
+  </div>
+  <div class="rail" id="tvPopularRail"></div>
+</section>
+
+
+<!-- 5. ROMANCE -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">❤️ ROMANCE</div>
       <h2>Romance</h2>
     </div>
     <span class="see">EXPLORE</span>
@@ -832,10 +866,12 @@
   <div class="rail" id="romanceRail"></div>
 </section>
 
+
+<!-- 6. ACTION -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">HIGH ENERGY</div>
+      <div class="section-kicker">💥 ACTION</div>
       <h2>Action</h2>
     </div>
     <span class="see">EXPLORE</span>
@@ -843,10 +879,12 @@
   <div class="rail" id="actionRail"></div>
 </section>
 
+
+<!-- 7. HORROR -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">DARK STORIES</div>
+      <div class="section-kicker">👻 HORROR</div>
       <h2>Horror</h2>
     </div>
     <span class="see">EXPLORE</span>
@@ -854,10 +892,12 @@
   <div class="rail" id="horrorRail"></div>
 </section>
 
+
+<!-- 8. MIND-BENDING -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">UNEXPECTED STORIES</div>
+      <div class="section-kicker">🧠 MIND-BENDING</div>
       <h2>Mind-Bending</h2>
     </div>
     <span class="see">EXPLORE</span>
@@ -865,32 +905,38 @@
   <div class="rail" id="mindBendingRail"></div>
 </section>
 
+
+<!-- 9. BASED ON TRUE STORIES -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">INSPIRED BY REAL EVENTS</div>
-      <h2>True Stories</h2>
+      <div class="section-kicker">🎭 TRUE STORIES</div>
+      <h2>Based on True Stories</h2>
     </div>
     <span class="see">EXPLORE</span>
   </div>
   <div class="rail" id="trueStoriesRail"></div>
 </section>
 
+
+<!-- 10. FAMILY NIGHT -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">FOR EVERYONE</div>
-      <h2>Family</h2>
+      <div class="section-kicker">🍿 FAMILY NIGHT</div>
+      <h2>Family Night</h2>
     </div>
     <span class="see">EXPLORE</span>
   </div>
   <div class="rail" id="familyRail"></div>
 </section>
 
+
+<!-- 11. HOLLYWOOD -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">AMERICAN CINEMA</div>
+      <div class="section-kicker">🇺🇸 HOLLYWOOD</div>
       <h2>Hollywood</h2>
     </div>
     <span class="see">EXPLORE</span>
@@ -898,32 +944,38 @@
   <div class="rail" id="hollywoodRail"></div>
 </section>
 
+
+<!-- 12. LATE NIGHT MOVIES -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">LATE NIGHT</div>
-      <h2>Late Night</h2>
+      <div class="section-kicker">🌙 LATE NIGHT MOVIES</div>
+      <h2>Late Night Movies</h2>
     </div>
     <span class="see">EXPLORE</span>
   </div>
   <div class="rail" id="lateNightRail"></div>
 </section>
 
+
+<!-- 13. KOREAN -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">KOREAN CINEMA</div>
-      <h2>Korean</h2>
+      <div class="section-kicker">🇰🇷 KOREAN</div>
+      <h2>Korean Drama &amp; more</h2>
     </div>
     <span class="see">EXPLORE</span>
   </div>
   <div class="rail" id="koreanRail"></div>
 </section>
 
+
+<!-- 14. CHINA -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">CHINESE CINEMA</div>
+      <div class="section-kicker">🇨🇳 CHINA</div>
       <h2>China</h2>
     </div>
     <span class="see">EXPLORE</span>
@@ -931,10 +983,12 @@
   <div class="rail" id="chinaRail"></div>
 </section>
 
+
+<!-- 15. JAPANESE -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">JAPANESE CINEMA</div>
+      <div class="section-kicker">🇯🇵 JAPANESE</div>
       <h2>Japanese</h2>
     </div>
     <span class="see">EXPLORE</span>
@@ -942,16 +996,49 @@
   <div class="rail" id="japaneseRail"></div>
 </section>
 
+
+<!-- 16. INDIAN -->
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="section-kicker">INDIAN CINEMA</div>
-      <h2>Bollywood</h2>
+      <div class="section-kicker">🇮🇳 INDIAN</div>
+      <h2>Indian</h2>
     </div>
     <span class="see">EXPLORE</span>
   </div>
-  <div class="rail" id="bollywoodRail"></div>
+  <div class="rail" id="indianRail"></div>
 </section>
+
+
+<!-- 17. COMING SOON -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">📅 COMING SOON</div>
+      <h2>Coming Soon</h2>
+    </div>
+    <span class="see">EXPLORE</span>
+  </div>
+  <div class="rail" id="upcomingRail"></div>
+</section>
+
+
+<!-- =========================
+     GENRES — ABSOLUTELY LAST
+========================= -->
+
+<section class="section" id="genres">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">BROWSE</div>
+      <h2>Genres</h2>
+    </div>
+  </div>
+
+  <div class="genres" id="genresList"></div>
+</section>
+
+
 </main>
 <footer class="site-footer">
   <div class="footer-inner">
