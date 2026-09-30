@@ -861,11 +861,11 @@ results.forEach((result, index) => {
       'movie'
     );
 
-    fill(
-      '#bollywoodRail',
-      discovery.bollywood,
-      'movie'
-    );
+fill(
+  '#indianRail',
+  discovery.bollywood,
+  'movie'
+);
 
 
     /* =========================
