@@ -2684,3 +2684,14 @@ await loadGenres();
 }
 
 startMovieHub();
+document.addEventListener('click', (e) => {
+  const person = e.target.closest('.person[data-person-id]');
+
+  if (!person) return;
+
+  const id = person.dataset.personId;
+
+  if (!id) return;
+
+  location.href = `/person.html?id=${encodeURIComponent(id)}`;
+});
