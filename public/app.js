@@ -1478,13 +1478,6 @@ async function openDetails(id, type) {
 
     `;
 
-
-    const modal =
-      $('#modal');
-
-    if (modal) {
-      modal.classList.add('open');
-    }
 const modal = $('#modal');
 if (modal) {
   modal.classList.add('open');
