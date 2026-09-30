@@ -625,7 +625,7 @@ async function load() {
       api('/api/discover/movie?with_original_language=en&sort_by=popularity.desc'),
 
       /* Late Night Movies */
-      api('/api/discover/movie?sort_by=popularity.desc'),
+api('/api/discover/movie?with_runtime.gte=90&with_runtime.lte=180&sort_by=popularity.desc'),
 
       /* Korean Drama */
       api('/api/discover/tv?with_original_language=ko&sort_by=popularity.desc'),
