@@ -1302,7 +1302,7 @@ ${
               data-person-id="${p.id}"
               role="button"
               tabindex="0"
-              onclick="location.href='/person.html?id=${encodeURIComponent(p.id)}'"
+  
             >
 
               ${
@@ -2627,12 +2627,24 @@ await loadGenres();
 }
 
 startMovieHub();
+
+/* =========================
+   PERSON CARD CLICK
+========================= */
+
 document.addEventListener('click', (e) => {
 
-  const person = e.target.closest('.person');
+  const person =
+    e.target.closest('.person[data-person-id]');
 
   if (!person) return;
 
-  alert('PERSON CLICK WORKING');
+  const id =
+    person.dataset.personId;
+
+  if (!id) return;
+
+  window.location.href =
+    `/person.html?id=${encodeURIComponent(id)}`;
 
 });
