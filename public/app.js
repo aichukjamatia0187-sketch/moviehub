@@ -585,29 +585,74 @@ async function loadHeroTrailer(m) {
 async function load() {
   try {
 
-    const requests = [
-      api('/api/trending'),
-      api('/api/popular'),
-      api('/api/now-playing'),
-      api('/api/upcoming'),
-      api('/api/genres'),
+    /* =========================
+       MOVIE DISCOVERY
+    ========================= */
 
-      api('/api/tv/popular'),
-      api('/api/tv/trending'),
-      api('/api/tv/today'),
-      api('/api/tv/genres')
+    const requests = [
+
+      /* Trending Today */
+      api('/api/trending'),
+
+      /* Highly Rated */
+      api('/api/discover/movie?sort_by=vote_average.desc&vote_count.gte=300'),
+
+      /* New Releases */
+      api('/api/discover/movie?sort_by=primary_release_date.desc&primary_release_date.lte=' + new Date().toISOString().slice(0, 10)),
+
+      /* Webseries */
+      api('/api/discover/tv?sort_by=popularity.desc'),
+
+      /* Romance */
+      api('/api/discover/movie?with_genres=10749&sort_by=popularity.desc'),
+
+      /* Action */
+      api('/api/discover/movie?with_genres=28&sort_by=popularity.desc'),
+
+      /* Horror */
+      api('/api/discover/movie?with_genres=27&sort_by=popularity.desc'),
+
+      /* Mind-Bending */
+      api('/api/discover/movie?with_genres=878%2C9648&sort_by=popularity.desc'),
+
+      /* Based on True Stories */
+      api('/api/discover/movie?with_keywords=9672&sort_by=popularity.desc'),
+
+      /* Family Night */
+      api('/api/discover/movie?with_genres=10751&sort_by=popularity.desc'),
+
+      /* Hollywood */
+      api('/api/discover/movie?with_original_language=en&sort_by=popularity.desc'),
+
+      /* Late Night Movies */
+      api('/api/discover/movie?sort_by=popularity.desc'),
+
+      /* Korean Drama */
+      api('/api/discover/tv?with_original_language=ko&sort_by=popularity.desc'),
+
+      /* China */
+      api('/api/discover/movie?with_original_language=zh&sort_by=popularity.desc'),
+
+      /* Japanese */
+      api('/api/discover/movie?with_original_language=ja&sort_by=popularity.desc'),
+
+      /* Bollywood */
+      api('/api/discover/movie?with_original_language=hi&sort_by=popularity.desc'),
+
+      /* Coming Soon */
+      api('/api/upcoming')
+
     ];
 
-    /*
-      Promise.allSettled means one failed
-      section will not stop the entire homepage.
-    */
 
     const results =
       await Promise.allSettled(requests);
 
+
     const get = (index) => {
-      const result = results[index];
+
+      const result =
+        results[index];
 
       if (
         result &&
@@ -620,141 +665,207 @@ async function load() {
     };
 
 
-    const t = get(0);
-    const p = get(1);
-    const n = get(2);
-    const u = get(3);
-    const g = get(4);
+    /* =========================
+       DISCOVERY DATA
+    ========================= */
 
-    const tp = get(5);
-    const tt = get(6);
-    const ta = get(7);
-    const tg = get(8);
+    const discovery = {
+
+      trending:
+        get(0).results || [],
+
+      highlyRated:
+        get(1).results || [],
+
+      newReleases:
+        get(2).results || [],
+
+      webseries:
+        get(3).results || [],
+
+      romance:
+        get(4).results || [],
+
+      action:
+        get(5).results || [],
+
+      horror:
+        get(6).results || [],
+
+      mindBending:
+        get(7).results || [],
+
+      trueStories:
+        get(8).results || [],
+
+      family:
+        get(9).results || [],
+
+      hollywood:
+        get(10).results || [],
+
+      lateNight:
+        get(11).results || [],
+
+      korean:
+        get(12).results || [],
+
+      china:
+        get(13).results || [],
+
+      japanese:
+        get(14).results || [],
+
+      bollywood:
+        get(15).results || [],
+
+      comingSoon:
+        get(16).results || []
+
+    };
 
 
-    state.trending =
-      t.results || [];
+    /* =========================
+       HERO
+    ========================= */
 
-    state.popular =
-      p.results || [];
-
-    state.now =
-      n.results || [];
-
-    state.upcoming =
-      u.results || [];
-
-    state.genres =
-      g.genres || [];
-
-    state.tvPopular =
-      tp.results || [];
-
-    state.tvTrending =
-      tt.results || [];
-
-    state.tvToday =
-      ta.results || [];
-
-    state.tvGenres =
-      tg.genres || [];
+    const hero =
+      discovery.trending[0] ||
+      discovery.webseries[0] ||
+      discovery.highlyRated[0] ||
+      {};
 
 
-    /* HERO */
+    setHero(hero);
 
-    const hero = state.trending[0] || state.tvTrending[0] || state.popular[0] || {};
-
-setHero(hero);
-
-loadHeroTrailer(hero).catch(console.warn);
+    loadHeroTrailer(hero)
+      .catch(console.warn);
 
 
-    /* MOVIES */
+    /* =========================
+       MOVIE DISCOVERY SECTIONS
+    ========================= */
 
     fill(
       '#trendingRail',
-      state.trending,
+      discovery.trending,
       'movie'
     );
 
     fill(
       '#popularRail',
-      state.popular,
+      discovery.highlyRated,
       'movie'
     );
 
     fill(
       '#nowRail',
-      state.now,
+      discovery.newReleases,
       'movie'
     );
 
     fill(
       '#upcomingRail',
-      state.upcoming,
+      discovery.comingSoon,
       'movie'
     );
 
 
-    /* TV */
+    /* =========================
+       TV / WEBSERIES
+    ========================= */
 
     fill(
       '#tvPopularRail',
-      state.tvPopular,
+      discovery.webseries,
+      'tv'
+    );
+
+
+    /* =========================
+       GENRE / CATEGORY RAILS
+    ========================= */
+
+    fill(
+      '#romanceRail',
+      discovery.romance,
+      'movie'
+    );
+
+    fill(
+      '#actionRail',
+      discovery.action,
+      'movie'
+    );
+
+    fill(
+      '#horrorRail',
+      discovery.horror,
+      'movie'
+    );
+
+    fill(
+      '#mindBendingRail',
+      discovery.mindBending,
+      'movie'
+    );
+
+    fill(
+      '#trueStoriesRail',
+      discovery.trueStories,
+      'movie'
+    );
+
+    fill(
+      '#familyRail',
+      discovery.family,
+      'movie'
+    );
+
+    fill(
+      '#hollywoodRail',
+      discovery.hollywood,
+      'movie'
+    );
+
+    fill(
+      '#lateNightRail',
+      discovery.lateNight,
+      'movie'
+    );
+
+    fill(
+      '#koreanRail',
+      discovery.korean,
       'tv'
     );
 
     fill(
-      '#tvTrendingRail',
-      state.tvTrending,
-      'tv'
+      '#chinaRail',
+      discovery.china,
+      'movie'
     );
 
     fill(
-      '#tvTodayRail',
-      state.tvToday,
-      'tv'
+      '#japaneseRail',
+      discovery.japanese,
+      'movie'
+    );
+
+    fill(
+      '#bollywoodRail',
+      discovery.bollywood,
+      'movie'
     );
 
 
-    /* GENRES */
+    /* =========================
+       MY WATCHLIST
+    ========================= */
 
-    const allGenres = [
-      ...state.genres,
-      ...state.tvGenres.filter(
-        (x) =>
-          !state.genres.some(
-            (g) => g.id === x.id
-          )
-      )
-    ];
+    loadHomeWatchlist();
 
-
-    const genresList =
-      $('#genresList');
-
-    if (genresList) {
-      genresList.innerHTML =
-        allGenres
-          .map(
-            (x) => `
-              <button
-                class="genre"
-                data-genre="${x.id}"
-              >
-                ${esc(x.name)}
-              </button>
-            `
-          )
-          .join('');
-    }
-
-/* CARD EVENTS */
-
-loadHomeWatchlist();
-
-bindCards();
-
+    bindCards();
 
     /* REMOVE LOADING ELEMENT
        if your HTML has one */
