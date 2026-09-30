@@ -647,7 +647,17 @@ async function load() {
 
     const results =
       await Promise.allSettled(requests);
+console.log('MOVIEHUB DISCOVERY RESULTS:', results);
 
+results.forEach((result, index) => {
+  console.log(
+    `DISCOVERY ${index}:`,
+    result.status,
+    result.status === 'fulfilled'
+      ? result.value
+      : result.reason
+  );
+});
 
     const get = (index) => {
 
