@@ -1298,7 +1298,12 @@ async function openDetails(id, type) {
                     .map(
                       (p) => `
 
-                        <div class="person">
+                        <div
+  class="person"
+  data-person-id="${p.id}"
+  role="button"
+  tabindex="0"
+>
 
                           ${
                             p.profile_path
@@ -1480,7 +1485,54 @@ async function openDetails(id, type) {
     if (modal) {
       modal.classList.add('open');
     }
+const modal = $('#modal');
+if (modal) {
+  modal.classList.add('open');
+}
 
+
+/* =========================
+   CAST PERSON CLICK
+========================= */
+
+modalBox
+  .querySelectorAll('.person[data-person-id]')
+  .forEach((person) => {
+
+    const goToPerson = () => {
+
+      const id =
+        person.dataset.personId;
+
+      if (!id) return;
+
+      location.href =
+        `/person.html?id=${encodeURIComponent(id)}`;
+
+    };
+
+
+    person.onclick =
+      goToPerson;
+
+
+    person.onkeydown =
+      (e) => {
+
+        if (
+          e.key === 'Enter' ||
+          e.key === ' '
+        ) {
+
+          e.preventDefault();
+
+          goToPerson();
+
+        }
+
+      };
+
+  });
 
   } catch (e) {
 
