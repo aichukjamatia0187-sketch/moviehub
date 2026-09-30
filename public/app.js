@@ -636,7 +636,7 @@ api('/api/discover/movie?with_runtime.gte=90&with_runtime.lte=180&sort_by=popula
       api('/api/discover/movie?with_original_language=ja&sort_by=popularity.desc'),
 
       /* Bollywood */
-      api('/api/discover/movie?with_original_language=hi&sort_by=popularity.desc'),
+      api('/api/discover/movie?with_origin_country=IN&sort_by=popularity.desc'),
 
       /* Coming Soon */
       api('/api/upcoming')
