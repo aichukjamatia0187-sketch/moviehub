@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta name="theme-color" content="#080807">
+
+  <title>Browse — MovieHub</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #080807;
+      color: #f4f0e9;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 22px 24px 70px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    /* =========================
+       TOP BAR
+    ========================= */
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 55px;
+    }
+
+    .logo {
+      color: #fff;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .back {
+      color: #9da1ad;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .back:hover {
+      color: #fff;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .eyebrow {
+      color: #777d8b;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 7vw, 64px);
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .subtitle {
+      color: #858b99;
+      margin: 15px 0 45px;
+      font-size: 14px;
+    }
+
+    /* =========================
+       GRID
+    ========================= */
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 24px 14px;
+    }
+
+    .card {
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      display: block;
+      border-radius: 5px;
+      background: #151820;
+      transition:
+        transform .2s ease,
+        opacity .2s ease;
+    }
+
+    .card:hover .poster {
+      transform: translateY(-4px);
+      opacity: .9;
+    }
+
+    .title {
+      margin-top: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .meta {
+      margin-top: 5px;
+      color: #777d8b;
+      font-size: 11px;
+    }
+
+    .rating {
+      color: #c9a85d;
+      margin-left: 7px;
+    }
+
+    /* =========================
+       STATES
+    ========================= */
+
+    .loading,
+    .empty {
+      min-height: 300px;
+      display: grid;
+      place-items: center;
+      color: #777d8b;
+      font-size: 13px;
+      grid-column: 1 / -1;
+    }
+
+    /* =========================
+       LOAD MORE
+    ========================= */
+
+    .load-more {
+      display: block;
+      margin: 50px auto 0;
+      padding: 13px 24px;
+      background: transparent;
+      color: #ddd;
+      border: 1px solid #30323a;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .load-more:hover {
+      border-color: #777;
+    }
+
+    .load-more:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 22px 10px;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .page {
+        padding: 20px 14px 60px;
+      }
+
+      .topbar {
+        margin-bottom: 45px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px 9px;
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+
+      .subtitle {
+        margin-bottom: 30px;
+      }
+
+      .title {
+        font-size: 12px;
+      }
+
+      .meta {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="container">
+
+    <!-- =========================
+         TOP BAR
+    ========================= -->
+
+    <header class="topbar">
+
+      <a class="logo" href="/">
+        MovieHub
+      </a>
+
+      <a class="back" href="/">
+        ← Back
+      </a>
+
+    </header>
+
+
+    <!-- =========================
+         PAGE HEADER
+    ========================= -->
+
+    <section>
+
+      <div class="eyebrow">
+        Browse collection
+      </div>
+
+      <h1 id="pageTitle">
+        Browse
+      </h1>
+
+      <p class="subtitle" id="pageSubtitle">
+        Discover movies and TV shows.
+      </p>
+
+    </section>
+
+
+    <!-- =========================
+         MOVIE GRID
+    ========================= -->
+
+    <div
+      id="movieGrid"
+      class="grid"
+    >
+
+      <div class="loading">
+        Loading...
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         LOAD MORE
+    ========================= -->
+
+    <button
+      id="loadMore"
+      class="load-more"
+      style="display:none"
+    >
+      LOAD MORE
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  /* =========================
+     IMAGE BASE
+  ========================= */
+
+  const IMG =
+    "https://image.tmdb.org/t/p/";
+
+
+  /* =========================
+     URL PARAMETERS
+  ========================= */
+
+  const params =
+    new URLSearchParams(
+      location.search
+    );
+
+
+  const type =
+    params.get("type") || "trending";
+
+
+  /* =========================
+     PAGE ELEMENTS
+  ========================= */
+
+  const grid =
+    document.getElementById(
+      "movieGrid"
+    );
+
+  const pageTitle =
+    document.getElementById(
+      "pageTitle"
+    );
+
+  const pageSubtitle =
+    document.getElementById(
+      "pageSubtitle"
+    );
+
+  const loadMore =
+    document.getElementById(
+      "loadMore"
+    );
+
+
+  /* =========================
+     PAGE CONFIGURATION
+  ========================= */
+
+  const configs = {
+
+    trending: {
+      title: "Trending Today",
+      subtitle: "The movies everyone is watching today.",
+      endpoint: "/api/trending",
+      params: {
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    "highly-rated": {
+      title: "Highly Rated",
+      subtitle: "Movies with the highest audience ratings.",
+      endpoint: "/api/discover/movie",
+      params: {
+        sort_by: "vote_average.desc",
+        "vote_count.gte": "200"
+      },
+      mode: "movie"
+    },
+
+
+    "new-releases": {
+      title: "New Releases",
+      subtitle: "The latest movie releases.",
+      endpoint: "/api/discover/movie",
+      params: {
+        sort_by: "primary_release_date.desc",
+        "primary_release_date.lte":
+          new Date().toISOString().slice(0, 10)
+      },
+      mode: "movie"
+    },
+
+
+    webseries: {
+      title: "Webseries",
+      subtitle: "Popular TV shows and web series.",
+      endpoint: "/api/tv/popular",
+      params: {
+        sort_by: "popularity.desc"
+      },
+      mode: "tv"
+    },
+
+
+    "mind-bending": {
+      title: "Mind-Bending",
+      subtitle: "Movies that will make you think.",
+      endpoint: "/api/discover/movie",
+      params: {
+        with_genres: "878,9648,53",
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    "true-stories": {
+      title: "Based on True Stories",
+      subtitle: "Stories inspired by real events.",
+      endpoint: "/api/discover/movie",
+      params: {
+        with_genres: "36",
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    hollywood: {
+      title: "Hollywood",
+      subtitle: "Popular English-language movies.",
+      endpoint: "/api/discover/movie",
+      params: {
+        with_original_language: "en",
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    "late-night": {
+      title: "Late Night Movies",
+      subtitle: "Movies for your late-night watch.",
+      endpoint: "/api/discover/movie",
+      params: {
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    korean: {
+      title: "Korean Drama & More",
+      subtitle: "Popular Korean movies and TV shows.",
+      endpoint: "/api/discover/tv",
+      params: {
+        with_origin_country: "KR",
+        sort_by: "popularity.desc"
+      },
+      mode: "tv"
+    },
+
+
+    china: {
+      title: "China",
+      subtitle: "Popular Chinese movies.",
+      endpoint: "/api/discover/movie",
+      params: {
+        with_original_language: "zh",
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    japanese: {
+      title: "Japanese",
+      subtitle: "Popular Japanese movies.",
+      endpoint: "/api/discover/movie",
+      params: {
+        with_original_language: "ja",
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    indian: {
+      title: "Indian",
+      subtitle: "Popular Indian movies.",
+      endpoint: "/api/discover/movie",
+      params: {
+        with_origin_country: "IN",
+        sort_by: "popularity.desc"
+      },
+      mode: "movie"
+    },
+
+
+    "coming-soon": {
+      title: "Coming Soon",
+      subtitle: "Movies coming soon.",
+      endpoint: "/api/discover/movie",
+      params: {
+        sort_by: "popularity.desc",
+        "primary_release_date.gte":
+          new Date().toISOString().slice(0, 10)
+      },
+      mode: "movie"
+    }
+
+  };
+
+
+  const config =
+    configs[type] ||
+    configs.trending;
+
+
+  /* =========================
+     PAGE TITLE
+  ========================= */
+
+  pageTitle.textContent =
+    config.title;
+
+  pageSubtitle.textContent =
+    config.subtitle;
+
+  document.title =
+    `${config.title} — MovieHub`;
+
+
+  /* =========================
+     STATE
+  ========================= */
+
+  let currentPage = 1;
+
+  let totalPages = 1;
+
+  let loading = false;
+
+
+  /* =========================
+     ESCAPE HTML
+  ========================= */
+
+  function esc(value) {
+
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  }
+
+
+  /* =========================
+     TITLE
+  ========================= */
+
+  function getTitle(item) {
+
+    return config.mode === "tv"
+      ? item.name || "Untitled"
+      : item.title || "Untitled";
+
+  }
+
+
+  /* =========================
+     DATE
+  ========================= */
+
+  function getDate(item) {
+
+    return config.mode === "tv"
+      ? item.first_air_date
+      : item.release_date;
+
+  }
+
+
+  /* =========================
+     YEAR
+  ========================= */
+
+  function year(date) {
+
+    return date
+      ? date.slice(0, 4)
+      : "—";
+
+  }
+
+
+  /* =========================
+     POSTER
+  ========================= */
+
+  function poster(path) {
+
+    return path
+      ? IMG + "w500" + path
+      : "";
+
+  }
+
+
+  /* =========================
+     CARD
+  ========================= */
+
+  function movieCard(item) {
+
+    const itemTitle =
+      getTitle(item);
+
+    const itemType =
+      config.mode === "tv"
+        ? "tv"
+        : "movie";
+
+
+    return `
+
+      <article
+        class="card"
+        onclick="openTitle(
+          ${Number(item.id)},
+          '${itemType}'
+        )"
+      >
+
+        ${
+          item.poster_path
+            ? `
+              <img
+                class="poster"
+                src="${poster(item.poster_path)}"
+                alt="${esc(itemTitle)}"
+                loading="lazy"
+              >
+            `
+            : `
+              <div class="poster"></div>
+            `
+        }
+
+        <div class="title">
+          ${esc(itemTitle)}
+        </div>
+
+        <div class="meta">
+
+          ${year(getDate(item))}
+
+          ${
+            item.vote_average
+              ? `
+                <span class="rating">
+                  ★ ${Number(
+                    item.vote_average
+                  ).toFixed(1)}
+                </span>
+              `
+              : ""
+          }
+
+        </div>
+
+      </article>
+
+    `;
+
+  }
+
+
+  /* =========================
+     LOAD TITLES
+  ========================= */
+
+  async function loadTitles(
+    page = 1
+  ) {
+
+    if (loading) {
+      return;
+    }
+
+    loading = true;
+
+
+    try {
+
+      if (page === 1) {
+
+        grid.innerHTML =
+          `<div class="loading">
+             Loading...
+           </div>`;
+
+      }
+
+
+      const query =
+        new URLSearchParams();
+
+
+      /* =========================
+         CONFIG PARAMETERS
+      ========================= */
+
+      for (
+        const [key, value]
+        of Object.entries(
+          config.params || {}
+        )
+      ) {
+
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== ""
+        ) {
+
+          query.set(
+            key,
+            value
+          );
+
+        }
+
+      }
+
+
+      query.set(
+        "page",
+        String(page)
+      );
+
+
+      /* =========================
+         REQUEST
+      ========================= */
+
+      const response =
+        await fetch(
+          `${config.endpoint}?${query.toString()}`
+        );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Unable to load titles."
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      const titles =
+        (data.results || [])
+          .filter(
+            item => item.poster_path
+          );
+
+
+      totalPages =
+        data.total_pages || 1;
+
+
+      /* =========================
+         FIRST PAGE
+      ========================= */
+
+      if (page === 1) {
+
+        grid.innerHTML = "";
+
+      }
+
+
+      /* =========================
+         EMPTY
+      ========================= */
+
+      if (
+        !titles.length &&
+        page === 1
+      ) {
+
+        grid.innerHTML =
+          `<div class="empty">
+             No titles found.
+           </div>`;
+
+        loadMore.style.display =
+          "none";
+
+        return;
+
+      }
+
+
+      /* =========================
+         ADD CARDS
+      ========================= */
+
+      grid.insertAdjacentHTML(
+        "beforeend",
+        titles
+          .map(movieCard)
+          .join("")
+      );
+
+
+      currentPage =
+        page;
+
+
+      /* =========================
+         LOAD MORE BUTTON
+      ========================= */
+
+      if (
+        currentPage <
+        totalPages
+      ) {
+
+        loadMore.style.display =
+          "block";
+
+      } else {
+
+        loadMore.style.display =
+          "none";
+
+      }
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      if (page === 1) {
+
+        grid.innerHTML =
+          `<div class="empty">
+             Unable to load titles.
+           </div>`;
+
+      }
+
+      loadMore.style.display =
+        "none";
+
+
+    } finally {
+
+      loading = false;
+
+    }
+
+  }
+
+
+  /* =========================
+     OPEN MOVIE / TV
+  ========================= */
+
+  function openTitle(
+    id,
+    type
+  ) {
+
+    location.href =
+      `/movie.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+
+  }
+
+
+  /* =========================
+     LOAD MORE
+  ========================= */
+
+  loadMore.addEventListener(
+    "click",
+    async () => {
+
+      if (
+        currentPage >=
+        totalPages
+      ) {
+
+        return;
+
+      }
+
+
+      loadMore.disabled =
+        true;
+
+      loadMore.textContent =
+        "LOADING...";
+
+
+      await loadTitles(
+        currentPage + 1
+      );
+
+
+      loadMore.disabled =
+        false;
+
+      loadMore.textContent =
+        "LOAD MORE";
+
+    }
+  );
+
+
+  /* =========================
+     START
+  ========================= */
+
+  loadTitles();
+
+</script>
+
+</body>
+</html>
