@@ -1298,12 +1298,13 @@ ${
           (p) => `
 
             <div
-              class="person"
-              data-person-id="${p.id}"
-              role="button"
-              tabindex="0"
-  
-            >
+  class="person"
+  data-person-id="${p.id}"
+  role="button"
+  tabindex="0"
+  style="cursor:pointer;"
+  onclick="window.location.href='/person.html?id=${encodeURIComponent(p.id)}';"
+>
 
               ${
                 p.profile_path
