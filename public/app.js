@@ -1296,17 +1296,68 @@ async function openDetails(id, type) {
 
                 ? cast
                     .map(
-                      (p) => `
+  (p) => `
 
-                        <div
-  <div
-  class="person"
-  data-person-id="${p.id}"
-  role="button"
-  tabindex="0"
-  onclick="location.href='/person.html?id=${encodeURIComponent(p.id)}'"
->
+    <div
+      class="person"
+      data-person-id="${p.id}"
+      role="button"
+      tabindex="0"
+      onclick="location.href='/person.html?id=${encodeURIComponent(p.id)}'"
+    >
 
+      ${
+        p.profile_path
+
+          ? `
+            <img
+              src="${IMG + 'w185' + p.profile_path}"
+              alt="${esc(p.name)}"
+            >
+          `
+
+          : `
+            <div
+              style="
+                width:82px;
+                height:110px;
+                background:#171715;
+                display:grid;
+                place-items:center;
+                color:#777;
+                font:9px var(--mono);
+              "
+            >
+              NO PHOTO
+            </div>
+          `
+      }
+
+      <span>
+        ${esc(p.name)}
+      </span>
+
+      ${
+        p.character
+          ? `
+            <small
+              style="
+                display:block;
+                margin-top:3px;
+                color:#666;
+                font-size:9px;
+              "
+            >
+              ${esc(p.character)}
+            </small>
+          `
+          : ''
+      }
+
+    </div>
+
+  `
+)
                           ${
                             p.profile_path
 
