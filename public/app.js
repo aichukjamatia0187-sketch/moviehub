@@ -612,9 +612,8 @@ async function load() {
       /* Horror */
       api('/api/discover/movie?with_genres=27&sort_by=popularity.desc'),
 
-      /* Mind-Bending */
-      api('/api/discover/movie?with_genres=878%2C9648&sort_by=popularity.desc'),
-
+      /* Mind-Bending */      
+api('/api/discover/movie?with_genres=878%7C9648&sort_by=popularity.desc'),
       /* Based on True Stories */
       api('/api/discover/movie?with_keywords=9672&sort_by=popularity.desc'),
 
