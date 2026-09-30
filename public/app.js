@@ -1299,10 +1299,12 @@ async function openDetails(id, type) {
                       (p) => `
 
                         <div
+  <div
   class="person"
   data-person-id="${p.id}"
   role="button"
   tabindex="0"
+  onclick="location.href='/person.html?id=${encodeURIComponent(p.id)}'"
 >
 
                           ${
