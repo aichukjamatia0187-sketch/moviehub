@@ -635,8 +635,8 @@ api('/api/discover/movie?with_runtime.gte=90&with_runtime.lte=180&sort_by=popula
       /* Japanese */
       api('/api/discover/movie?with_original_language=ja&sort_by=popularity.desc'),
 
-      /* Bollywood */
-      api('/api/discover/movie?with_origin_country=IN&sort_by=popularity.desc'),
+      /* Indian */
+api('/api/discover/movie?with_origin_country=IN&sort_by=popularity.desc'),
 
       /* Coming Soon */
       api('/api/upcoming')
@@ -725,9 +725,8 @@ results.forEach((result, index) => {
       japanese:
         get(14).results || [],
 
-      bollywood:
-        get(15).results || [],
-
+      indian:
+  get(15).results || [],
       comingSoon:
         get(16).results || []
 
@@ -863,7 +862,7 @@ results.forEach((result, index) => {
 
 fill(
   '#indianRail',
-  discovery.bollywood,
+  discovery.indian,
   'movie'
 );
 
