@@ -8,7 +8,17 @@ export default async function handler(req, res) {
       });
     }
 
-    let path = req.query.path || "";
+  let path = req.query.path || "";
+
+if (!path && req.url) {
+  const cleanUrl = req.url.split('?')[0];
+
+  if (cleanUrl.startsWith('/api/')) {
+    path = cleanUrl
+      .replace(/^\/api\//, '')
+      .replace(/\/$/, '');
+  }
+}  
 
     const routeMap = {
       "trending": "trending/movie/day",
