@@ -175,6 +175,64 @@
   background: #ffffff;
   color: #111111;
 }
+    /* USER RATING */
+.rating-box {
+  margin: 4px 0 20px;
+  padding: 16px 18px;
+  background: rgba(23,25,32,.88);
+  border: 1px solid #30333d;
+  border-radius: 10px;
+  width: fit-content;
+  backdrop-filter: blur(10px);
+}
+
+.rating-label {
+  color: #9da3b2;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  margin-bottom: 9px;
+}
+
+.user-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rating-star {
+  border: 0;
+  background: transparent;
+  color: #555b69;
+  font-size: 25px;
+  line-height: 1;
+  padding: 2px;
+  cursor: pointer;
+  transition:
+    color .15s ease,
+    transform .15s ease;
+}
+
+.rating-star:hover,
+.rating-star.active {
+  color: #ffd35a;
+  transform: scale(1.08);
+}
+
+.rating-value {
+  margin-left: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 42px;
+}
+
+.rating-saved {
+  margin-top: 8px;
+  color: #8f95a7;
+  font-size: 11px;
+}
 .release-box {
   display: flex;
   flex-wrap: wrap;
@@ -1124,9 +1182,29 @@ ${
   ↗ SHARE
 </button>          
 </div>
+<div class="rating-box">
 
+  <div class="rating-label">
+    Your Rating
+  </div>
+
+  <div class="user-rating" id="userRating">
+    <button class="rating-star" data-rating="1">★</button>
+    <button class="rating-star" data-rating="2">★</button>
+    <button class="rating-star" data-rating="3">★</button>
+    <button class="rating-star" data-rating="4">★</button>
+    <button class="rating-star" data-rating="5">★</button>
+
+    <span class="rating-value" id="ratingValue">
+      Not rated
+    </span>
+  </div>
+
+  <div class="rating-saved" id="ratingSaved"></div>
+
+</div>
               <p class="overview">
-                ${esc(details.overview || "Description unavailable.")}
+              ${esc(details.overview || "Description unavailable.")}
               </p>
 
             </div>
@@ -1197,6 +1275,7 @@ ${
 
     `;
 updateTrackButton();
+  setupUserRating();
   } catch (error) {
 
     document.getElementById("app").innerHTML = `
@@ -1215,6 +1294,127 @@ function openMovie(movieId, movieType) {
 
   location.href =
     `/movie.html?id=${encodeURIComponent(movieId)}&type=${encodeURIComponent(movieType)}`;
+}
+ function getRatingKey() {
+  return `moviehub_rating_${type}_${id}`;
+}
+
+function getUserRating() {
+  return localStorage.getItem(getRatingKey()) || "";
+}
+
+function setUserRating(rating) {
+
+  localStorage.setItem(
+    getRatingKey(),
+    String(rating)
+  );
+
+  updateUserRating();
+
+}
+
+function updateUserRating() {
+
+  const currentRating =
+    Number(getUserRating() || 0);
+
+  const stars =
+    document.querySelectorAll(".rating-star");
+
+  const value =
+    document.getElementById("ratingValue");
+
+  const saved =
+    document.getElementById("ratingSaved");
+
+  stars.forEach(star => {
+
+    const rating =
+      Number(star.dataset.rating);
+
+    star.classList.toggle(
+      "active",
+      rating <= currentRating
+    );
+
+  });
+
+  if (!currentRating) {
+
+    value.textContent = "Not rated";
+
+    if (saved) {
+      saved.textContent = "";
+    }
+
+    return;
+  }
+
+  value.textContent =
+    `${currentRating}/5`;
+
+  if (saved) {
+    saved.textContent =
+      "Your rating is saved";
+  }
+
+}
+
+function setupUserRating() {
+
+  const stars =
+    document.querySelectorAll(".rating-star");
+
+  stars.forEach(star => {
+
+    star.addEventListener(
+      "click",
+      () => {
+
+        const rating =
+          Number(star.dataset.rating);
+
+        setUserRating(rating);
+
+      }
+    );
+
+    star.addEventListener(
+      "mouseenter",
+      () => {
+
+        const rating =
+          Number(star.dataset.rating);
+
+        stars.forEach(item => {
+
+          item.classList.toggle(
+            "active",
+            Number(item.dataset.rating) <= rating
+          );
+
+        });
+
+      }
+    );
+
+  });
+
+  const ratingBox =
+    document.getElementById("userRating");
+
+  if (ratingBox) {
+
+    ratingBox.addEventListener(
+      "mouseleave",
+      updateUserRating
+    );
+
+  }
+
+  updateUserRating();
+
 }
   async function shareMovie() {
 
