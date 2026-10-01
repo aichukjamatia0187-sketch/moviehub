@@ -731,10 +731,11 @@
     .person{
   min-width:82px;
   cursor:pointer;
-  pointer-events:auto;
+  pointer-events:auto !important;
   position:relative;
-  z-index:5;
+  z-index:999 !important;
   user-select:none;
+  display:block;
 }
 
 .person img{
