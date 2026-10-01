@@ -2589,15 +2589,6 @@ window.openDetails =
 window.playCardTrailer =
   playCardTrailer;
 
-
-/* =========================
-   START MOVIEHUB
-========================= */
-
-/* =========================
-   START MOVIEHUB
-========================= */
-
 /* =========================
    START MOVIEHUB
 ========================= */
