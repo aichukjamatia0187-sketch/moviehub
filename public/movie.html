@@ -1215,6 +1215,69 @@ function openMovie(movieId, movieType) {
 
   location.href =
     `/movie.html?id=${encodeURIComponent(movieId)}&type=${encodeURIComponent(movieType)}`;
+}
+  async function shareMovie() {
+
+  const title =
+    document.querySelector("h1")?.textContent.trim() ||
+    "Movie";
+
+  const shareUrl =
+    window.location.href;
+
+  const shareData = {
+    title: `${title} — MovieHub`,
+    text: `Check out ${title} on MovieHub.`,
+    url: shareUrl
+  };
+
+  try {
+
+    if (
+      navigator.share &&
+      (!navigator.canShare ||
+        navigator.canShare(shareData))
+    ) {
+
+      await navigator.share(shareData);
+
+      return;
+    }
+
+    await navigator.clipboard.writeText(
+      shareUrl
+    );
+
+    alert("Movie link copied!");
+
+  } catch (error) {
+
+    if (error.name === "AbortError") {
+      return;
+    }
+
+    console.error(
+      "Share failed:",
+      error
+    );
+
+    try {
+
+      await navigator.clipboard.writeText(
+        shareUrl
+      );
+
+      alert("Movie link copied!");
+
+    } catch (_) {
+
+      alert(
+        "Unable to share. Please copy the page URL manually."
+      );
+
+    }
+
+  }
 
 }
 
