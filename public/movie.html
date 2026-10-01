@@ -175,15 +175,16 @@
   background: #ffffff;
   color: #111111;
 }
-    /* USER RATING */
+/* USER RATING */
 .rating-box {
-  margin: 4px 0 20px;
+  margin: 6px 0 20px;
   padding: 16px 18px;
-  background: rgba(23,25,32,.88);
+  background: rgba(23,25,32,.92);
   border: 1px solid #30333d;
-  border-radius: 10px;
+  border-radius: 12px;
   width: fit-content;
-  backdrop-filter: blur(10px);
+  max-width: 100%;
+  backdrop-filter: blur(12px);
 }
 
 .rating-label {
@@ -192,26 +193,24 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.4px;
-  margin-bottom: 9px;
+  margin-bottom: 10px;
 }
 
 .user-rating {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
 .rating-star {
   border: 0;
   background: transparent;
   color: #555b69;
-  font-size: 25px;
+  font-size: 27px;
   line-height: 1;
   padding: 2px;
   cursor: pointer;
-  transition:
-    color .15s ease,
-    transform .15s ease;
+  transition: color .15s ease, transform .15s ease;
 }
 
 .rating-star:hover,
@@ -221,7 +220,7 @@
 }
 
 .rating-value {
-  margin-left: 8px;
+  margin-left: 9px;
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
@@ -1188,19 +1187,67 @@ ${
     Your Rating
   </div>
 
-  <div class="user-rating" id="userRating">
-    <button class="rating-star" data-rating="1">★</button>
-    <button class="rating-star" data-rating="2">★</button>
-    <button class="rating-star" data-rating="3">★</button>
-    <button class="rating-star" data-rating="4">★</button>
-    <button class="rating-star" data-rating="5">★</button>
+  <div class="rating-main">
 
-    <span class="rating-value" id="ratingValue">
+    <div
+      class="user-rating"
+      id="userRating"
+      aria-label="Rate this title from 1 to 5 stars">
+
+      <button
+        type="button"
+        class="rating-star"
+        data-rating="1"
+        aria-label="Rate 1 star">
+        ★
+      </button>
+
+      <button
+        type="button"
+        class="rating-star"
+        data-rating="2"
+        aria-label="Rate 2 stars">
+        ★
+      </button>
+
+      <button
+        type="button"
+        class="rating-star"
+        data-rating="3"
+        aria-label="Rate 3 stars">
+        ★
+      </button>
+
+      <button
+        type="button"
+        class="rating-star"
+        data-rating="4"
+        aria-label="Rate 4 stars">
+        ★
+      </button>
+
+      <button
+        type="button"
+        class="rating-star"
+        data-rating="5"
+        aria-label="Rate 5 stars">
+        ★
+      </button>
+
+    </div>
+
+    <span
+      class="rating-value"
+      id="ratingValue">
       Not rated
     </span>
+
   </div>
 
-  <div class="rating-saved" id="ratingSaved"></div>
+  <div
+    class="rating-saved"
+    id="ratingSaved">
+  </div>
 
 </div>
               <p class="overview">
@@ -1295,7 +1342,7 @@ function openMovie(movieId, movieType) {
   location.href =
     `/movie.html?id=${encodeURIComponent(movieId)}&type=${encodeURIComponent(movieType)}`;
 }
- function getRatingKey() {
+function getRatingKey() {
   return `moviehub_rating_${type}_${id}`;
 }
 
@@ -1311,7 +1358,15 @@ function setUserRating(rating) {
   );
 
   updateUserRating();
+}
 
+function clearUserRating() {
+
+  localStorage.removeItem(
+    getRatingKey()
+  );
+
+  updateUserRating();
 }
 
 function updateUserRating() {
@@ -1342,23 +1397,27 @@ function updateUserRating() {
 
   if (!currentRating) {
 
-    value.textContent = "Not rated";
+    if (value) {
+      value.textContent = "Not rated";
+    }
 
     if (saved) {
-      saved.textContent = "";
+      saved.innerHTML =
+        "Tap a star to rate";
     }
 
     return;
   }
 
-  value.textContent =
-    `${currentRating}/5`;
-
-  if (saved) {
-    saved.textContent =
-      "Your rating is saved";
+  if (value) {
+    value.textContent =
+      `${currentRating}/5`;
   }
 
+  if (saved) {
+    saved.innerHTML =
+      `✓ Rating saved <button type="button" class="rating-clear" onclick="clearUserRating()">Clear</button>`;
+  }
 }
 
 function setupUserRating() {
@@ -1378,6 +1437,43 @@ function setupUserRating() {
         setUserRating(rating);
 
       }
+    );
+
+    star.addEventListener(
+      "mouseenter",
+      () => {
+
+        const rating =
+          Number(star.dataset.rating);
+
+        stars.forEach(item => {
+
+          item.classList.toggle(
+            "active",
+            Number(item.dataset.rating) <= rating
+          );
+
+        });
+
+      }
+    );
+
+  });
+
+  const ratingBox =
+    document.getElementById("userRating");
+
+  if (ratingBox) {
+
+    ratingBox.addEventListener(
+      "mouseleave",
+      updateUserRating
+    );
+
+  }
+
+  updateUserRating();
+}
     );
 
     star.addEventListener(
