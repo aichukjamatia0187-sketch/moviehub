@@ -165,7 +165,16 @@
   color: #111111;
   border-color: #ffffff;
 }
+.share-btn {
+  background: #171920;
+  color: #ffffff;
+  border: 1px solid #30333d;
+}
 
+.share-btn:hover {
+  background: #ffffff;
+  color: #111111;
+}
 .release-box {
   display: flex;
   flex-wrap: wrap;
@@ -1108,7 +1117,13 @@ ${
   onclick="toggleTrack()">
   🔔 TRACK
 </button>
-              </div>
+  
+  <button
+  class="action-btn share-btn"
+  onclick="shareMovie()">
+  ↗ SHARE
+</button>          
+</div>
 
               <p class="overview">
                 ${esc(details.overview || "Description unavailable.")}
