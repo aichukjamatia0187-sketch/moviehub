@@ -732,13 +732,19 @@ function renderCast(cast) {
         : "";
 
       return `
-        <div class="cast-card">
+        <div
+          class="cast-card"
+          data-person-id="${person.id}"
+          onclick="openPerson('${person.id}')"
+          style="cursor:pointer;"
+        >
 
           ${
             image
-              ? `<img class="cast-photo"
-                     src="${image}"
-                     alt="${esc(person.name)}">`
+              ? `<img
+                   class="cast-photo"
+                   src="${image}"
+                   alt="${esc(person.name)}">`
               : `<div class="cast-photo"></div>`
           }
 
@@ -755,6 +761,15 @@ function renderCast(cast) {
 
     })
     .join("");
+}
+
+function openPerson(personId) {
+
+  if (!personId) return;
+
+  location.href =
+    `/person.html?id=${encodeURIComponent(personId)}`;
+
 }
 
 function renderSimilar(list) {
