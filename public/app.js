@@ -1297,12 +1297,13 @@ ${
         .map(
           (p) => `
 
-          <a
+  
+<a
   class="person"
   href="/person.html?id=${encodeURIComponent(p.id)}"
+  data-person-id="${p.id}"
   style="cursor:pointer; text-decoration:none;"
->  
-
+>
               ${
                 p.profile_path
                   ? `
@@ -1460,7 +1461,23 @@ ${
       </div>
 
     `;
+modalBox
+  .querySelectorAll('.person[data-person-id]')
+  .forEach((person) => {
 
+    person.onclick = () => {
+
+      const id =
+        person.dataset.personId;
+
+      if (!id) return;
+
+      window.location.href =
+        `/person.html?id=${encodeURIComponent(id)}`;
+
+    };
+
+  });
 const modal = $('#modal');
 if (modal) {
   modal.classList.add('open');
