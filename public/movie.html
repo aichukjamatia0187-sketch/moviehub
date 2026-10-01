@@ -168,9 +168,9 @@
 }
 
 .hero-actions {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(255,255,255,.10);
+  margin-top: 14px;
+  padding-top: 0;
+  border-top: 0;
 }
     
 
@@ -185,27 +185,28 @@
   color: #111111;
 }
 
-
 .release-box {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin: 0 0 18px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  margin: 2px 0 18px;
 }
 
 .release-label {
   color: #8f95a7;
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.2px;
 }
 
 .release-date {
   color: #ffffff;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
+
     .action-btn {
       border: 0;
       border-radius: 7px;
@@ -214,10 +215,33 @@
       cursor: pointer;
     }
 
-    .trailer-btn {
-      background: white;
-      color: #111;
-    }
+.trailer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 12px 18px;
+  background: #ffffff;
+  color: #111111;
+  border: 1px solid #ffffff;
+  border-radius: 7px;
+  font-weight: 800;
+  transition:
+    background .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.trailer-btn:hover {
+  background: #eeeeee;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  transform: translateY(-1px);
+}
+
+.trailer-btn:active {
+  transform: scale(.97);
+}
 
     .watch-btn {
       background: #e5e8f0;
@@ -488,18 +512,23 @@
       }
 
       .hero-content {
-        min-height: 590px;
-        padding: 0 20px 30px;
-      }
+  min-height: 590px;
+  padding: 0 18px 32px;
+  align-items: flex-end;
+}
 
       .poster {
-        width: 105px;
-        height: 155px;
-      }
+  width: 100px;
+  height: 148px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+}
 
       h1 {
-        font-size: 34px;
-      }
+  font-size: clamp(30px, 9vw, 38px);
+  line-height: 1.04;
+  margin-bottom: 12px;
+}
 
       .overview {
         font-size: 14px;
