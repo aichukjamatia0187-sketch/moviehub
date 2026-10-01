@@ -1465,7 +1465,9 @@ modalBox
   .querySelectorAll('.person[data-person-id]')
   .forEach((person) => {
 
-    person.onclick = () => {
+    person.onclick = (e) => {
+
+      e.stopPropagation();
 
       const id =
         person.dataset.personId;
