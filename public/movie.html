@@ -1356,10 +1356,9 @@ function setUserRating(rating) {
     getRatingKey(),
     String(rating)
   );
-
   updateUserRating();
 }
-
+  
 function clearUserRating() {
 
   localStorage.removeItem(
@@ -1474,44 +1473,8 @@ function setupUserRating() {
 
   updateUserRating();
 }
-    );
 
-    star.addEventListener(
-      "mouseenter",
-      () => {
-
-        const rating =
-          Number(star.dataset.rating);
-
-        stars.forEach(item => {
-
-          item.classList.toggle(
-            "active",
-            Number(item.dataset.rating) <= rating
-          );
-
-        });
-
-      }
-    );
-
-  });
-
-  const ratingBox =
-    document.getElementById("userRating");
-
-  if (ratingBox) {
-
-    ratingBox.addEventListener(
-      "mouseleave",
-      updateUserRating
-    );
-
-  }
-
-  updateUserRating();
-
-}
+  
   async function shareMovie() {
 
   const title =
