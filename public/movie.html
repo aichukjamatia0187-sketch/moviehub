@@ -147,53 +147,55 @@
       color: #ffd35a;
       font-weight: 700;
     }
-/* USER RATING */
-.user-rating {
+/* YOUR RATING */
+.my-rating-box {
   display: inline-flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 6px;
   margin: 2px 0 18px;
 }
 
-.user-rating-label {
+.my-rating-label {
   color: #8f95a7;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
 }
 
-.user-rating-stars {
+.my-rating-stars {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
-.user-rating-star {
+.my-rating-stars button {
   width: 30px;
   height: 30px;
   padding: 0;
   border: 0;
   background: transparent;
   color: #555a68;
-  font-size: 24px;
-  line-height: 1;
+  font-size: 23px;
+  line-height: 30px;
   cursor: pointer;
   transition:
     color .18s ease,
     transform .18s ease;
 }
 
-.user-rating-star:hover {
+.my-rating-stars button:hover {
   color: #f5c451;
   transform: scale(1.08);
 }
 
-.user-rating-star.active {
+.my-rating-stars button.active {
   color: #f5c451;
 }
 
-.user-rating-value {
+.my-rating-value {
+  min-height: 14px;
   color: #8f95a7;
   font-size: 11px;
   font-weight: 600;
@@ -1735,7 +1737,35 @@ function setupMyRating() {
   const value =
     document.getElementById("myRatingValue");
 
-  if (!stars.length || !value) return;
+  if (!stars.length || !value || !id) return;
+
+  const storageKey =
+    `moviehub_rating_${type}_${id}`;
+
+  const savedRating =
+    Number(localStorage.getItem(storageKey) || 0);
+
+  function applyRating(rating) {
+
+    stars.forEach(star => {
+
+      const starRating =
+        Number(star.dataset.rating);
+
+      star.classList.toggle(
+        "active",
+        starRating <= rating
+      );
+
+    });
+
+    value.textContent =
+      rating
+        ? `${rating} / 5`
+        : "Rate this title";
+  }
+
+  applyRating(savedRating);
 
   stars.forEach(star => {
 
@@ -1744,19 +1774,12 @@ function setupMyRating() {
       const rating =
         Number(star.dataset.rating);
 
-      stars.forEach(item => {
+      localStorage.setItem(
+        storageKey,
+        String(rating)
+      );
 
-        const itemRating =
-          Number(item.dataset.rating);
-
-        item.classList.toggle(
-          "active",
-          itemRating <= rating
-        );
-
-      });
-
-      value.textContent = `${rating}/5`;
+      applyRating(rating);
 
     });
 
