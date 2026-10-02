@@ -787,9 +787,95 @@ transition: transform .2s ease;
     </iframe>
   </div>
 </div>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
+let heroTrailerPlayer = null;
+let pendingHeroTrailerId = null;
 
+
+function loadHeroTrailer(videoId) {
+
+  if (!videoId) return;
+
+  pendingHeroTrailerId = videoId;
+
+  if (typeof YT === "undefined" || !YT.Player) {
+    return;
+  }
+
+  createHeroTrailerPlayer(videoId);
+}
+
+function createHeroTrailerPlayer(videoId) {
+
+  const trailerBox =
+    document.getElementById("heroTrailer");
+
+  const trailerPlayer =
+    document.getElementById("heroTrailerPlayer");
+
+  if (!trailerBox || !trailerPlayer || !videoId) {
+    return;
+  }
+
+  trailerBox.classList.add("active");
+
+  if (heroTrailerPlayer) {
+    heroTrailerPlayer.destroy();
+    heroTrailerPlayer = null;
+  }
+
+  trailerPlayer.innerHTML = "";
+
+  heroTrailerPlayer =
+    new YT.Player("heroTrailerPlayer", {
+
+      videoId: videoId,
+
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        rel: 0,
+        playsinline: 1,
+        loop: 1,
+        playlist: videoId,
+        modestbranding: 1
+      },
+
+      events: {
+
+        onReady: function(event) {
+
+          event.target.mute();
+
+          event.target.playVideo();
+
+        },
+
+        onError: function() {
+
+          trailerBox.classList.remove("active");
+
+        }
+
+      }
+
+    });
+
+}
+
+function onYouTubeIframeAPIReady() {
+
+  if (pendingHeroTrailerId) {
+
+    createHeroTrailerPlayer(
+      pendingHeroTrailerId
+    );
+
+  }
+
+}
 const IMG = "https://image.tmdb.org/t/p/";
 
 const params = new URLSearchParams(location.search);
@@ -1232,7 +1318,9 @@ async function render() {
 
     const trailer =
       getTrailer(details.videos);
-
+if (trailer?.key) {
+  loadHeroTrailer(trailer.key);
+}
     document.title =
       `${title} — MovieHub`;
 
