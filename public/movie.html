@@ -876,7 +876,20 @@ function onYouTubeIframeAPIReady() {
   }
 
 }
-const IMG = "https://image.tmdb.org/t/p/";
+document.addEventListener("click", function () {
+
+  if (
+    heroTrailerPlayer &&
+    typeof heroTrailerPlayer.unMute === "function"
+  ) {
+
+    heroTrailerPlayer.unMute();
+    heroTrailerPlayer.setVolume(100);
+
+  }
+
+}, { once: true });
+  const IMG = "https://image.tmdb.org/t/p/";
 
 const params = new URLSearchParams(location.search);
 
