@@ -1343,7 +1343,7 @@ function openMovie(movieId, movieType) {
   try {
 
     if (
-      navigator.share &&
+      typeof navigator.share === "function" &&
       (!navigator.canShare ||
         navigator.canShare(shareData))
     ) {
@@ -1353,15 +1353,27 @@ function openMovie(movieId, movieType) {
       return;
     }
 
-    await navigator.clipboard.writeText(
-      shareUrl
-    );
+    if (
+      navigator.clipboard &&
+      typeof navigator.clipboard.writeText === "function"
+    ) {
 
-    alert("Movie link copied!");
+      await navigator.clipboard.writeText(
+        shareUrl
+      );
+
+      alert("Movie link copied!");
+
+      return;
+    }
+
+    alert(
+      "Unable to share. Please copy the page URL manually."
+    );
 
   } catch (error) {
 
-    if (error.name === "AbortError") {
+    if (error?.name === "AbortError") {
       return;
     }
 
@@ -1372,11 +1384,24 @@ function openMovie(movieId, movieType) {
 
     try {
 
-      await navigator.clipboard.writeText(
-        shareUrl
-      );
+      if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
 
-      alert("Movie link copied!");
+        await navigator.clipboard.writeText(
+          shareUrl
+        );
+
+        alert("Movie link copied!");
+
+      } else {
+
+        alert(
+          "Unable to share. Please copy the page URL manually."
+        );
+
+      }
 
     } catch (_) {
 
