@@ -147,6 +147,45 @@
       color: #ffd35a;
       font-weight: 700;
     }
+    /* PROFESSIONAL RATING */
+.rating-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 2px;
+  padding: 8px 11px;
+  background: rgba(18,20,26,.82);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 9px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #f5c451;
+}
+
+.rating-star {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.rating-score {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rating-count {
+  color: #8f95a7;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1212,14 +1251,28 @@ async function render() {
 
               <div class="facts">
 
-                <span class="rating">
-                  ★ ${Number(details.vote_average || 0).toFixed(1)}
-                </span>
+  <span>•</span>
+  <span>${year(date)}</span>
 
-                <span>•</span>
+  <div class="rating-card">
 
-                <span>${year(date)}</span>
+    <div class="rating-stars">
+      <span class="rating-star">★</span>
+      <span class="rating-star">★</span>
+      <span class="rating-star">★</span>
+      <span class="rating-star">★</span>
+      <span class="rating-star">★</span>
+    </div>
 
+    <span class="rating-score">
+      ${Number(details.vote_average || 0).toFixed(1)}
+    </span>
+
+    <span class="rating-count">
+      ${Number(details.vote_count || 0).toLocaleString("en-IN")} ratings
+    </span>
+
+  </div>
                 ${
                   runtime
                     ? `
