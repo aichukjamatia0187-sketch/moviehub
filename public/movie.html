@@ -1244,16 +1244,7 @@ async function render() {
 
             <div class="hero-info">
 
-              ${
-                details.poster_path
-                  ? `
-                    <img
-                      class="poster"
-                      src="${poster(details.poster_path)}"
-                      alt="${esc(title)}">
-                  `
-                  : ""
-              }
+              
 
               <div class="eyebrow">
                 ${type === "tv" ? "TV SERIES" : "MOVIE"}
