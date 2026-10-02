@@ -147,44 +147,56 @@
       color: #ffd35a;
       font-weight: 700;
     }
-    /* PROFESSIONAL RATING */
-.rating-card {
+/* USER RATING */
+.user-rating {
   display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 2px;
-  padding: 8px 11px;
-  background: rgba(18,20,26,.82);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 9px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  flex-direction: column;
+  gap: 6px;
+  margin: 2px 0 18px;
 }
 
-.rating-stars {
+.user-rating-label {
+  color: #8f95a7;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.user-rating-stars {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
+}
+
+.user-rating-star {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #555a68;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color .18s ease,
+    transform .18s ease;
+}
+
+.user-rating-star:hover {
+  color: #f5c451;
+  transform: scale(1.08);
+}
+
+.user-rating-star.active {
   color: #f5c451;
 }
 
-.rating-star {
-  font-size: 13px;
-  line-height: 1;
-}
-
-.rating-score {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.rating-count {
+.user-rating-value {
   color: #8f95a7;
   font-size: 11px;
   font-weight: 600;
-  line-height: 1;
 }
 .hero-actions {
   display: flex;
@@ -1254,25 +1266,7 @@ async function render() {
   <span>•</span>
   <span>${year(date)}</span>
 
-  <div class="rating-card">
 
-    <div class="rating-stars">
-      <span class="rating-star">★</span>
-      <span class="rating-star">★</span>
-      <span class="rating-star">★</span>
-      <span class="rating-star">★</span>
-      <span class="rating-star">★</span>
-    </div>
-
-    <span class="rating-score">
-      ${Number(details.vote_average || 0).toFixed(1)}
-    </span>
-
-    <span class="rating-count">
-      ${Number(details.vote_count || 0).toLocaleString("en-IN")} ratings
-    </span>
-
-  </div>
                 ${
                   runtime
                     ? `
@@ -1301,7 +1295,27 @@ ${
     : ""
 }
               </div>
+<div class="my-rating-box">
 
+  <div class="my-rating-label">
+    MY RATING
+  </div>
+
+  <div class="my-rating-stars" id="myRatingStars">
+
+    <button type="button" data-rating="1">★</button>
+    <button type="button" data-rating="2">★</button>
+    <button type="button" data-rating="3">★</button>
+    <button type="button" data-rating="4">★</button>
+    <button type="button" data-rating="5">★</button>
+
+  </div>
+
+  <div class="my-rating-value" id="myRatingValue">
+    Not rated
+  </div>
+
+</div>
 <div class="hero-actions">
 
   ${
@@ -1709,11 +1723,47 @@ function closeTrailer() {
   player.classList.remove("active");
 
 }
-
 render().then(() => {
   updateWatchlistButton();
+  setupMyRating();
 });
+function setupMyRating() {
 
+  const stars =
+    document.querySelectorAll("#myRatingStars button");
+
+  const value =
+    document.getElementById("myRatingValue");
+
+  if (!stars.length || !value) return;
+
+  stars.forEach(star => {
+
+    star.addEventListener("click", () => {
+
+      const rating =
+        Number(star.dataset.rating);
+
+      stars.forEach(item => {
+
+        const itemRating =
+          Number(item.dataset.rating);
+
+        item.classList.toggle(
+          "active",
+          itemRating <= rating
+        );
+
+      });
+
+      value.textContent = `${rating}/5`;
+
+    });
+
+  });
+
+}
+  
 </script>
 
 </body>
