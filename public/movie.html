@@ -74,12 +74,40 @@
 .hero-bg {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  filter: brightness(.78);
+  filter: brightness(.72);
+  z-index: 0;
+}
+.hero-trailer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  display: none;
+  pointer-events: none;
+  background: #000;
 }
 
+.hero-trailer.active {
+  display: block;
+}
+
+.hero-trailer iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 56.25vw;
+  min-width: 177.78vh;
+  min-height: 100vh;
+  transform: translate(-50%, -50%);
+  border: 0;
+  pointer-events: none;
+}
     .hero::after {
       content: "";
       position: absolute;
@@ -1240,8 +1268,12 @@ async function render() {
               background-image:
                 url('${backdrop(details.backdrop_path)}')
             ">
-          </div>
-
+        
+        </div>
+<div class="hero-trailer" id="heroTrailer"></div>
+<div id="heroTrailer" class="hero-trailer" aria-hidden="true">
+  <div id="heroTrailerPlayer"></div>
+</div>
           <div class="hero-content">
 
             <div class="hero-info">
