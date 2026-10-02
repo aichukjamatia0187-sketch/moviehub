@@ -847,12 +847,17 @@ function createHeroTrailerPlayer(videoId) {
 
         onReady: function(event) {
 
-          event.target.mute();
+  event.target.setVolume(100);
 
-          event.target.playVideo();
+  event.target.playVideo();
 
-        },
+},
 
+onAutoplayBlocked: function() {
+
+  trailerBox.classList.remove("active");
+
+}
         onError: function() {
 
           trailerBox.classList.remove("active");
