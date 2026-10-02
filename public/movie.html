@@ -64,17 +64,19 @@
 
     /* HERO */
     .hero {
-      position: relative;
-      min-height: 600px;
-      background: #101217;
-      overflow: hidden;
-    }
+  position: relative;
+  min-height: 0;
+  height: clamp(560px, 58vw, 720px);
+  background: #101217;
+  overflow: hidden;
+}
 
-    .hero-bg {
+.hero-bg {
   position: absolute;
   inset: 0;
-  background-size: 100% auto;
-  background-position: center 35%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   filter: brightness(.78);
 }
 
