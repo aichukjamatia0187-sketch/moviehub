@@ -1318,9 +1318,7 @@ async function render() {
 
     const trailer =
       getTrailer(details.videos);
-if (trailer?.key) {
-  loadHeroTrailer(trailer.key);
-}
+
     document.title =
       `${title} — MovieHub`;
 
@@ -1563,6 +1561,11 @@ ${
 
     `;
 
+    if (trailer?.key) {
+      loadHeroTrailer(trailer.key);
+    }
+
+
   
   } catch (error) {
 
@@ -1753,7 +1756,7 @@ function toggleWatchlist() {
     alert(
       "Unable to share. Please copy the page URL manually."
     );
-
+    
   } catch (error) {
 
     if (error?.name === "AbortError") {
