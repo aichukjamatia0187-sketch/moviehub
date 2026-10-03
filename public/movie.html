@@ -950,6 +950,24 @@ function openHeroFullscreen() {
 
   if (!trailerBox) return;
 
+  if (document.fullscreenElement) {
+
+    document.exitFullscreen();
+
+    return;
+  }
+
+  if (trailerBox.requestFullscreen) {
+
+    trailerBox.requestFullscreen().catch(() => {
+
+      trailerBox.classList.toggle("custom-fullscreen");
+
+    });
+
+    return;
+  }
+
   trailerBox.classList.toggle("custom-fullscreen");
 
 }
