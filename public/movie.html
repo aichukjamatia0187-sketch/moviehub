@@ -880,15 +880,15 @@ function createHeroTrailerPlayer(videoId) {
 
       videoId: videoId,
 
-      playerVars: {
+playerVars: {
   autoplay: 1,
-  mute: 1,
-  controls: 1,
-  fs: 1,
+  controls: 0,
   rel: 0,
   playsinline: 1,
   loop: 1,
-  playlist: videoId
+  playlist: videoId,
+  fs: 1,
+  modestbranding: 1
 },
 
       events: {
@@ -925,34 +925,29 @@ function onYouTubeIframeAPIReady() {
 }
 function openHeroFullscreen() {
 
-  const trailerBox =
-    document.getElementById("heroTrailer");
-
-  if (!trailerBox) return;
-
-  if (trailerBox.requestFullscreen) {
-
-    trailerBox.requestFullscreen();
-
-  } else if (trailerBox.webkitRequestFullscreen) {
-
-    trailerBox.webkitRequestFullscreen();
-
-  } else if (trailerBox.msRequestFullscreen) {
-
-    trailerBox.msRequestFullscreen();
-
-  } else if (
-    heroTrailerPlayer &&
-    heroTrailerPlayer.getIframe
+  if (
+    !heroTrailerPlayer ||
+    typeof heroTrailerPlayer.getIframe !== "function"
   ) {
+    return;
+  }
 
-    const iframe =
-      heroTrailerPlayer.getIframe();
+  const iframe =
+    heroTrailerPlayer.getIframe();
 
-    if (iframe.requestFullscreen) {
-      iframe.requestFullscreen();
-    }
+  if (!iframe) return;
+
+  if (iframe.requestFullscreen) {
+
+    iframe.requestFullscreen();
+
+  } else if (iframe.webkitRequestFullscreen) {
+
+    iframe.webkitRequestFullscreen();
+
+  } else {
+
+    iframe.focus();
 
   }
 
