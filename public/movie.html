@@ -136,28 +136,34 @@
 body.trailer-fullscreen {
   overflow: hidden !important;
 }
-    .hero-fullscreen-btn {
-  position: absolute;
-  right: 18px;
-  bottom: 18px;
-  z-index: 20;
+.hero-fullscreen-btn {
+  position: absolute !important;
+  right: 18px !important;
+  bottom: 18px !important;
+  z-index: 2147483647 !important;
 
-  width: 46px;
-  height: 46px;
+  width: 46px !important;
+  height: 46px !important;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 
-  padding: 0;
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 6px;
+  padding: 0 !important;
+  margin: 0 !important;
 
-  background: rgba(0,0,0,.62);
-  color: #ffffff;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  border-radius: 6px !important;
 
-  cursor: pointer;
-pointer-events: auto;
+  background: rgba(0,0,0,.62) !important;
+  color: #ffffff !important;
+
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+
+  -webkit-tap-highlight-color: transparent !important;
+
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 
@@ -207,6 +213,9 @@ pointer-events: auto;
   content: "";
   position: absolute;
   inset: 0;
+
+  pointer-events: none !important;
+
   background:
     linear-gradient(
       to bottom,
@@ -214,8 +223,6 @@ pointer-events: auto;
       rgba(8,9,13,.30) 42%,
       #08090d 100%
     );
-
-  pointer-events: none;
 }
 
     .hero-content {
@@ -805,7 +812,8 @@ transition: transform .2s ease;
   min-height: 590px;
   padding: 0 18px 32px;
   align-items: flex-end;
-}
+pointer-events: none;
+      }
 
       .poster {
   width: 100px;
