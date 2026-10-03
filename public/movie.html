@@ -974,6 +974,8 @@ function onYouTubeIframeAPIReady() {
 
 }
 
+  
+
   function openHeroFullscreen() {
 
   const trailerBox =
@@ -988,7 +990,10 @@ function onYouTubeIframeAPIReady() {
     return;
   }
 
-  if (trailerBox.requestFullscreen) {
+  if (
+    document.fullscreenEnabled &&
+    typeof trailerBox.requestFullscreen === "function"
+  ) {
 
     trailerBox.requestFullscreen({
       navigationUI: "hide"
@@ -999,25 +1004,20 @@ function onYouTubeIframeAPIReady() {
         error
       );
 
-      trailerBox.classList.add(
-        "custom-fullscreen"
-      );
-
-      document.body.style.overflow = "hidden";
-
     });
 
-  } else {
-
-    trailerBox.classList.add(
-      "custom-fullscreen"
-    );
-
-    document.body.style.overflow = "hidden";
-
+    return;
   }
 
+  trailerBox.classList.add(
+    "custom-fullscreen"
+  );
+
+  document.body.style.overflow = "hidden";
+
 }
+
+    
 document.addEventListener("fullscreenchange", function () {
 
   const trailerBox =
