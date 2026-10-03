@@ -982,15 +982,12 @@ function openHeroFullscreen() {
 
   if (document.fullscreenElement) {
 
-    document.exitFullscreen();
+    document.exitFullscreen?.();
 
     return;
   }
 
-  if (
-    document.fullscreenEnabled &&
-    trailerBox.requestFullscreen
-  ) {
+  if (trailerBox.requestFullscreen) {
 
     trailerBox.requestFullscreen().catch(error => {
 
@@ -999,18 +996,13 @@ function openHeroFullscreen() {
         error
       );
 
-      trailerBox.classList.add(
-        "custom-fullscreen"
-      );
-
     });
 
-    return;
-  }
+  } else if (trailerBox.webkitRequestFullscreen) {
 
-  trailerBox.classList.add(
-    "custom-fullscreen"
-  );
+    trailerBox.webkitRequestFullscreen();
+
+  }
 
 }
   
