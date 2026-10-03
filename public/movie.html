@@ -910,59 +910,46 @@ function createHeroTrailerPlayer(videoId) {
 
   heroTrailerPlayer =
     new YT.Player("heroTrailerPlayer", {
-const heroIframe =
-  document.querySelector("#heroTrailerPlayer iframe");
 
-if (heroIframe) {
-  heroIframe.setAttribute(
-    "allow",
-    "autoplay; encrypted-media; picture-in-picture; fullscreen"
-  );
-
-  heroIframe.setAttribute(
-    "allowfullscreen",
-    ""
-  );
-}
       videoId: videoId,
 
-playerVars: {
-  autoplay: 1,
-  controls: 0,
-  rel: 0,
-  playsinline: 1,
-  loop: 1,
-  playlist: videoId,
-  fs: 1,
-  modestbranding: 1
-},
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        rel: 0,
+        playsinline: 1,
+        loop: 1,
+        playlist: videoId,
+        fs: 1
+      },
 
       events: {
-onReady: function(event) {
 
-  event.target.mute();
+        onReady: function(event) {
 
-  event.target.playVideo();
+          event.target.mute();
 
-  const iframe =
-    event.target.getIframe();
+          event.target.playVideo();
 
-  if (iframe) {
+          const iframe =
+            event.target.getIframe();
 
-    iframe.setAttribute(
-      "allow",
-      "autoplay; encrypted-media; picture-in-picture; fullscreen"
-    );
+          if (iframe) {
 
-    iframe.setAttribute(
-      "allowfullscreen",
-      ""
-    );
+            iframe.setAttribute(
+              "allow",
+              "autoplay; encrypted-media; picture-in-picture; fullscreen"
+            );
 
-  }
+            iframe.setAttribute(
+              "allowfullscreen",
+              ""
+            );
 
-},
-        
+          }
+
+        },
+
         onError: function() {
 
           trailerBox.classList.remove("active");
