@@ -945,31 +945,12 @@ function onYouTubeIframeAPIReady() {
 }
 function openHeroFullscreen() {
 
-  if (
-    !heroTrailerPlayer ||
-    typeof heroTrailerPlayer.getIframe !== "function"
-  ) {
-    return;
-  }
+  const trailerBox =
+    document.getElementById("heroTrailer");
 
-  const iframe =
-    heroTrailerPlayer.getIframe();
+  if (!trailerBox) return;
 
-  if (!iframe) return;
-
-  if (iframe.requestFullscreen) {
-
-    iframe.requestFullscreen();
-
-  } else if (iframe.webkitRequestFullscreen) {
-
-    iframe.webkitRequestFullscreen();
-
-  } else {
-
-    iframe.focus();
-
-  }
+  trailerBox.classList.toggle("custom-fullscreen");
 
 }
   document.addEventListener("click", function (event) {
