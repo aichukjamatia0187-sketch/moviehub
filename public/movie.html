@@ -934,11 +934,13 @@ function createHeroTrailerPlayer(videoId) {
 
 function setupHeroFullscreen() {
 
-
   const button =
     document.getElementById("heroFullscreenBtn");
 
-  if (!button) return;
+  const trailerBox =
+    document.getElementById("heroTrailer");
+
+  if (!button || !trailerBox) return;
 
   button.addEventListener("click", async function (event) {
 
@@ -947,23 +949,7 @@ function setupHeroFullscreen() {
 
     try {
 
-      const iframe =
-        document.querySelector("#heroTrailerPlayer iframe");
-
-      if (!iframe) {
-        console.log("YouTube iframe not found");
-        return;
-      }
-
-      // Fullscreen permission
-      iframe.setAttribute("allowfullscreen", "");
-
-      iframe.setAttribute(
-        "allow",
-        "autoplay; encrypted-media; fullscreen; picture-in-picture"
-      );
-
-      // Make sure trailer keeps playing
+      // Trailer ko playing rakho
       if (
         heroTrailerPlayer &&
         typeof heroTrailerPlayer.playVideo === "function"
@@ -971,44 +957,44 @@ function setupHeroFullscreen() {
         heroTrailerPlayer.playVideo();
       }
 
-      // If already fullscreen, exit
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-        return;
-      }
+      // Agar already fullscreen hai to exit
+      if (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement
+      ) {
 
-      // Fullscreen the actual YouTube video
-      if (iframe.requestFullscreen) {
-
-        await iframe.requestFullscreen();
-
-        // Keep playing after entering fullscreen
-        if (
-          heroTrailerPlayer &&
-          typeof heroTrailerPlayer.playVideo === "function"
-        ) {
-          heroTrailerPlayer.playVideo();
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
         }
 
         return;
       }
 
-      // Android / WebKit fallback
-      if (iframe.webkitRequestFullscreen) {
+      // Full hero trailer ko fullscreen karo
+      if (trailerBox.requestFullscreen) {
 
-        iframe.webkitRequestFullscreen();
+        await trailerBox.requestFullscreen();
 
-        if (
-          heroTrailerPlayer &&
-          typeof heroTrailerPlayer.playVideo === "function"
-        ) {
-          heroTrailerPlayer.playVideo();
-        }
+      } else if (trailerBox.webkitRequestFullscreen) {
+
+        trailerBox.webkitRequestFullscreen();
+
+      } else {
+
+        console.log("Fullscreen not supported");
 
         return;
       }
 
-      console.log("Fullscreen API not supported");
+      // Fullscreen hone ke baad bhi trailer play rahe
+      if (
+        heroTrailerPlayer &&
+        typeof heroTrailerPlayer.playVideo === "function"
+      ) {
+        heroTrailerPlayer.playVideo();
+      }
 
     } catch (error) {
 
