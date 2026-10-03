@@ -97,154 +97,29 @@
 }
 
 .hero-trailer iframe {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-
-  width: 100vw !important;
-  height: 56.25vw !important;
-
-  min-width: 177.78vh !important;
-  min-height: 100vh !important;
-
-  transform: translate(-50%, -50%) !important;
-
-  border: 0 !important;
-
-  z-index: 1 !important;
-}
-
-.hero-fullscreen-btn {
-  z-index: 2147483647 !important;
-  pointer-events: auto !important;
-}
-   .hero-trailer.custom-fullscreen {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 99999 !important;
-  background: #000 !important;
-  display: block !important;
-}
-
-.hero-trailer.custom-fullscreen iframe {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  width: 100vw !important;
-  height: 56.25vw !important;
-  min-width: 177.78vh !important;
-  min-height: 100vh !important;
-  transform: translate(-50%, -50%) !important;
-}
-
-
-
-body.trailer-fullscreen {
-  overflow: hidden !important;
-}
-.hero-fullscreen-btn {
-  position: fixed !important;
-  right: 18px !important;
-  bottom: 18px !important;
-
-  width: 46px !important;
-  height: 46px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  z-index: 2147483647 !important;
-
-  pointer-events: auto !important;
-  touch-action: manipulation !important;
-
-  border: 1px solid rgba(255,255,255,.35) !important;
-  border-radius: 10px !important;
-
-  background: rgba(0,0,0,.75) !important;
-  color: #fff !important;
-
-  cursor: pointer !important;
-}
-
-  padding: 0 !important;
-  margin: 0 !important;
-
-  border: 1px solid rgba(255,255,255,.18) !important;
-  border-radius: 6px !important;
-
-  background: rgba(0,0,0,.62) !important;
-  color: #ffffff !important;
-
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  touch-action: manipulation !important;
-
-  -webkit-tap-highlight-color: transparent !important;
-
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
-  transition:
-    background .2s ease,
-    transform .2s ease,
-    border-color .2s ease;
-}
-
-.hero-fullscreen-btn:hover {
-  background: rgba(0,0,0,.82);
-  border-color: rgba(255,255,255,.35);
-}
-
-.hero-fullscreen-btn:active {
-  transform: scale(.92);
-}
-
-.hero-fullscreen-btn svg {
-  width: 22px;
-  height: 22px;
-
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
- #heroTrailer:fullscreen {
-  width: 100vw !important;
-  height: 100vh !important;
-  background: #000 !important;
-}
-
-#heroTrailer:fullscreen #heroTrailerPlayer,
-#heroTrailer:fullscreen iframe {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-#heroTrailer:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  background: #000 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 56.25vw;
+  min-width: 177.78vh;
+  min-height: 100vh;
+  transform: translate(-50%, -50%);
+  border: 0;
+  
 }
     .hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  pointer-events: none !important;
-
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(8,9,13,.05) 15%,
-      rgba(8,9,13,.30) 42%,
-      #08090d 100%
-    );
-}
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(8,9,13,.05) 15%,
+          rgba(8,9,13,.30) 42%,
+          #08090d 100%
+        );
+    }
 
     .hero-content {
       position: relative;
@@ -833,8 +708,7 @@ transition: transform .2s ease;
   min-height: 590px;
   padding: 0 18px 32px;
   align-items: flex-end;
-pointer-events: none;
-      }
+}
 
       .poster {
   width: 100px;
@@ -991,46 +865,6 @@ function createHeroTrailerPlayer(videoId) {
 
 }
 
-function setupHeroFullscreen() {
-
-  const button =
-    document.getElementById("heroFullscreenBtn");
-
-  const trailerBox =
-    document.getElementById("heroTrailer");
-
-  if (!button || !trailerBox) return;
-
-  button.addEventListener("click", function (event) {
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const isFullscreen =
-      trailerBox.classList.contains("custom-fullscreen");
-
-    if (isFullscreen) {
-
-      trailerBox.classList.remove("custom-fullscreen");
-      document.body.classList.remove("trailer-fullscreen");
-
-      return;
-    }
-
-    trailerBox.classList.add("custom-fullscreen");
-    document.body.classList.add("trailer-fullscreen");
-
-    // Trailer ko playing rakho
-    if (
-      heroTrailerPlayer &&
-      typeof heroTrailerPlayer.playVideo === "function"
-    ) {
-      heroTrailerPlayer.playVideo();
-    }
-
-  });
-
-}
 function onYouTubeIframeAPIReady() {
 
   if (pendingHeroTrailerId) {
@@ -1042,7 +876,19 @@ function onYouTubeIframeAPIReady() {
   }
 
 }
+document.addEventListener("click", function () {
 
+  if (
+    heroTrailerPlayer &&
+    typeof heroTrailerPlayer.unMute === "function"
+  ) {
+
+    heroTrailerPlayer.unMute();
+    heroTrailerPlayer.setVolume(100);
+
+  }
+
+}, { once: true });
   const IMG = "https://image.tmdb.org/t/p/";
 
 const params = new URLSearchParams(location.search);
@@ -1523,28 +1369,10 @@ async function render() {
             ">
         
         </div>
+
 <div id="heroTrailer" class="hero-trailer" aria-hidden="true">
   <div id="heroTrailerPlayer"></div>
-
-
 </div>
-          <button
-  id="heroFullscreenBtn"
-  class="hero-fullscreen-btn"
-  type="button"
-  aria-label="Enter fullscreen"
-  title="Fullscreen">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M8 3H3v5"></path>
-    <path d="M3 3l6 6"></path>
-    <path d="M16 3h5v5"></path>
-    <path d="M21 3l-6 6"></path>
-    <path d="M8 21H3v-5"></path>
-    <path d="M3 21l6-6"></path>
-    <path d="M16 21h5v-5"></path>
-    <path d="M21 21l-6-6"></path>
-  </svg>
-</button>
           <div class="hero-content">
 
             <div class="hero-info">
@@ -1750,7 +1578,7 @@ ${
       loadHeroTrailer(trailer.key);
     }
 
-setupHeroFullscreen();
+
   
   } catch (error) {
 
