@@ -158,6 +158,23 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+ #heroTrailer:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #000 !important;
+}
+
+#heroTrailer:fullscreen #heroTrailerPlayer,
+#heroTrailer:fullscreen iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#heroTrailer:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #000 !important;
+}
     .hero::after {
       content: "";
       position: absolute;
