@@ -918,9 +918,8 @@ function createHeroTrailerPlayer(videoId) {
 function setupHeroFullscreen() {
 
   const button = document.getElementById("heroFullscreenBtn");
-  const trailerBox = document.getElementById("heroTrailer");
 
-  if (!button || !trailerBox) return;
+  if (!button) return;
 
   button.addEventListener("click", async function (event) {
 
@@ -929,26 +928,40 @@ function setupHeroFullscreen() {
 
     try {
 
+      const iframe =
+        document.querySelector("#heroTrailerPlayer iframe");
+
+      if (!iframe) {
+        console.log("YouTube iframe not found");
+        return;
+      }
+
+      // Give YouTube iframe fullscreen permission
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.setAttribute(
+        "allow",
+        "autoplay; fullscreen; picture-in-picture"
+      );
+
+      // Exit fullscreen
       if (document.fullscreenElement) {
-
         await document.exitFullscreen();
-
         return;
       }
 
-      if (trailerBox.requestFullscreen) {
-
-        await trailerBox.requestFullscreen();
-
+      // Fullscreen the actual YouTube iframe
+      if (iframe.requestFullscreen) {
+        await iframe.requestFullscreen();
         return;
       }
 
-      if (trailerBox.webkitRequestFullscreen) {
-
-        trailerBox.webkitRequestFullscreen();
-
+      // Android Chrome fallback
+      if (iframe.webkitRequestFullscreen) {
+        iframe.webkitRequestFullscreen();
         return;
       }
+
+      console.log("Fullscreen API not supported");
 
     } catch (error) {
 
