@@ -88,7 +88,7 @@
   z-index: 1;
   overflow: hidden;
   display: none;
-  pointer-events: none;
+  
   background: #000;
 }
 
@@ -106,7 +106,7 @@
   min-height: 100vh;
   transform: translate(-50%, -50%);
   border: 0;
-  pointer-events: none;
+  
 }
     .hero::after {
       content: "";
@@ -835,13 +835,12 @@ function createHeroTrailerPlayer(videoId) {
 
       playerVars: {
   autoplay: 1,
-  mute: 1,
-  controls: 0,
+  controls: 1,
+  fs: 1,
   rel: 0,
   playsinline: 1,
   loop: 1,
-  playlist: videoId,
-  modestbranding: 1
+  playlist: videoId
 },
 
       events: {
