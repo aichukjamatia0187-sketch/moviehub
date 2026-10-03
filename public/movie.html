@@ -981,9 +981,10 @@ function onYouTubeIframeAPIReady() {
 
   if (!trailerBox) return;
 
-  if (
-    trailerBox.classList.contains("custom-fullscreen")
-  ) {
+  const isFullscreen =
+    trailerBox.classList.contains("custom-fullscreen");
+
+  if (isFullscreen) {
 
     trailerBox.classList.remove("custom-fullscreen");
 
@@ -1010,10 +1011,17 @@ document.addEventListener("fullscreenchange", function () {
   }
 
 }); 
-  document.addEventListener("click", function () {
+  document.addEventListener("click", function (event) {
+
+  if (!heroTrailerPlayer) return;
 
   if (
-    heroTrailerPlayer &&
+    event.target.closest(".hero-fullscreen-btn")
+  ) {
+    return;
+  }
+
+  if (
     typeof heroTrailerPlayer.unMute === "function"
   ) {
 
