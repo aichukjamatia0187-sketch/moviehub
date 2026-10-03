@@ -973,39 +973,30 @@ function onYouTubeIframeAPIReady() {
   }
 
 }
-function openHeroFullscreen() {
+
+  function openHeroFullscreen() {
 
   const trailerBox =
     document.getElementById("heroTrailer");
 
   if (!trailerBox) return;
 
-  if (document.fullscreenElement) {
+  if (
+    trailerBox.classList.contains("custom-fullscreen")
+  ) {
 
-    document.exitFullscreen?.();
+    trailerBox.classList.remove("custom-fullscreen");
+
+    document.body.style.overflow = "";
 
     return;
   }
 
-  if (trailerBox.requestFullscreen) {
+  trailerBox.classList.add("custom-fullscreen");
 
-    trailerBox.requestFullscreen().catch(error => {
-
-      console.error(
-        "Fullscreen failed:",
-        error
-      );
-
-    });
-
-  } else if (trailerBox.webkitRequestFullscreen) {
-
-    trailerBox.webkitRequestFullscreen();
-
-  }
+  document.body.style.overflow = "hidden";
 
 }
-  
   document.addEventListener("click", function () {
 
   if (
