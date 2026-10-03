@@ -897,7 +897,20 @@ function createHeroTrailerPlayer(videoId) {
 
   heroTrailerPlayer =
     new YT.Player("heroTrailerPlayer", {
+const heroIframe =
+  document.querySelector("#heroTrailerPlayer iframe");
 
+if (heroIframe) {
+  heroIframe.setAttribute(
+    "allow",
+    "autoplay; encrypted-media; picture-in-picture; fullscreen"
+  );
+
+  heroIframe.setAttribute(
+    "allowfullscreen",
+    ""
+  );
+}
       videoId: videoId,
 
 playerVars: {
@@ -912,14 +925,31 @@ playerVars: {
 },
 
       events: {
-
-        onReady: function(event) {
+onReady: function(event) {
 
   event.target.mute();
 
   event.target.playVideo();
 
+  const iframe =
+    event.target.getIframe();
+
+  if (iframe) {
+
+    iframe.setAttribute(
+      "allow",
+      "autoplay; encrypted-media; picture-in-picture; fullscreen"
+    );
+
+    iframe.setAttribute(
+      "allowfullscreen",
+      ""
+    );
+
+  }
+
 },
+        
         onError: function() {
 
           trailerBox.classList.remove("active");
@@ -957,18 +987,30 @@ function openHeroFullscreen() {
     return;
   }
 
-  if (trailerBox.requestFullscreen) {
+  if (
+    document.fullscreenEnabled &&
+    trailerBox.requestFullscreen
+  ) {
 
-    trailerBox.requestFullscreen().catch(() => {
+    trailerBox.requestFullscreen().catch(error => {
 
-      trailerBox.classList.toggle("custom-fullscreen");
+      console.error(
+        "Fullscreen failed:",
+        error
+      );
+
+      trailerBox.classList.add(
+        "custom-fullscreen"
+      );
 
     });
 
     return;
   }
 
-  trailerBox.classList.toggle("custom-fullscreen");
+  trailerBox.classList.add(
+    "custom-fullscreen"
+  );
 
 }
   
