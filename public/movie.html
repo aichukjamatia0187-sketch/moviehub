@@ -933,8 +933,10 @@ function createHeroTrailerPlayer(videoId) {
 }
 
 function setupHeroFullscreen() {
+function setupHeroFullscreen() {
 
-  const button = document.getElementById("heroFullscreenBtn");
+  const button =
+    document.getElementById("heroFullscreenBtn");
 
   if (!button) return;
 
@@ -953,28 +955,56 @@ function setupHeroFullscreen() {
         return;
       }
 
-      // Give YouTube iframe fullscreen permission
+      // Fullscreen permission
       iframe.setAttribute("allowfullscreen", "");
+
       iframe.setAttribute(
         "allow",
-        "autoplay; fullscreen; picture-in-picture"
+        "autoplay; encrypted-media; fullscreen; picture-in-picture"
       );
 
-      // Exit fullscreen
+      // Make sure trailer keeps playing
+      if (
+        heroTrailerPlayer &&
+        typeof heroTrailerPlayer.playVideo === "function"
+      ) {
+        heroTrailerPlayer.playVideo();
+      }
+
+      // If already fullscreen, exit
       if (document.fullscreenElement) {
         await document.exitFullscreen();
         return;
       }
 
-      // Fullscreen the actual YouTube iframe
+      // Fullscreen the actual YouTube video
       if (iframe.requestFullscreen) {
+
         await iframe.requestFullscreen();
+
+        // Keep playing after entering fullscreen
+        if (
+          heroTrailerPlayer &&
+          typeof heroTrailerPlayer.playVideo === "function"
+        ) {
+          heroTrailerPlayer.playVideo();
+        }
+
         return;
       }
 
-      // Android Chrome fallback
+      // Android / WebKit fallback
       if (iframe.webkitRequestFullscreen) {
+
         iframe.webkitRequestFullscreen();
+
+        if (
+          heroTrailerPlayer &&
+          typeof heroTrailerPlayer.playVideo === "function"
+        ) {
+          heroTrailerPlayer.playVideo();
+        }
+
         return;
       }
 
@@ -982,7 +1012,10 @@ function setupHeroFullscreen() {
 
     } catch (error) {
 
-      console.error("Fullscreen failed:", error);
+      console.error(
+        "Fullscreen failed:",
+        error
+      );
 
     }
 
