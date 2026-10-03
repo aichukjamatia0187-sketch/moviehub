@@ -157,7 +157,7 @@ body.trailer-fullscreen {
   color: #ffffff;
 
   cursor: pointer;
-
+pointer-events: auto;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 
@@ -204,17 +204,19 @@ body.trailer-fullscreen {
   background: #000 !important;
 }
     .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(8,9,13,.05) 15%,
-          rgba(8,9,13,.30) 42%,
-          #08090d 100%
-        );
-    }
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(8,9,13,.05) 15%,
+      rgba(8,9,13,.30) 42%,
+      #08090d 100%
+    );
+
+  pointer-events: none;
+}
 
     .hero-content {
       position: relative;
