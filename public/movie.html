@@ -971,19 +971,7 @@ function openHeroFullscreen() {
   trailerBox.classList.toggle("custom-fullscreen");
 
 }
-  document.addEventListener("click", function (event) {
-
-  const fullscreenButton =
-    event.target.closest(".hero-fullscreen-btn");
-
-  if (!fullscreenButton) return;
-
-  event.preventDefault();
-  event.stopPropagation();
-
-  openHeroFullscreen();
-
-});
+  
   document.addEventListener("click", function () {
 
   if (
