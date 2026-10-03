@@ -917,10 +917,10 @@ function createHeroTrailerPlayer(videoId) {
 
 function setupHeroFullscreen() {
 
-  const button =
-    document.getElementById("heroFullscreenBtn");
+  const button = document.getElementById("heroFullscreenBtn");
+  const trailerBox = document.getElementById("heroTrailer");
 
-  if (!button) return;
+  if (!button || !trailerBox) return;
 
   button.addEventListener("click", async function (event) {
 
@@ -930,38 +930,29 @@ function setupHeroFullscreen() {
     try {
 
       if (document.fullscreenElement) {
+
         await document.exitFullscreen();
+
         return;
       }
 
-      const iframe =
-        document.querySelector("#heroTrailerPlayer iframe");
+      if (trailerBox.requestFullscreen) {
 
-      if (iframe && iframe.requestFullscreen) {
-        await iframe.requestFullscreen();
+        await trailerBox.requestFullscreen();
+
         return;
       }
 
-      if (
-        heroTrailerPlayer &&
-        typeof heroTrailerPlayer.getIframe === "function"
-      ) {
+      if (trailerBox.webkitRequestFullscreen) {
 
-        const ytIframe =
-          heroTrailerPlayer.getIframe();
+        trailerBox.webkitRequestFullscreen();
 
-        if (ytIframe && ytIframe.requestFullscreen) {
-          await ytIframe.requestFullscreen();
-          return;
-        }
+        return;
       }
 
     } catch (error) {
 
-      console.error(
-        "Fullscreen failed:",
-        error
-      );
+      console.error("Fullscreen failed:", error);
 
     }
 
