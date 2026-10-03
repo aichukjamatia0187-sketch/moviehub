@@ -155,15 +155,28 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-  .hero-trailer.custom-fullscreen {
+
+.hero-trailer.custom-fullscreen {
   position: fixed !important;
-  inset: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+
   width: 100vw !important;
-  height: 100vh !important;
-  z-index: 9999 !important;
+  height: 100dvh !important;
+
+  z-index: 99999 !important;
   background: #000 !important;
 }
 
+.hero-trailer.custom-fullscreen #heroTrailerPlayer,
+.hero-trailer.custom-fullscreen iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
 .hero-trailer.custom-fullscreen iframe {
   width: 100vw !important;
   height: 100vh !important;
@@ -997,6 +1010,19 @@ function onYouTubeIframeAPIReady() {
   document.body.style.overflow = "hidden";
 
 }
+document.addEventListener("fullscreenchange", function () {
+
+  const trailerBox =
+    document.getElementById("heroTrailer");
+
+  if (!trailerBox) return;
+
+  if (!document.fullscreenElement) {
+    trailerBox.classList.remove("custom-fullscreen");
+    document.body.style.overflow = "";
+  }
+
+}); 
   document.addEventListener("click", function () {
 
   if (
