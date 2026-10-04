@@ -597,6 +597,115 @@ h1 { letter-spacing: -.025em; text-wrap: balance; }
   .info-grid { grid-template-columns: repeat(2, 1fr); }
   .section { margin-top: 36px; }
 }
+
+/* =========================================================
+   VIDEO FRAME + CONTROL BAR + FULLSCREEN FIX
+========================================================= */
+.hero-trailer { container-type: size; }
+
+/* 16:9 stage that always fits inside the box (hero or fullscreen) */
+.video-frame {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100cqw, calc(100cqh * 16 / 9));
+  height: min(100cqh, calc(100cqw * 9 / 16));
+  overflow: hidden;
+  background: #000;
+}
+/* iframe is taller than the stage: YouTube's title bar, logo and
+   "More videos" strip land outside the stage and get cropped away */
+.hero-trailer .video-frame iframe,
+.hero-trailer:fullscreen .video-frame iframe,
+.hero-trailer.custom-fullscreen .video-frame iframe {
+  position: absolute !important;
+  left: 0 !important; top: -30% !important;
+  width: 100% !important; height: 160% !important;
+  inset: auto !important;
+  transform: none !important;
+  border: 0;
+}
+.hero-trailer { cursor: pointer; }
+
+.hero-bar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  display: flex; align-items: center; gap: 6px;
+  padding: 28px 12px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,0));
+  cursor: default;
+}
+.hb-btn {
+  flex: 0 0 auto;
+  width: 38px; height: 38px;
+  border: 0; border-radius: 50%;
+  background: transparent; color: #fff;
+  display: grid; place-items: center;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.hb-btn:hover { background: rgba(255,255,255,.18); }
+.hb-btn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hb-btn svg.solid { fill: currentColor; stroke: none; }
+.hb-time { min-width: 34px; text-align: center; font-size: 12px; font-variant-numeric: tabular-nums; color: #e6e8ee; }
+.hb-seek {
+  --pct: 0%;
+  flex: 1; min-width: 0; height: 22px; padding: 9px 0;
+  -webkit-appearance: none; appearance: none;
+  background: linear-gradient(to right, #fff var(--pct), rgba(255,255,255,.3) var(--pct)) content-box;
+  background-clip: content-box;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.hb-seek::-webkit-slider-runnable-track { background: transparent; height: 4px; }
+.hb-seek::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.18); }
+.hb-seek::-moz-range-track { background: transparent; height: 4px; }
+.hb-seek::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff; }
+
+.ico-exit { display: none; }
+.hero-trailer:fullscreen .ico-enter, .hero-trailer.custom-fullscreen .ico-enter { display: none; }
+.hero-trailer:fullscreen .ico-exit,  .hero-trailer.custom-fullscreen .ico-exit  { display: block; }
+
+/* now playing label sits next to the back button */
+.now-playing { top: 12px; bottom: auto; left: 68px; max-width: calc(100% - 90px); }
+.hero-trailer:fullscreen .now-playing,
+.hero-trailer.custom-fullscreen .now-playing { left: 20px; top: 18px; font-size: 13px; }
+
+/* overlay: make room for the bar */
+.more-videos-overlay { padding-bottom: 66px; }
+.more-videos-overlay.ended { padding-bottom: 66px; }
+.hero-trailer:fullscreen .more-videos-overlay,
+.hero-trailer.custom-fullscreen .more-videos-overlay { padding: 28px 32px 76px; }
+.hero-trailer:fullscreen .more-video-card,
+.hero-trailer.custom-fullscreen .more-video-card { flex-basis: 190px; width: 190px; }
+.hero-trailer:fullscreen .more-video-thumb,
+.hero-trailer.custom-fullscreen .more-video-thumb { width: 190px; height: 107px; }
+.hero-trailer:fullscreen .hero-bar,
+.hero-trailer.custom-fullscreen .hero-bar { padding-left: 24px; padding-right: 24px; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+
+@media (max-width: 700px) {
+  .hero-bar { padding: 22px 6px 2px; gap: 2px; }
+  .hb-btn { width: 36px; height: 36px; }
+  .hb-btn svg { width: 19px; height: 19px; }
+  .hb-time { min-width: 30px; font-size: 11px; }
+  .now-playing { left: 62px; top: 9px; }
+  .more-videos-overlay, .more-videos-overlay.ended { padding-bottom: 52px; }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .hero-trailer:fullscreen .more-videos-overlay.ended { justify-content: center; }
+}
+
+/* View all */
+.viewall-card { text-decoration: none; color: inherit; }
+.viewall-box {
+  width: 150px; height: 225px; border-radius: 10px;
+  border: 1px dashed rgba(255,255,255,.28);
+  background: var(--surface);
+  display: grid; place-items: center;
+  font-size: 30px;
+  transition: background .2s ease;
+}
+.viewall-card:hover .viewall-box { background: var(--surface-2); }
+@media (max-width: 700px) { .viewall-box { width: 132px; height: 198px; } }
 </style>
 </head>
 
@@ -641,6 +750,8 @@ const type = params.get("type") === "tv" ? "tv" : "movie";
 ========================================================= */
 const SOUND_ON_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="M15 9.5a4 4 0 0 1 0 5"></path><path d="M18 7a8 8 0 0 1 0 10"></path></svg>`;
 const SOUND_OFF_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="m17 9 4 6"></path><path d="m21 9-4 6"></path></svg>`;
+const HB_PLAY = `<svg class="solid" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>`;
+const HB_PAUSE = `<svg class="solid" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"></path></svg>`;
 const PLAY_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>`;
 const REPLAY_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"></path></svg>`;
 
@@ -771,6 +882,8 @@ function createHeroTrailerPlayer(videoId) {
         updateHeroSoundButton();
         updateNowPlaying();
 
+        startProgressTimer();
+
         const iframe = event.target.getIframe();
         if (iframe) {
           iframe.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture");
@@ -781,6 +894,7 @@ function createHeroTrailerPlayer(videoId) {
 
       onStateChange(event) {
         const S = YT.PlayerState;
+        setPlayIcon(event.data === S.PLAYING || event.data === S.BUFFERING);
 
         if (event.data === S.ENDED) {
           /* stopVideo() removes YouTube's own end screen,
@@ -842,6 +956,8 @@ function updateNowPlaying() {
   if (!el) return;
   el.textContent = videoName(currentHeroVideoId);
   el.classList.add("show");
+  clearTimeout(updateNowPlaying.t);
+  updateNowPlaying.t = setTimeout(() => el.classList.remove("show"), 3500);
 }
 
 /* Tap on the video = play / pause */
@@ -1155,7 +1271,7 @@ function renderSimilar(list) {
         <div class="movie-title">${esc(title)}</div>
         <div class="movie-year">${year(date)}</div>
       </div>`;
-  }).join("");
+  }).join("") + viewAllTile();
 }
 
 function renderTrailers(videos) {
@@ -1245,7 +1361,7 @@ async function render() {
           <div class="hero-bg" style="background-image:url('${backdrop(details.backdrop_path)}')"></div>
 
           <div id="heroTrailer" class="hero-trailer">
-            <div id="heroTrailerPlayer"></div>
+            <div class="video-frame"><div id="heroTrailerPlayer"></div></div>
 
             <!-- Blocks every tap from reaching YouTube -->
             <div class="hero-shield" onclick="toggleHeroPlay()"></div>
@@ -1261,18 +1377,15 @@ async function render() {
               <div id="moreVideosRow" class="more-videos-row"></div>
             </div>
 
-            <div class="hero-controls">
-              <button id="heroSoundButton" class="hero-control-btn" type="button"
-                onclick="toggleHeroSound()" aria-label="Turn sound on">${SOUND_OFF_ICON}</button>
-
-              <button class="hero-control-btn" type="button"
-                onclick="openHeroFullscreen()" aria-label="Fullscreen trailer">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M8 3H3v5"></path><path d="M3 3l6 6"></path>
-                  <path d="M16 3h5v5"></path><path d="M21 3l-6 6"></path>
-                  <path d="M8 21H3v-5"></path><path d="M3 21l6-6"></path>
-                  <path d="M16 21h5v-5"></path><path d="M21 21l-6-6"></path>
-                </svg>
+            <div class="hero-bar" id="heroBar">
+              <button id="heroPlayButton" class="hb-btn" type="button" onclick="toggleHeroPlay()" aria-label="Play or pause">${HB_PAUSE}</button>
+              <span id="heroTime" class="hb-time">0:00</span>
+              <input id="heroSeek" class="hb-seek" type="range" min="0" max="1000" value="0" aria-label="Seek">
+              <span id="heroDur" class="hb-time">0:00</span>
+              <button id="heroSoundButton" class="hb-btn" type="button" onclick="toggleHeroSound()" aria-label="Turn sound on">${SOUND_OFF_ICON}</button>
+              <button class="hb-btn" type="button" onclick="openHeroFullscreen()" aria-label="Fullscreen">
+                <svg class="ico-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5"></path><path d="M16 3h5v5"></path><path d="M8 21H3v-5"></path><path d="M16 21h5v-5"></path></svg>
+                <svg class="ico-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h5V3"></path><path d="M21 8h-5V3"></path><path d="M3 16h5v5"></path><path d="M21 16h-5v5"></path></svg>
               </button>
             </div>
           </div>
@@ -1358,7 +1471,7 @@ async function render() {
           ${renderProviders(providers)}
 
           <section class="section">
-            <h2 class="section-title">Cast</h2>
+            ${viewAllHead("Cast", "cast")}
             <div class="people-row">${renderCast(details.credits?.cast)}</div>
           </section>
 
@@ -1373,7 +1486,7 @@ async function render() {
           </section>
 
           <section class="section">
-            <h2 class="section-title">More like this</h2>
+            ${viewAllHead("More like this", "similar")}
             <div class="movies-row">${renderSimilar(similar)}</div>
           </section>
 
@@ -1625,10 +1738,102 @@ function setupRowArrows() {
   });
 }
 
+
+/* =========================================================
+   VIEW ALL
+========================================================= */
+function listUrl(kind) {
+  return `/list.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&kind=${kind}`;
+}
+
+function viewAllHead(title, kind) {
+  const link = id !== "demo" ? `<a class="watch-link" href="${listUrl(kind)}">View all</a>` : "";
+  return `<div class="section-head-row"><h2 class="section-title">${title}</h2>${link}</div>`;
+}
+
+function viewAllTile() {
+  if (id === "demo") return "";
+  return `
+    <a class="movie-card viewall-card" href="${listUrl("similar")}">
+      <div class="viewall-box"><span>→</span></div>
+      <div class="movie-title">View all</div>
+    </a>`;
+}
+
+/* =========================================================
+   CUSTOM CONTROL BAR
+========================================================= */
+let progressTimer = null;
+let seeking = false;
+
+function fmtTime(t) {
+  t = Math.max(0, Math.floor(t || 0));
+  return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
+}
+
+function setPlayIcon(playing) {
+  const btn = document.getElementById("heroPlayButton");
+  if (btn) {
+    btn.innerHTML = playing ? HB_PAUSE : HB_PLAY;
+    btn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  }
+}
+
+function setSeekFill(value) {
+  const seek = document.getElementById("heroSeek");
+  if (seek) seek.style.setProperty("--pct", (value / 10) + "%");
+}
+
+function updateProgress() {
+  if (!heroTrailerPlayer || typeof heroTrailerPlayer.getCurrentTime !== "function") return;
+  try {
+    const d = heroTrailerPlayer.getDuration() || 0;
+    const c = heroTrailerPlayer.getCurrentTime() || 0;
+    const t = document.getElementById("heroTime");
+    const du = document.getElementById("heroDur");
+    const seek = document.getElementById("heroSeek");
+    if (du) du.textContent = fmtTime(d);
+    if (!seeking && d) {
+      const v = Math.round((c / d) * 1000);
+      if (seek) seek.value = v;
+      setSeekFill(v);
+      if (t) t.textContent = fmtTime(c);
+    }
+  } catch (_) {}
+}
+
+function startProgressTimer() {
+  clearInterval(progressTimer);
+  progressTimer = setInterval(updateProgress, 400);
+}
+
+function setupHeroBar() {
+  const seek = document.getElementById("heroSeek");
+  if (!seek) return;
+
+  seek.addEventListener("input", () => {
+    seeking = true;
+    setSeekFill(Number(seek.value));
+    try {
+      const d = heroTrailerPlayer.getDuration() || 0;
+      document.getElementById("heroTime").textContent = fmtTime(d * seek.value / 1000);
+    } catch (_) {}
+  });
+
+  seek.addEventListener("change", () => {
+    try {
+      const d = heroTrailerPlayer.getDuration() || 0;
+      heroTrailerPlayer.seekTo(d * seek.value / 1000, true);
+    } catch (_) {}
+    seeking = false;
+  });
+}
+
 render().then(() => {
   updateWatchlistButton();
   setupMyRating();
   setupRowArrows();
+  setupHeroBar();
   updateHeroSoundButton();
 });
 </script>
