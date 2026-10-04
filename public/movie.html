@@ -1,5130 +1,1393 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width,initial-scale=1,viewport-fit=cover">
-
-  <meta
-    name="theme-color"
-    content="#08090d">
-
-  <title>Movie Details — MovieHub</title>
-
-  <style>
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      background: #08090d;
-      color: #f4f4f6;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    body {
-      min-height: 100vh;
-    }
-
-    button {
-      font: inherit;
-    }
-
-    .page {
-      min-height: 100vh;
-      background: #08090d;
-    }
-
-
-    /* =========================================================
-       TOP BAR
-    ========================================================= */
-
-    .topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-
-      z-index: 1000;
-
-      height: 62px;
-
-      display: flex;
-      align-items: center;
-
-      padding: 0 18px;
-
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0,0,0,.82),
-          rgba(0,0,0,0)
-        );
-
-      pointer-events: none;
-    }
-
-    .back-btn {
-      width: 42px;
-      height: 42px;
-
-      border: 0;
-      border-radius: 50%;
-
-      background: rgba(0,0,0,.55);
-
-      color: #ffffff;
-
-      font-size: 28px;
-
-      cursor: pointer;
-
-      pointer-events: auto;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      transition:
-        background .2s ease,
-        transform .2s ease;
-    }
-
-    .back-btn:hover {
-      background: rgba(255,255,255,.14);
-      transform: scale(1.04);
-    }
-
-    .back-btn:active {
-      transform: scale(.94);
-    }
-
-
-    /* =========================================================
-       HERO
-    ========================================================= */
-
-    .hero {
-      position: relative;
-
-      width: 100%;
-
-      aspect-ratio: 16 / 9;
-
-      max-height: 700px;
-
-      background: #000;
-
-      overflow: hidden;
-    }
-
-    .hero-bg {
-      position: absolute;
-
-      inset: 0;
-
-      width: 100%;
-      height: 100%;
-
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-
-      filter: brightness(.68);
-
-      z-index: 0;
-    }
-
-
-    /* =========================================================
-       HERO TRAILER
-    ========================================================= */
-
-    .hero-trailer {
-      position: absolute;
-
-      inset: 0;
-
-      z-index: 2;
-
-      overflow: hidden;
-
-      display: none;
-
-      background: #000;
-    }
-
-    .hero-trailer.active {
-      display: block;
-    }
-
-    .hero-trailer iframe {
-      position: absolute;
-
-      top: 50%;
-      left: 50%;
-
-      width: 100%;
-      height: 100%;
-
-      transform: translate(-50%, -50%);
-
-      border: 0;
-
-      display: block;
-    }
-
-
-    /* =========================================================
-       HERO CONTROLS
-    ========================================================= */
-
-    .hero-controls {
-      position: absolute;
-
-      right: 18px;
-      bottom: 18px;
-
-      z-index: 50;
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 8px;
-    }
-
-    .hero-control-btn {
-      width: 44px;
-      height: 44px;
-
-      border:
-        1px solid rgba(255,255,255,.24);
-
-      border-radius: 8px;
-
-      background:
-        rgba(0,0,0,.72);
-
-      color: #ffffff;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      cursor: pointer;
-
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-
-      transition:
-        background .2s ease,
-        transform .2s ease,
-        border-color .2s ease;
-    }
-
-    .hero-control-btn:hover {
-      background:
-        rgba(255,255,255,.15);
-
-      border-color:
-        rgba(255,255,255,.38);
-
-      transform: scale(1.05);
-    }
-
-    .hero-control-btn:active {
-      transform: scale(.93);
-    }
-
-    .hero-control-btn svg {
-      width: 21px;
-      height: 21px;
-
-      fill: none;
-
-      stroke: currentColor;
-
-      stroke-width: 2;
-
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-
-    /* =========================================================
-       MORE VIDEOS
-    ========================================================= */
-
-    .more-videos-overlay {
-      position: absolute;
-
-      left: 0;
-      right: 0;
-      bottom: 0;
-
-      z-index: 40;
-
-      display: none;
-
-      padding:
-        14px
-        18px
-        72px;
-
-      background:
-        linear-gradient(
-          to top,
-          rgba(0,0,0,.96),
-          rgba(0,0,0,.80),
-          rgba(0,0,0,0)
-        );
-    }
-
-    .more-videos-overlay.active {
-      display: block;
-    }
-
-    .more-videos-title {
-      color: #ffffff;
-
-      font-size: 14px;
-
-      font-weight: 800;
-
-      margin-bottom: 10px;
-    }
-
-    .more-videos-row {
-      display: flex;
-
-      gap: 10px;
-
-      overflow-x: auto;
-
-      scrollbar-width: none;
-    }
-
-    .more-videos-row::-webkit-scrollbar {
-      display: none;
-    }
-
-    .more-video-card {
-      flex:
-        0 0 145px;
-
-      width: 145px;
-
-      cursor: pointer;
-
-      position: relative;
-    }
-
-    .more-video-card img {
-      display: block;
-
-      width: 145px;
-      height: 82px;
-
-      object-fit: cover;
-
-      border-radius: 7px;
-
-      background: #151820;
-
-      border:
-        1px solid rgba(255,255,255,.10);
-
-      transition:
-        transform .2s ease,
-        border-color .2s ease,
-        opacity .2s ease;
-    }
-
-    .more-video-card:hover img {
-      transform: translateY(-2px);
-
-      border-color:
-        rgba(255,255,255,.35);
-
-      opacity: .92;
-    }
-
-    .more-video-card.active img {
-      border:
-        2px solid #ffffff;
-    }
-
-    .more-video-name {
-      margin-top: 5px;
-
-      color: #ffffff;
-
-      font-size: 10px;
-
-      line-height: 1.25;
-
-      white-space: nowrap;
-
-      overflow: hidden;
-
-      text-overflow: ellipsis;
-    }
-
-    .more-video-duration {
-      position: absolute;
-
-      right: 5px;
-      bottom: 24px;
-
-      padding:
-        3px 5px;
-
-      border-radius: 3px;
-
-      background:
-        rgba(0,0,0,.82);
-
-      color: #ffffff;
-
-      font-size: 9px;
-
-      font-weight: 700;
-    }
-
-
-    /* =========================================================
-       CUSTOM FULLSCREEN
-    ========================================================= */
-
-    .hero-trailer.custom-fullscreen {
-      position: fixed !important;
-
-      inset: 0 !important;
-
-      width: 100vw !important;
-      height: 100dvh !important;
-
-      max-height: none !important;
-
-      z-index: 99999 !important;
-
-      background: #000 !important;
-
-      display: block !important;
-    }
-
-    .hero-trailer.custom-fullscreen::before {
-      content: "";
-
-      position: absolute;
-
-      left: 50%;
-      top: 50%;
-
-      width: min(
-        100vw,
-        calc(100dvh * 16 / 9)
-      );
-
-      height: min(
-        100dvh,
-        calc(100vw * 9 / 16)
-      );
-
-      transform: translate(-50%, -50%);
-
-      background: #000;
-
-      z-index: 0;
-    }
-
-    .hero-trailer.custom-fullscreen iframe {
-      position: absolute;
-
-      left: 50%;
-      top: 50%;
-
-      width: min(
-        100vw,
-        calc(100dvh * 16 / 9)
-      ) !important;
-
-      height: min(
-        100dvh,
-        calc(100vw * 9 / 16)
-      ) !important;
-
-      min-width: 0 !important;
-      min-height: 0 !important;
-
-      transform: translate(-50%, -50%);
-
-      z-index: 1;
-    }
-
-    .hero-trailer.custom-fullscreen
-    .hero-controls {
-      right: 18px;
-      bottom: 18px;
-
-      z-index: 100;
-    }
-
-    .hero-trailer.custom-fullscreen
-    .more-videos-overlay {
-      z-index: 90;
-    }
-
-
-    /* =========================================================
-       DETAILS
-    ========================================================= */
-
-    .details-area {
-      position: relative;
-
-      z-index: 5;
-
-      background: #08090d;
-
-      padding:
-        30px
-        24px
-        42px;
-    }
-
-    .details-inner {
-      max-width: 1200px;
-
-      margin: 0 auto;
-    }
-
-    .hero-info {
-      width: 100%;
-
-      max-width: 900px;
-    }
-
-    .poster {
-      width: 130px;
-      height: 190px;
-
-      object-fit: cover;
-
-      border-radius: 8px;
-
-      margin-bottom: 18px;
-
-      box-shadow:
-        0 15px 40px rgba(0,0,0,.55);
-    }
-
-    .eyebrow {
-      color: #8f95a7;
-
-      font-size: 11px;
-
-      text-transform: uppercase;
-
-      letter-spacing: 2px;
-
-      margin-bottom: 8px;
-    }
-
-    h1 {
-      font-size:
-        clamp(30px, 7vw, 64px);
-
-      line-height: 1.02;
-
-      margin: 0 0 14px;
-
-      font-weight: 800;
-    }
-
-
-    /* =========================================================
-       FACTS
-    ========================================================= */
-
-    .facts {
-      display: flex;
-
-      flex-wrap: wrap;
-
-      align-items: center;
-
-      gap: 9px;
-
-      color: #e1e3e8;
-
-      font-size: 14px;
-
-      margin-bottom: 20px;
-    }
-
-    .facts span {
-      display: inline-flex;
-
-      align-items: center;
-    }
-
-    .rating {
-      color: #ffd35a;
-
-      font-weight: 700;
-    }
-
-
-    /* =========================================================
-       RELEASE
-    ========================================================= */
-
-    .release-box {
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: flex-start;
-
-      gap: 3px;
-
-      margin:
-        0 0 20px;
-    }
-
-    .release-label {
-      color: #8f95a7;
-
-      font-size: 10px;
-
-      font-weight: 700;
-
-      text-transform: uppercase;
-
-      letter-spacing: 1.2px;
-    }
-
-    .release-date {
-      color: #ffffff;
-
-      font-size: 13px;
-
-      font-weight: 700;
-    }
-
-
-    /* =========================================================
-       MY RATING
-    ========================================================= */
-
-    .my-rating-box {
-      display: inline-flex;
-
-      flex-direction: column;
-
-      align-items: flex-start;
-
-      gap: 6px;
-
-      margin:
-        0 0 20px;
-    }
-
-    .my-rating-label {
-      color: #8f95a7;
-
-      font-size: 10px;
-
-      font-weight: 800;
-
-      letter-spacing: 1.5px;
-
-      text-transform: uppercase;
-    }
-
-    .my-rating-stars {
-      display: flex;
-
-      align-items: center;
-
-      gap: 2px;
-    }
-
-    .my-rating-stars button {
-      width: 30px;
-      height: 30px;
-
-      padding: 0;
-
-      border: 0;
-
-      background: transparent;
-
-      color: #555a68;
-
-      font-size: 23px;
-
-      line-height: 30px;
-
-      cursor: pointer;
-
-      transition:
-        color .18s ease,
-        transform .18s ease;
-    }
-
-    .my-rating-stars button:hover {
-      color: #f5c451;
-
-      transform: scale(1.08);
-    }
-
-    .my-rating-stars button.active {
-      color: #f5c451;
-    }
-
-    .my-rating-value {
-      min-height: 14px;
-
-      color: #8f95a7;
-
-      font-size: 11px;
-
-      font-weight: 600;
-    }
-
-
-    /* =========================================================
-       ACTIONS
-    ========================================================= */
-
-    .hero-actions {
-      display: flex;
-
-      flex-wrap: wrap;
-
-      align-items: center;
-
-      gap: 10px;
-
-      margin:
-        0 0 22px;
-    }
-
-    .action-btn {
-      border: 0;
-
-      border-radius: 7px;
-
-      padding: 13px 19px;
-
-      font-weight: 800;
-
-      cursor: pointer;
-    }
-
-    .watchlist-btn,
-    .share-btn {
-      display: inline-flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      gap: 8px;
-
-      min-height: 46px;
-
-      padding: 12px 18px;
-
-      background:
-        rgba(23,25,32,.92);
-
-      color: #ffffff;
-
-      border:
-        1px solid rgba(255,255,255,.16);
-
-      border-radius: 7px;
-
-      font-weight: 800;
-
-      transition:
-        background .2s ease,
-        border-color .2s ease,
-        transform .2s ease;
-    }
-
-    .watchlist-btn:hover,
-    .share-btn:hover {
-      background:
-        rgba(255,255,255,.12);
-
-      border-color:
-        rgba(255,255,255,.30);
-
-      transform:
-        translateY(-1px);
-    }
-
-    .watchlist-btn:active,
-    .share-btn:active {
-      transform: scale(.97);
-    }
-
-    .watchlist-btn.saved {
-      background:
-        rgba(255,255,255,.10);
-
-      border-color:
-        rgba(255,255,255,.28);
-    }
-
-    .watchlist-icon {
-      width: 18px;
-      height: 18px;
-
-      fill: none;
-
-      stroke: currentColor;
-
-      stroke-width: 1.8;
-
-      stroke-linecap: round;
-      stroke-linejoin: round;
-
-      flex-shrink: 0;
-    }
-
-    .watchlist-btn.saved .watchlist-icon {
-      fill: currentColor;
-
-      stroke: currentColor;
-    }
-
-    .share-icon {
-      width: 18px;
-      height: 18px;
-
-      fill: none;
-
-      stroke: currentColor;
-
-      stroke-width: 2;
-
-      stroke-linecap: round;
-      stroke-linejoin: round;
-
-      flex-shrink: 0;
-    }
-
-
-    /* =========================================================
-       OVERVIEW
-    ========================================================= */
-
-    .overview {
-      max-width: 820px;
-
-      color: #c9cbd1;
-
-      line-height: 1.65;
-
-      font-size: 15px;
-
-      margin: 0;
-    }
-
-
-    /* =========================================================
-       CONTENT
-    ========================================================= */
-
-    .content {
-      padding:
-        0 24px
-        100px;
-
-      max-width: 1200px;
-
-      margin: 0 auto;
-    }
-
-    .section {
-      margin-top: 35px;
-    }
-
-    .section-title {
-      margin:
-        0 0 16px;
-
-      font-size: 20px;
-
-      line-height: 1.2;
-
-      color: #ffffff;
-    }
-
-    .section-kicker {
-      color: #8f95a7;
-
-      font-size: 10px;
-
-      font-weight: 800;
-
-      letter-spacing: 1.8px;
-
-      text-transform: uppercase;
-
-      margin-bottom: 5px;
-    }
-
-
-    /* =========================================================
-       GENRES
-    ========================================================= */
-
-    .genres {
-      display: flex;
-
-      flex-wrap: wrap;
-
-      gap: 8px;
-    }
-
-    .genre {
-      padding:
-        8px 12px;
-
-      border-radius: 20px;
-
-      background: #171920;
-
-      color: #cdd1db;
-
-      font-size: 13px;
-    }
-
-
-    /* =========================================================
-       WATCH PROVIDERS
-    ========================================================= */
-
-    .watch-section .section-title {
-      margin-bottom: 0;
-    }
-
-    .section-head-row {
-      display: flex;
-
-      align-items: flex-end;
-
-      justify-content: space-between;
-
-      gap: 20px;
-
-      margin-bottom: 16px;
-    }
-
-    .watch-link {
-      color: #cfd3dc;
-
-      font-size: 12px;
-
-      font-weight: 700;
-
-      text-decoration: none;
-
-      white-space: nowrap;
-
-      padding-bottom: 4px;
-    }
-
-    .watch-link:hover {
-      color: #ffffff;
-    }
-
-    .provider-list {
-      display: flex;
-
-      flex-wrap: wrap;
-
-      gap: 8px;
-    }
-
-    .provider-chip {
-      display: inline-flex;
-
-      align-items: center;
-
-      min-height: 34px;
-
-      padding:
-        8px 13px;
-
-      border:
-        1px solid #2c303a;
-
-      border-radius: 8px;
-
-      background: #12141a;
-
-      color: #d9dce4;
-
-      font-size: 12px;
-
-      font-weight: 600;
-    }
-
-    .provider-empty {
-      color: #8f95a7;
-
-      font-size: 13px;
-    }
-
-
-    /* =========================================================
-       PEOPLE
-    ========================================================= */
-
-    .people-row {
-      display: flex;
-
-      gap: 12px;
-
-      overflow-x: auto;
-
-      padding-bottom: 8px;
-
-      scrollbar-width: none;
-    }
-
-    .people-row::-webkit-scrollbar {
-      display: none;
-    }
-
-    .person-card {
-      flex:
-        0 0 100px;
-
-      width: 100px;
-
-      cursor: pointer;
-
-      text-decoration: none;
-
-      color: inherit;
-    }
-
-    .person-photo {
-      width: 100px;
-      height: 130px;
-
-      object-fit: cover;
-
-      border-radius: 7px;
-
-      background: #151820;
-
-      display: block;
-
-      transition:
-        transform .2s ease,
-        opacity .2s ease;
-    }
-
-    .person-card:hover .person-photo {
-      transform: translateY(-3px);
-
-      opacity: .92;
-    }
-
-    .person-name {
-      font-size: 13px;
-
-      font-weight: 700;
-
-      margin-top: 7px;
-
-      line-height: 1.25;
-
-      white-space: nowrap;
-
-      overflow: hidden;
-
-      text-overflow: ellipsis;
-    }
-
-    .person-role {
-      color: #8f95a7;
-
-      font-size: 11px;
-
-      margin-top: 3px;
-
-      line-height: 1.25;
-
-      white-space: nowrap;
-
-      overflow: hidden;
-
-      text-overflow: ellipsis;
-    }
-
-
-    /* =========================================================
-       MORE LIKE THIS
-    ========================================================= */
-
-    .movies-row {
-      display: flex;
-
-      gap: 12px;
-
-      overflow-x: auto;
-
-      scrollbar-width: none;
-    }
-
-    .movies-row::-webkit-scrollbar {
-      display: none;
-    }
-
-    .movie-card {
-      flex:
-        0 0 145px;
-
-      cursor: pointer;
-    }
-
-    .movie-poster {
-      width: 145px;
-      height: 215px;
-
-      object-fit: cover;
-
-      border-radius: 7px;
-
-      background: #151820;
-
-      display: block;
-    }
-
-    .movie-title {
-      font-size: 13px;
-
-      font-weight: 700;
-
-      margin-top: 8px;
-
-      line-height: 1.3;
-    }
-
-    .movie-year {
-      color: #8f95a7;
-
-      font-size: 12px;
-
-      margin-top: 4px;
-    }
-
-
-    /* =========================================================
-       TRAILERS
-    ========================================================= */
-
-    .trailer-row {
-      display: flex;
-
-      gap: 14px;
-
-      overflow-x: auto;
-
-      scrollbar-width: none;
-    }
-
-    .trailer-row::-webkit-scrollbar {
-      display: none;
-    }
-
-    .trailer-card {
-      flex:
-        0 0 300px;
-
-      cursor: pointer;
-    }
-
-    .trailer-thumb {
-      width: 300px;
-      height: 169px;
-
-      object-fit: cover;
-
-      border-radius: 8px;
-
-      background: #151820;
-
-      display: block;
-    }
-
-    .trailer-title {
-      margin-top: 8px;
-
-      font-size: 14px;
-
-      font-weight: 700;
-    }
-
-
-    /* =========================================================
-       LOADING
-    ========================================================= */
-
-    .loading {
-      min-height: 100vh;
-
-      display: grid;
-
-      place-items: center;
-
-      color: #9ba1b2;
-
-      font-size: 16px;
-    }
-
-
-    /* =========================================================
-       TRAILER POPUP
-    ========================================================= */
-
-    .player {
-      position: fixed;
-
-      inset: 0;
-
-      z-index: 3000;
-
-      background:
-        rgba(0,0,0,.96);
-
-      display: none;
-
-      align-items: center;
-
-      justify-content: center;
-
-      padding: 20px;
-
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .player.active {
-      display: flex;
-    }
-
-    .player-box {
-      width:
-        min(1000px, 100%);
-
-      aspect-ratio: 16 / 9;
-
-      position: relative;
-
-      border-radius: 12px;
-
-      overflow: hidden;
-
-      background: #000;
-
-      box-shadow:
-        0 25px 80px rgba(0,0,0,.65),
-        0 0 0 1px rgba(255,255,255,.08);
-    }
-
-    .player iframe {
-      width: 100%;
-      height: 100%;
-
-      border: 0;
-
-      border-radius: 8px;
-    }
-
-    .close-player {
-      position: absolute;
-
-      right: 12px;
-      top: 12px;
-
-      z-index: 20;
-
-      width: 42px;
-      height: 42px;
-
-      border:
-        1px solid rgba(255,255,255,.18);
-
-      border-radius: 50%;
-
-      background:
-        rgba(0,0,0,.72);
-
-      color: #ffffff;
-
-      font-size: 27px;
-
-      line-height: 1;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      cursor: pointer;
-
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-
-      transition:
-        background .2s ease,
-        transform .2s ease,
-        border-color .2s ease;
-    }
-
-    .close-player:hover {
-      background:
-        rgba(255,255,255,.14);
-
-      border-color:
-        rgba(255,255,255,.35);
-
-      transform: scale(1.05);
-    }
-
-    .player-sound-btn {
-      position: absolute;
-
-      right: 62px;
-      top: 12px;
-
-      z-index: 20;
-
-      width: 42px;
-      height: 42px;
-
-      border:
-        1px solid rgba(255,255,255,.18);
-
-      border-radius: 50%;
-
-      background:
-        rgba(0,0,0,.72);
-
-      color: #ffffff;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      cursor: pointer;
-
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .player-sound-btn svg {
-      width: 20px;
-      height: 20px;
-
-      fill: none;
-
-      stroke: currentColor;
-
-      stroke-width: 2;
-
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-
-    /* =========================================================
-       MOBILE
-    ========================================================= */
-
-    @media (max-width: 600px) {
-
-      .topbar {
-        height: 56px;
-
-        padding:
-          0 14px;
-      }
-
-      .back-btn {
-        width: 40px;
-        height: 40px;
-
-        font-size: 26px;
-      }
-
-      .hero {
-        aspect-ratio: 16 / 9;
-
-        max-height: none;
-      }
-
-      .hero-controls {
-        right: 12px;
-        bottom: 12px;
-      }
-
-      .hero-control-btn {
-        width: 40px;
-        height: 40px;
-      }
-
-      .hero-control-btn svg {
-        width: 19px;
-        height: 19px;
-      }
-
-      .more-videos-overlay {
-        padding:
-          10px
-          12px
-          58px;
-      }
-
-      .more-video-card {
-        flex-basis: 125px;
-        width: 125px;
-      }
-
-      .more-video-card img {
-        width: 125px;
-        height: 70px;
-      }
-
-      .details-area {
-        padding:
-          24px 18px 32px;
-      }
-
-      .content {
-        padding:
-          0 18px 80px;
-      }
-
-      h1 {
-        font-size:
-          clamp(30px, 9vw, 40px);
-
-        line-height: 1.04;
-
-        margin-bottom: 12px;
-      }
-
-      .overview {
-        font-size: 14px;
-      }
-
-      .section-head-row {
-        align-items: flex-start;
-
-        flex-direction: column;
-
-        gap: 8px;
-      }
-
-      .watch-link {
-        padding-bottom: 0;
-      }
-
-      .provider-list {
-        gap: 7px;
-      }
-
-      .provider-chip {
-        min-height: 32px;
-
-        padding:
-          7px 11px;
-
-        font-size: 11px;
-      }
-
-      .person-card {
-        flex-basis: 92px;
-
-        width: 92px;
-      }
-
-      .person-photo {
-        width: 92px;
-        height: 120px;
-      }
-
-      .person-name {
-        font-size: 12px;
-      }
-
-      .person-role {
-        font-size: 10px;
-      }
-
-      .movie-card {
-        flex-basis: 135px;
-      }
-
-      .movie-poster {
-        width: 135px;
-        height: 200px;
-      }
-
-      .trailer-card {
-        flex-basis: 270px;
-      }
-
-      .trailer-thumb {
-        width: 270px;
-        height: 152px;
-      }
-
-    }
-
-
-    /* =========================================================
-       LANDSCAPE
-    ========================================================= */
-
-    @media (orientation: landscape) and (max-height: 600px) {
-
-      .hero-trailer.custom-fullscreen iframe {
-        width: 100vw !important;
-        height: 100vh !important;
-      }
-
-    }
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090d">
+<title>Movie Details — MovieHub</title>
+
+<style>
+:root {
+  --bg: #08090d;
+  --surface: #12141a;
+  --surface-2: #171920;
+  --line: rgba(255,255,255,.10);
+  --text: #f4f4f6;
+  --muted: #8f95a7;
+  --soft: #c9cbd1;
+  --gold: #f5c451;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { min-height: 100vh; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.page { min-height: 100vh; background: var(--bg); }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: calc(60px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 18px 0;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(0,0,0,.82), rgba(0,0,0,0));
+  pointer-events: none;
+  transition: background .25s ease, backdrop-filter .25s ease;
+}
+.topbar.scrolled {
+  background: rgba(8,9,13,.86);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.back-btn {
+  width: 42px; height: 42px;
+  border: 0; border-radius: 50%;
+  background: rgba(0,0,0,.55);
+  font-size: 28px; line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s ease, transform .2s ease;
+}
+.back-btn:hover { background: rgba(255,255,255,.16); }
+.back-btn:active { transform: scale(.94); }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 700px;
+  background: #000;
+  overflow: hidden;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 22%;
+  background: linear-gradient(to top, var(--bg), rgba(8,9,13,0));
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(.68);
+}
+
+.hero-trailer {
+  position: absolute; inset: 0;
+  z-index: 2;
+  display: none;
+  background: #000;
+  overflow: hidden;
+}
+.hero-trailer.active { display: block; }
+.hero-trailer iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  border: 0; display: block;
+}
+
+/* Invisible shield: taps never reach YouTube, so nothing can redirect */
+.hero-shield {
+  position: absolute; inset: 0;
+  z-index: 10;
+  cursor: pointer;
+  background: transparent;
+}
+
+.now-playing {
+  position: absolute;
+  left: 18px; bottom: 22px;
+  z-index: 30;
+  max-width: calc(100% - 150px);
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,.62);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.now-playing.show { opacity: 1; }
+
+.hero-controls {
+  position: absolute;
+  right: 18px; bottom: 18px;
+  z-index: 60;
+  display: flex; gap: 8px;
+}
+.hero-control-btn {
+  width: 44px; height: 44px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 10px;
+  background: rgba(0,0,0,.72);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background .2s ease, transform .2s ease;
+}
+.hero-control-btn:hover { background: rgba(255,255,255,.16); }
+.hero-control-btn:active { transform: scale(.93); }
+.hero-control-btn svg {
+  width: 21px; height: 21px;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---------- More videos (our own overlay) ---------- */
+.more-videos-overlay {
+  position: absolute; inset: 0;
+  z-index: 40;
+  display: none;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px 18px 70px;
+  background: linear-gradient(to top, rgba(8,9,13,.98) 0%, rgba(8,9,13,.92) 60%, rgba(8,9,13,.45) 100%);
+  cursor: pointer;
+}
+.more-videos-overlay.active { display: flex; }
+.more-videos-overlay.ended {
+  justify-content: center;
+  background: rgba(8,9,13,.97);
+  padding-bottom: 60px;
+}
+
+.mv-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.more-videos-title { font-size: 15px; font-weight: 700; }
+.mv-action {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  background: rgba(255,255,255,.10);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.mv-action:hover { background: rgba(255,255,255,.2); }
+.mv-action svg { width: 15px; height: 15px; fill: currentColor; }
+
+.more-videos-row {
+  display: flex; gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  cursor: default;
+}
+.more-videos-row::-webkit-scrollbar { display: none; }
+
+.more-video-card {
+  flex: 0 0 150px;
+  width: 150px;
+  position: relative;
+  cursor: pointer;
+}
+.more-video-thumb {
+  position: relative;
+  width: 150px; height: 84px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  transition: transform .2s ease, border-color .2s ease;
+}
+.more-video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.more-video-thumb .play {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.28);
+}
+.more-video-thumb .play span {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(0,0,0,.7);
+  border: 1px solid rgba(255,255,255,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; padding-left: 2px;
+}
+.more-video-card:hover .more-video-thumb { transform: translateY(-2px); border-color: rgba(255,255,255,.4); }
+.more-video-name {
+  margin-top: 6px;
+  font-size: 11px; line-height: 1.3;
+  color: #e6e8ee;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- Custom fullscreen fallback ---------- */
+.hero-trailer.custom-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  z-index: 99999 !important;
+  display: block !important;
+}
+.hero-trailer:fullscreen iframe,
+.hero-trailer.custom-fullscreen iframe {
+  top: 50%; left: 50%; inset: auto;
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- Details ---------- */
+.details-area {
+  position: relative; z-index: 5;
+  padding: 8px 24px 40px;
+}
+.details-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex; gap: 32px; align-items: flex-start;
+}
+.poster {
+  width: 190px; height: 285px;
+  flex: 0 0 190px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-top: -64px;
+  position: relative; z-index: 6;
+  background: var(--surface-2);
+  box-shadow: 0 18px 44px rgba(0,0,0,.6), 0 0 0 1px var(--line);
+}
+.hero-info { flex: 1; min-width: 0; max-width: 820px; }
+
+.eyebrow {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--soft);
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+h1 {
+  font-size: clamp(30px, 6vw, 56px);
+  line-height: 1.04;
+  margin: 0 0 14px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.facts {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 8px; margin-bottom: 18px;
+}
+.fact {
+  padding: 6px 11px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: #e1e3e8;
+  font-size: 13px;
+}
+.fact.rating { color: #ffd35a; font-weight: 700; }
+
+.meta-row {
+  display: flex; flex-wrap: wrap; gap: 26px;
+  margin-bottom: 20px;
+}
+.meta-block { display: flex; flex-direction: column; gap: 5px; }
+.meta-label { color: var(--muted); font-size: 12px; font-weight: 600; }
+.release-date { font-size: 14px; font-weight: 700; }
+
+.my-rating-stars { display: flex; gap: 2px; margin-left: -4px; }
+.my-rating-stars button {
+  width: 32px; height: 32px; padding: 0;
+  border: 0; background: transparent;
+  color: #4a4f5d;
+  font-size: 24px; line-height: 32px;
+  cursor: pointer;
+  transition: color .18s ease, transform .18s ease;
+}
+.my-rating-stars button:hover { transform: scale(1.12); }
+.my-rating-stars button.active { color: var(--gold); }
+.my-rating-value { min-height: 15px; color: var(--muted); font-size: 12px; }
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.action-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 12px 20px;
+  background: var(--surface-2);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 10px;
+  font-weight: 700; font-size: 14px;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.action-btn:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); }
+.action-btn:active { transform: scale(.97); }
+.action-btn.saved { background: #fff; color: #08090d; border-color: #fff; }
+.action-btn svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor; stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.action-btn.saved .watchlist-icon { fill: currentColor; }
+
+.overview { max-width: 760px; color: var(--soft); line-height: 1.7; font-size: 15px; margin: 0; }
+
+/* ---------- Content ---------- */
+.content { max-width: 1200px; margin: 0 auto; padding: 0 24px 100px; }
+.section { margin-top: 38px; }
+.section-title { margin: 0 0 16px; font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+
+.genres { display: flex; flex-wrap: wrap; gap: 8px; }
+.genre { padding: 8px 14px; border-radius: 999px; background: var(--surface-2); color: #cdd1db; font-size: 13px; }
+
+.section-head-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 16px; }
+.section-head-row .section-title { margin: 0; }
+.watch-link { color: #cfd3dc; font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.watch-link:hover { color: #fff; text-decoration: underline; }
+.provider-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.provider-chip {
+  display: inline-flex; align-items: center;
+  min-height: 36px; padding: 8px 14px;
+  border: 1px solid #2c303a; border-radius: 8px;
+  background: var(--surface); color: #d9dce4;
+  font-size: 13px; font-weight: 600;
+}
+
+.people-row, .movies-row, .trailer-row {
+  display: flex; gap: 12px;
+  overflow-x: auto; padding-bottom: 8px;
+  scrollbar-width: none;
+}
+.people-row::-webkit-scrollbar, .movies-row::-webkit-scrollbar, .trailer-row::-webkit-scrollbar { display: none; }
+
+.person-card { flex: 0 0 104px; width: 104px; cursor: pointer; }
+.person-photo {
+  width: 104px; height: 136px; object-fit: cover;
+  border-radius: 8px; background: var(--surface-2); display: block;
+  transition: transform .2s ease;
+}
+.person-card:hover .person-photo { transform: translateY(-3px); }
+.person-name { font-size: 13px; font-weight: 700; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.person-role { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.movie-card { flex: 0 0 150px; cursor: pointer; }
+.movie-poster {
+  width: 150px; height: 225px; object-fit: cover;
+  border-radius: 8px; background: var(--surface-2); display: block;
+  transition: transform .2s ease;
+}
+.movie-card:hover .movie-poster { transform: translateY(-3px); }
+.movie-title { font-size: 13px; font-weight: 700; margin-top: 8px; line-height: 1.3; }
+.movie-year { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+.trailer-card { flex: 0 0 300px; cursor: pointer; }
+.trailer-thumb-wrap { position: relative; border-radius: 10px; overflow: hidden; background: var(--surface-2); }
+.trailer-thumb { width: 300px; height: 169px; object-fit: cover; display: block; transition: transform .25s ease; }
+.trailer-card:hover .trailer-thumb { transform: scale(1.04); }
+.trailer-play {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.25);
+}
+.trailer-play span {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(0,0,0,.72);
+  border: 1px solid rgba(255,255,255,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; padding-left: 3px;
+}
+.trailer-title { margin-top: 9px; font-size: 14px; font-weight: 600; line-height: 1.35; }
+
+.empty { color: var(--muted); font-size: 14px; }
+
+/* ---------- Loading skeleton ---------- */
+.loading { min-height: 100vh; display: grid; place-items: center; color: #9ba1b2; font-size: 15px; text-align: center; padding: 24px; }
+.spinner {
+  width: 34px; height: 34px; margin: 0 auto 14px;
+  border: 3px solid rgba(255,255,255,.14);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 700px) {
+  .topbar { padding-left: 14px; padding-right: 14px; }
+  .hero-controls { right: 12px; bottom: 12px; }
+  .hero-control-btn { width: 40px; height: 40px; }
+  .now-playing { left: 12px; bottom: 16px; max-width: calc(100% - 120px); }
+  .more-videos-overlay { padding: 10px 12px 58px; }
+  .more-video-card { flex-basis: 128px; width: 128px; }
+  .more-video-thumb { width: 128px; height: 72px; }
+
+  .details-area { padding: 6px 18px 30px; }
+  .details-inner { flex-direction: column; gap: 14px; }
+  .poster { width: 110px; height: 165px; flex-basis: auto; margin-top: -48px; }
+  .content { padding: 0 18px 80px; }
+  .overview { font-size: 14px; }
+  .action-btn { flex: 1; }
+  .person-card { flex-basis: 94px; width: 94px; }
+  .person-photo { width: 94px; height: 124px; }
+  .movie-card { flex-basis: 132px; }
+  .movie-poster { width: 132px; height: 198px; }
+  .trailer-card { flex-basis: 260px; }
+  .trailer-thumb { width: 260px; height: 146px; }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .more-videos-overlay.ended { padding-top: 10px; padding-bottom: 50px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
 </head>
-
 
 <body>
 
-
 <div id="app">
-
   <div class="loading">
-    Loading movie...
+    <div>
+      <div class="spinner"></div>
+      Loading movie…
+    </div>
   </div>
-
 </div>
-
-
-<!-- =========================================================
-     TRAILER POPUP
-========================================================= -->
-
-<div
-  id="player"
-  class="player">
-
-  <div class="player-box">
-
-    <button
-      id="playerSoundButton"
-      class="player-sound-btn"
-      type="button"
-      onclick="togglePopupSound()"
-      aria-label="Toggle sound">
-
-      <svg
-        id="playerSoundIcon"
-        viewBox="0 0 24 24">
-
-        <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
-
-        <path d="M15 9.5a4 4 0 0 1 0 5"></path>
-
-        <path d="M18 7a8 8 0 0 1 0 10"></path>
-
-      </svg>
-
-    </button>
-
-
-    <button
-      class="close-player"
-      onclick="closeTrailer()"
-      aria-label="Close trailer">
-
-      ×
-
-    </button>
-
-
-    <iframe
-      id="playerFrame"
-      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-      allowfullscreen>
-    </iframe>
-
-  </div>
-
-</div>
-
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
-
 <script>
-
 /* =========================================================
    GLOBALS
 ========================================================= */
-
 let heroTrailerPlayer = null;
-
 let pendingHeroTrailerId = null;
-
 let heroTrailerVideos = [];
-
+let allVideos = [];
 let currentHeroVideoId = null;
-
 let heroSoundOn = false;
+let overlayMode = null;       // null | "paused" | "ended"
+let currentMovie = null;
 
-let popupPlayer = null;
-
-let popupSoundOn = false;
-
-
-/* =========================================================
-   SVG ICONS
-========================================================= */
-
-const SOUND_ON_ICON = `
-  <svg
-    viewBox="0 0 24 24"
-    aria-hidden="true">
-
-    <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
-
-    <path d="M15 9.5a4 4 0 0 1 0 5"></path>
-
-    <path d="M18 7a8 8 0 0 1 0 10"></path>
-
-  </svg>
-`;
-
-
-const SOUND_OFF_ICON = `
-  <svg
-    viewBox="0 0 24 24"
-    aria-hidden="true">
-
-    <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
-
-    <path d="m17 9 4 6"></path>
-
-    <path d="m21 9-4 6"></path>
-
-  </svg>
-`;
-
+const IMG = "https://image.tmdb.org/t/p/";
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
+const type = params.get("type") === "tv" ? "tv" : "movie";
 
 /* =========================================================
-   HERO SOUND BUTTON
+   ICONS
 ========================================================= */
-
-function updateHeroSoundButton() {
-
-  const button =
-    document.getElementById(
-      "heroSoundButton"
-    );
-
-  if (!button) return;
-
-
-  button.innerHTML =
-    heroSoundOn
-      ? SOUND_ON_ICON
-      : SOUND_OFF_ICON;
-
-
-  button.setAttribute(
-    "aria-label",
-    heroSoundOn
-      ? "Turn sound off"
-      : "Turn sound on"
-  );
-
-}
-
-
-function toggleHeroSound() {
-
-  if (!heroTrailerPlayer) {
-    return;
-  }
-
-
-  try {
-
-    if (heroSoundOn) {
-
-      heroTrailerPlayer.mute();
-
-      heroSoundOn = false;
-
-    } else {
-
-      heroTrailerPlayer.unMute();
-
-      heroTrailerPlayer.setVolume(100);
-
-      heroSoundOn = true;
-
-    }
-
-  } catch (_) {}
-
-
-  updateHeroSoundButton();
-
-}
-
-
-/* =========================================================
-   HERO TRAILER
-========================================================= */
-
-function loadHeroTrailer(videoId) {
-
-  if (!videoId) return;
-
-  pendingHeroTrailerId =
-    videoId;
-
-  currentHeroVideoId =
-    videoId;
-
-
-  if (
-    typeof YT === "undefined" ||
-    !YT.Player
-  ) {
-
-    return;
-
-  }
-
-
-  createHeroTrailerPlayer(
-    videoId
-  );
-
-}
-
-
-function createHeroTrailerPlayer(videoId) {
-
-  const trailerBox =
-    document.getElementById(
-      "heroTrailer"
-    );
-
-  const trailerPlayer =
-    document.getElementById(
-      "heroTrailerPlayer"
-    );
-
-
-  if (
-    !trailerBox ||
-    !trailerPlayer ||
-    !videoId
-  ) {
-
-    return;
-
-  }
-
-
-  trailerBox.classList.add(
-    "active"
-  );
-
-
-  hideMoreVideos();
-
-
-  if (heroTrailerPlayer) {
-
-    try {
-
-      heroTrailerPlayer.destroy();
-
-    } catch (_) {}
-
-    heroTrailerPlayer =
-      null;
-
-  }
-
-
-  trailerPlayer.innerHTML =
-    "";
-
-
-  heroTrailerPlayer =
-    new YT.Player(
-      "heroTrailerPlayer",
-      {
-
-        videoId: videoId,
-
-        playerVars: {
-
-          autoplay: 1,
-
-          controls: 0,
-
-          rel: 0,
-
-          playsinline: 1,
-
-          fs: 1,
-
-          enablejsapi: 1
-
-        },
-
-
-        events: {
-
-          onReady: function(event) {
-
-            try {
-
-              /*
-                Always start muted.
-                This allows browser autoplay.
-              */
-
-              event.target.mute();
-
-              event.target.playVideo();
-
-            } catch (_) {}
-
-
-            heroSoundOn =
-              false;
-
-
-            updateHeroSoundButton();
-
-
-            const iframe =
-              event.target.getIframe();
-
-
-            if (iframe) {
-
-              iframe.setAttribute(
-                "allow",
-                "autoplay; encrypted-media; picture-in-picture; fullscreen"
-              );
-
-              iframe.setAttribute(
-                "allowfullscreen",
-                ""
-              );
-
-              iframe.setAttribute(
-                "playsinline",
-                "1"
-              );
-
-            }
-
-          },
-
-
-          onStateChange:
-            function(event) {
-
-              /*
-                When the trailer ends,
-                show our own MovieHub
-                More Videos thumbnails.
-              */
-
-              if (
-                event.data ===
-                YT.PlayerState.ENDED
-              ) {
-
-                showMoreVideos();
-
-              }
-
-            },
-
-
-          onError:
-            function() {
-
-              trailerBox.classList.remove(
-                "active"
-              );
-
-              hideMoreVideos();
-
-            }
-
-        }
-
-      }
-
-    );
-
-}
-
-
-/* =========================================================
-   YOUTUBE API READY
-========================================================= */
-
-function onYouTubeIframeAPIReady() {
-
-  if (pendingHeroTrailerId) {
-
-    createHeroTrailerPlayer(
-      pendingHeroTrailerId
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   MORE VIDEOS
-========================================================= */
-
-function prepareMoreVideos(videos) {
-
-  heroTrailerVideos =
-    (videos || [])
-
-      .filter(
-        video =>
-          video &&
-          video.site === "YouTube" &&
-          video.key
-      )
-
-      .slice(0, 10);
-
-
-  renderMoreVideos();
-
-}
-
-
-function renderMoreVideos() {
-
-  const overlay =
-    document.getElementById(
-      "moreVideosOverlay"
-    );
-
-  const row =
-    document.getElementById(
-      "moreVideosRow"
-    );
-
-
-  if (
-    !overlay ||
-    !row
-  ) {
-
-    return;
-
-  }
-
-
-  /*
-    Don't show the currently
-    playing hero video twice.
-  */
-
-  const videos =
-    heroTrailerVideos.filter(
-      video =>
-        video.key !==
-        currentHeroVideoId
-    );
-
-
-  if (!videos.length) {
-
-    row.innerHTML = "";
-
-    overlay.classList.remove(
-      "active"
-    );
-
-    return;
-
-  }
-
-
-  row.innerHTML =
-    videos
-
-      .map(
-        video => {
-
-          const thumb =
-            `https://img.youtube.com/vi/${
-              encodeURIComponent(
-                video.key
-              )
-            }/hqdefault.jpg`;
-
-
-          return `
-
-            <div
-              class="more-video-card"
-              data-video-id="${esc(
-                video.key
-              )}"
-              onclick="selectMoreVideo(
-                '${esc(video.key)}'
-              )">
-
-
-              <img
-                src="${thumb}"
-                alt="${esc(
-                  video.name ||
-                  "Trailer"
-                )}"
-                loading="lazy">
-
-
-              <div
-                class="more-video-duration">
-
-                ▶
-
-              </div>
-
-
-              <div
-                class="more-video-name">
-
-                ${esc(
-                  video.name ||
-                  "Trailer"
-                )}
-
-              </div>
-
-
-            </div>
-
-          `;
-
-        }
-      )
-
-      .join("");
-
-}
-
-
-function showMoreVideos() {
-
-  renderMoreVideos();
-
-
-  const overlay =
-    document.getElementById(
-      "moreVideosOverlay"
-    );
-
-
-  if (!overlay) return;
-
-
-  if (
-    heroTrailerVideos.length > 1
-  ) {
-
-    overlay.classList.add(
-      "active"
-    );
-
-  }
-
-}
-
-
-function hideMoreVideos() {
-
-  const overlay =
-    document.getElementById(
-      "moreVideosOverlay"
-    );
-
-
-  if (!overlay) return;
-
-
-  overlay.classList.remove(
-    "active"
-  );
-
-}
-
-
-function selectMoreVideo(
-  videoId
-) {
-
-  if (
-    !videoId ||
-    !heroTrailerPlayer
-  ) {
-
-    return;
-
-  }
-
-
-  currentHeroVideoId =
-    videoId;
-
-
-  hideMoreVideos();
-
-
-  try {
-
-    /*
-      This changes the video
-      inside the SAME MovieHub
-      embedded player.
-
-      No page redirect.
-      No YouTube navigation.
-    */
-
-    heroTrailerPlayer.loadVideoById(
-      videoId
-    );
-
-
-    if (heroSoundOn) {
-
-      heroTrailerPlayer.unMute();
-
-      heroTrailerPlayer.setVolume(
-        100
-      );
-
-    } else {
-
-      heroTrailerPlayer.mute();
-
-    }
-
-  } catch (_) {}
-
-}
-
-
-/* =========================================================
-   FULLSCREEN
-========================================================= */
-
-async function openHeroFullscreen() {
-
-  const trailerBox =
-    document.getElementById(
-      "heroTrailer"
-    );
-
-
-  if (!trailerBox) return;
-
-
-  if (
-    document.fullscreenElement
-  ) {
-
-    try {
-
-      await document.exitFullscreen();
-
-    } catch (_) {}
-
-    return;
-
-  }
-
-
-  if (
-    document.fullscreenEnabled &&
-    typeof trailerBox.requestFullscreen ===
-      "function"
-  ) {
-
-    try {
-
-      await trailerBox.requestFullscreen({
-        navigationUI: "hide"
-      });
-
-
-      if (
-        screen.orientation &&
-        typeof screen.orientation.lock ===
-          "function"
-      ) {
-
-        try {
-
-          await screen.orientation.lock(
-            "landscape"
-          );
-
-        } catch (_) {}
-
-      }
-
-
-      document.body.style.overflow =
-        "hidden";
-
-
-      return;
-
-    } catch (error) {
-
-      console.warn(
-        "Native fullscreen unavailable:",
-        error
-      );
-
-    }
-
-  }
-
-
-  trailerBox.classList.add(
-    "custom-fullscreen"
-  );
-
-
-  document.body.style.overflow =
-    "hidden";
-
-
-  if (
-    screen.orientation &&
-    typeof screen.orientation.lock ===
-      "function"
-  ) {
-
-    try {
-
-      await screen.orientation.lock(
-        "landscape"
-      );
-
-    } catch (_) {}
-
-  }
-
-}
-
-
-/* =========================================================
-   FULLSCREEN CHANGE
-========================================================= */
-
-document.addEventListener(
-  "fullscreenchange",
-  function() {
-
-    const trailerBox =
-      document.getElementById(
-        "heroTrailer"
-      );
-
-
-    if (!trailerBox) return;
-
-
-    if (
-      !document.fullscreenElement
-    ) {
-
-      trailerBox.classList.remove(
-        "custom-fullscreen"
-      );
-
-
-      document.body.style.overflow =
-        "";
-
-
-      if (
-        screen.orientation &&
-        typeof screen.orientation.unlock ===
-          "function"
-      ) {
-
-        try {
-
-          screen.orientation.unlock();
-
-        } catch (_) {}
-
-      }
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-document.addEventListener(
-  "keydown",
-  function(event) {
-
-    if (
-      event.key !== "Escape"
-    ) {
-
-      return;
-
-    }
-
-
-    if (
-      document.fullscreenElement
-    ) {
-
-      return;
-
-    }
-
-
-    const trailerBox =
-      document.getElementById(
-        "heroTrailer"
-      );
-
-
-    if (
-      trailerBox &&
-      trailerBox.classList.contains(
-        "custom-fullscreen"
-      )
-    ) {
-
-      trailerBox.classList.remove(
-        "custom-fullscreen"
-      );
-
-
-      document.body.style.overflow =
-        "";
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   TMDB
-========================================================= */
-
-const IMG =
-  "https://image.tmdb.org/t/p/";
-
-
-const params =
-  new URLSearchParams(
-    location.search
-  );
-
-
-const id =
-  params.get("id");
-
-
-const type =
-  params.get("type") === "tv"
-    ? "tv"
-    : "movie";
-
+const SOUND_ON_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="M15 9.5a4 4 0 0 1 0 5"></path><path d="M18 7a8 8 0 0 1 0 10"></path></svg>`;
+const SOUND_OFF_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="m17 9 4 6"></path><path d="m21 9-4 6"></path></svg>`;
+const PLAY_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>`;
+const REPLAY_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"></path></svg>`;
 
 /* =========================================================
    HELPERS
 ========================================================= */
-
 function esc(value) {
-
   return String(value ?? "")
-
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-
-function poster(
-  path,
-  size = "w500"
-) {
-
-  return path
-    ? IMG + size + path
-    : "";
-
-}
-
-
-function backdrop(path) {
-
-  return path
-    ? IMG + "original" + path
-    : "";
-
-}
-
-
-function year(date) {
-
-  return date
-    ? date.slice(0, 4)
-    : "—";
-
-}
-
+function poster(path, size = "w500") { return path ? IMG + size + path : ""; }
+function backdrop(path) { return path ? IMG + "original" + path : ""; }
+function year(date) { return date ? date.slice(0, 4) : "—"; }
 
 function formatReleaseDate(date) {
-
-  if (!date) {
-
-    return "Release date unavailable";
-
-  }
-
-
-  const parsed =
-    new Date(
-      `${date}T00:00:00`
-    );
-
-
-  if (
-    Number.isNaN(
-      parsed.getTime()
-    )
-  ) {
-
-    return date;
-
-  }
-
-
-  return parsed.toLocaleDateString(
-    "en-IN",
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }
-  );
-
+  if (!date) return "Release date unavailable";
+  const parsed = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 }
-
 
 function runtimeText(minutes) {
-
   if (!minutes) return "";
-
-  const h =
-    Math.floor(
-      minutes / 60
-    );
-
-  const m =
-    minutes % 60;
-
-
-  if (h && m) {
-
-    return `${h}h ${m}m`;
-
-  }
-
-
-  if (h) {
-
-    return `${h}h`;
-
-  }
-
-
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h && m) return `${h}h ${m}m`;
+  if (h) return `${h}h`;
   return `${m}m`;
-
 }
 
+function ytThumb(key) {
+  return `https://img.youtube.com/vi/${encodeURIComponent(key)}/hqdefault.jpg`;
+}
+
+function videoName(key) {
+  const v = allVideos.find(x => x.key === key);
+  return v?.name || "Trailer";
+}
 
 /* =========================================================
-   TRAILER
+   TRAILER PICKING
 ========================================================= */
-
 function getTrailer(videos) {
-
-  const list =
-    videos?.results || [];
-
-
+  const list = videos?.results || [];
   return (
-
-    list.find(
-      v =>
-        v.site === "YouTube" &&
-        v.type === "Trailer" &&
-        v.official
-    )
-
-    ||
-
-    list.find(
-      v =>
-        v.site === "YouTube" &&
-        v.type === "Trailer"
-    )
-
-    ||
-
-    list.find(
-      v =>
-        v.site === "YouTube" &&
-        v.type === "Teaser"
-    )
-
-    ||
-
+    list.find(v => v.site === "YouTube" && v.type === "Trailer" && v.official) ||
+    list.find(v => v.site === "YouTube" && v.type === "Trailer") ||
+    list.find(v => v.site === "YouTube" && v.type === "Teaser") ||
     null
-
   );
-
 }
-
-
-/* =========================================================
-   PROVIDERS
-========================================================= */
 
 function providerData(data) {
-
-  const results =
-    data?.results || {};
-
-
-  return (
-    results.IN ||
-    results.US ||
-    null
-  );
-
+  const results = data?.results || {};
+  return results.IN || results.US || null;
 }
 
+/* =========================================================
+   HERO SOUND
+========================================================= */
+function updateHeroSoundButton() {
+  const button = document.getElementById("heroSoundButton");
+  if (!button) return;
+  button.innerHTML = heroSoundOn ? SOUND_ON_ICON : SOUND_OFF_ICON;
+  button.setAttribute("aria-label", heroSoundOn ? "Turn sound off" : "Turn sound on");
+}
+
+function toggleHeroSound() {
+  if (!heroTrailerPlayer) return;
+  try {
+    if (heroSoundOn) {
+      heroTrailerPlayer.mute();
+      heroSoundOn = false;
+    } else {
+      heroTrailerPlayer.unMute();
+      heroTrailerPlayer.setVolume(100);
+      heroSoundOn = true;
+    }
+  } catch (_) {}
+  updateHeroSoundButton();
+}
 
 /* =========================================================
-   DETAILS
+   HERO TRAILER (YouTube iframe API)
 ========================================================= */
+function loadHeroTrailer(videoId) {
+  if (!videoId) return;
+  pendingHeroTrailerId = videoId;
+  currentHeroVideoId = videoId;
+  if (typeof YT === "undefined" || !YT.Player) return;
+  createHeroTrailerPlayer(videoId);
+}
 
-async function getDetails() {
+function createHeroTrailerPlayer(videoId) {
+  const trailerBox = document.getElementById("heroTrailer");
+  const mount = document.getElementById("heroTrailerPlayer");
+  if (!trailerBox || !mount || !videoId || heroTrailerPlayer) return;
 
-  if (!id) {
+  trailerBox.classList.add("active");
+  setOverlay(null);
 
-    throw new Error(
-      "Movie ID missing"
-    );
+  heroTrailerPlayer = new YT.Player("heroTrailerPlayer", {
+    videoId: videoId,
+    playerVars: {
+      autoplay: 1,
+      controls: 0,
+      rel: 0,
+      modestbranding: 1,
+      iv_load_policy: 3,
+      disablekb: 1,
+      fs: 0,
+      playsinline: 1,
+      enablejsapi: 1,
+      origin: location.origin
+    },
+    events: {
+      onReady(event) {
+        try {
+          event.target.mute();      // muted start allows autoplay
+          event.target.playVideo();
+        } catch (_) {}
+        heroSoundOn = false;
+        updateHeroSoundButton();
+        updateNowPlaying();
 
+        const iframe = event.target.getIframe();
+        if (iframe) {
+          iframe.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture");
+          iframe.setAttribute("playsinline", "1");
+          iframe.setAttribute("tabindex", "-1");
+        }
+      },
+
+      onStateChange(event) {
+        const S = YT.PlayerState;
+
+        if (event.data === S.ENDED) {
+          /* stopVideo() removes YouTube's own end screen,
+             so we can show OUR More Videos instead. */
+          try { event.target.stopVideo(); } catch (_) {}
+          setOverlay("ended");
+        } else if (event.data === S.PAUSED) {
+          setOverlay("paused");
+        } else if (event.data === S.PLAYING) {
+          setOverlay(null);
+          updateNowPlaying();
+        }
+      },
+
+      onError() {
+        /* Video blocked or removed: try next one, else hide player */
+        const next = heroTrailerVideos.find(v => v.key !== currentHeroVideoId);
+        if (next && heroTrailerPlayer) {
+          playInHero(next.key);
+        } else {
+          trailerBox.classList.remove("active");
+          setOverlay(null);
+        }
+      }
+    }
+  });
+}
+
+function onYouTubeIframeAPIReady() {
+  if (pendingHeroTrailerId) createHeroTrailerPlayer(pendingHeroTrailerId);
+}
+
+/* Play any YouTube key inside the hero player (never leaves the site) */
+function playInHero(videoId) {
+  if (!videoId) return;
+  currentHeroVideoId = videoId;
+  setOverlay(null);
+
+  if (!heroTrailerPlayer) {
+    loadHeroTrailer(videoId);
+    return;
   }
-
-
-  const endpoint =
-    type === "tv"
-      ? `/api/tv/${id}`
-      : `/api/movie/${id}`;
-
-
-  const providerEndpoint =
-    type === "tv"
-      ? `/api/tv/providers/${id}?watch_region=IN`
-      : `/api/movie/providers/${id}?watch_region=IN`;
-
-
-  const [
-    detailsResponse,
-    providerResponse
-  ] =
-    await Promise.all([
-      fetch(endpoint),
-      fetch(providerEndpoint)
-    ]);
-
-
-  if (!detailsResponse.ok) {
-
-    throw new Error(
-      "Unable to load details"
-    );
-
-  }
-
-
-  const details =
-    await detailsResponse.json();
-
-
-  let providers = null;
-
 
   try {
-
-    if (providerResponse.ok) {
-
-      const providerDataResponse =
-        await providerResponse.json();
-
-
-      providers =
-        providerData(
-          providerDataResponse
-        );
-
+    heroTrailerPlayer.loadVideoById(videoId);
+    if (heroSoundOn) {
+      heroTrailerPlayer.unMute();
+      heroTrailerPlayer.setVolume(100);
+    } else {
+      heroTrailerPlayer.mute();
     }
-
   } catch (_) {}
 
-
-  return {
-    details,
-    providers
-  };
-
+  updateNowPlaying();
 }
 
+function updateNowPlaying() {
+  const el = document.getElementById("nowPlaying");
+  if (!el) return;
+  el.textContent = videoName(currentHeroVideoId);
+  el.classList.add("show");
+}
+
+/* Tap on the video = play / pause */
+function toggleHeroPlay() {
+  if (!heroTrailerPlayer) return;
+  try {
+    const state = heroTrailerPlayer.getPlayerState();
+    if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
+      heroTrailerPlayer.pauseVideo();
+    } else if (state === YT.PlayerState.CUED || state === YT.PlayerState.ENDED) {
+      playInHero(currentHeroVideoId);
+    } else {
+      heroTrailerPlayer.playVideo();
+    }
+  } catch (_) {}
+}
 
 /* =========================================================
-   SIMILAR
+   MORE VIDEOS (custom overlay)
 ========================================================= */
+function prepareMoreVideos(videos) {
+  allVideos = (videos || []).filter(v => v && v.site === "YouTube" && v.key);
+  heroTrailerVideos = allVideos.slice(0, 12);
+}
 
-async function getSimilar() {
+function renderMoreVideos() {
+  const row = document.getElementById("moreVideosRow");
+  const title = document.getElementById("moreVideosTitle");
+  if (!row) return;
+
+  const videos = heroTrailerVideos.filter(v => v.key !== currentHeroVideoId);
+
+  if (title) title.style.display = videos.length ? "" : "none";
+  row.style.display = videos.length ? "" : "none";
+
+  row.innerHTML = videos.map(video => `
+    <div class="more-video-card" data-video-id="${esc(video.key)}" role="button" tabindex="0">
+      <div class="more-video-thumb">
+        <img src="${ytThumb(video.key)}" alt="${esc(video.name || "Video")}" loading="lazy">
+        <div class="play"><span>▶</span></div>
+      </div>
+      <div class="more-video-name">${esc(video.name || "Video")}</div>
+    </div>
+  `).join("");
+}
+
+function setOverlay(mode) {
+  overlayMode = mode;
+  const overlay = document.getElementById("moreVideosOverlay");
+  if (!overlay) return;
+
+  overlay.classList.remove("active", "ended", "paused");
+
+  if (!mode) return;
+
+  renderMoreVideos();
+  overlay.classList.add("active", mode);
+
+  const btn = document.getElementById("mvAction");
+  if (btn) {
+    btn.innerHTML = mode === "ended"
+      ? `${REPLAY_ICON}<span>Replay</span>`
+      : `${PLAY_ICON}<span>Resume</span>`;
+  }
+}
+
+function resumeOrReplay() {
+  if (!heroTrailerPlayer) return;
+  if (overlayMode === "ended") {
+    playInHero(currentHeroVideoId);
+  } else {
+    try { heroTrailerPlayer.playVideo(); } catch (_) {}
+    setOverlay(null);
+  }
+}
+
+/* Event delegation: clicks on More Videos cards play inside MovieHub */
+document.addEventListener("click", function (event) {
+  const card = event.target.closest(".more-video-card");
+  if (card) {
+    event.preventDefault();
+    event.stopPropagation();
+    playInHero(card.dataset.videoId);
+    return;
+  }
+
+  const action = event.target.closest("#mvAction");
+  if (action) {
+    event.stopPropagation();
+    resumeOrReplay();
+    return;
+  }
+
+  /* tapping empty area of the overlay = resume */
+  if (event.target.id === "moreVideosOverlay") resumeOrReplay();
+});
+
+document.addEventListener("keydown", function (event) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const card = event.target.closest?.(".more-video-card");
+  if (card) {
+    event.preventDefault();
+    playInHero(card.dataset.videoId);
+  }
+});
+
+/* =========================================================
+   FULLSCREEN
+========================================================= */
+async function openHeroFullscreen() {
+  const trailerBox = document.getElementById("heroTrailer");
+  if (!trailerBox) return;
+
+  if (trailerBox.classList.contains("custom-fullscreen")) {
+    trailerBox.classList.remove("custom-fullscreen");
+    document.body.style.overflow = "";
+    try { screen.orientation?.unlock?.(); } catch (_) {}
+    return;
+  }
+
+  if (document.fullscreenElement) {
+    try { await document.exitFullscreen(); } catch (_) {}
+    return;
+  }
+
+  if (document.fullscreenEnabled && typeof trailerBox.requestFullscreen === "function") {
+    try {
+      await trailerBox.requestFullscreen({ navigationUI: "hide" });
+      try { await screen.orientation?.lock?.("landscape"); } catch (_) {}
+      document.body.style.overflow = "hidden";
+      return;
+    } catch (error) {
+      console.warn("Native fullscreen unavailable:", error);
+    }
+  }
+
+  trailerBox.classList.add("custom-fullscreen");
+  document.body.style.overflow = "hidden";
+  try { await screen.orientation?.lock?.("landscape"); } catch (_) {}
+}
+
+document.addEventListener("fullscreenchange", function () {
+  const trailerBox = document.getElementById("heroTrailer");
+  if (!trailerBox) return;
+  if (!document.fullscreenElement) {
+    trailerBox.classList.remove("custom-fullscreen");
+    document.body.style.overflow = "";
+    try { screen.orientation?.unlock?.(); } catch (_) {}
+  }
+});
+
+document.addEventListener("keydown", function (event) {
+  if (event.key !== "Escape" || document.fullscreenElement) return;
+  const trailerBox = document.getElementById("heroTrailer");
+  if (trailerBox?.classList.contains("custom-fullscreen")) {
+    trailerBox.classList.remove("custom-fullscreen");
+    document.body.style.overflow = "";
+  }
+});
+
+/* =========================================================
+   DATA
+========================================================= */
+async function getDetails() {
+  if (!id) throw new Error("Movie ID missing");
+
+  const base = type === "tv" ? "tv" : "movie";
+  const endpoint = `/api/${base}/${id}`;
+  const providerEndpoint = `/api/${base}/providers/${id}?watch_region=IN`;
+
+  const [detailsResponse, providerResponse] = await Promise.all([
+    fetch(endpoint),
+    fetch(providerEndpoint).catch(() => null)
+  ]);
+
+  if (!detailsResponse.ok) throw new Error("Unable to load details");
+
+  const details = await detailsResponse.json();
+  let providers = null;
 
   try {
-
-    const endpoint =
-      type === "tv"
-        ? `/api/tv/${id}/similar`
-        : `/api/movie/${id}/similar`;
-
-
-    const response =
-      await fetch(endpoint);
-
-
-    if (!response.ok) {
-
-      return [];
-
+    if (providerResponse && providerResponse.ok) {
+      providers = providerData(await providerResponse.json());
     }
+  } catch (_) {}
 
-
-    const data =
-      await response.json();
-
-
-    return data.results || [];
-
-  } catch (_) {
-
-    return [];
-
-  }
-
+  return { details, providers };
 }
 
+async function getSimilar() {
+  try {
+    const response = await fetch(type === "tv" ? `/api/tv/${id}/similar` : `/api/movie/${id}/similar`);
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.results || [];
+  } catch (_) {
+    return [];
+  }
+}
 
 /* =========================================================
-   CAST
+   CREW HELPERS
 ========================================================= */
+function getDirectors(crew) {
+  if (!Array.isArray(crew)) return [];
+  const out = [];
+  const seen = new Set();
+  for (const p of crew) {
+    if (!p || !p.id) continue;
+    if (String(p.job || "").toLowerCase() !== "director") continue;
+    if (seen.has(String(p.id))) continue;
+    seen.add(String(p.id));
+    out.push(p);
+  }
+  return out;
+}
+
+function getWriters(crew, directorIds = []) {
+  if (!Array.isArray(crew)) return [];
+  const directorSet = new Set(directorIds.map(String));
+  const jobs = new Set(["writer", "screenplay", "story", "teleplay", "novel"]);
+  const out = [];
+  const seen = new Set();
+  for (const p of crew) {
+    if (!p || !p.id) continue;
+    const job = String(p.job || "").toLowerCase();
+    if (!jobs.has(job)) continue;
+    if (directorSet.has(String(p.id))) continue;
+    const key = `${p.id}_${job}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out;
+}
+
+/* =========================================================
+   RENDER PIECES
+========================================================= */
+function personCard(person, role) {
+  const image = person.profile_path ? poster(person.profile_path, "w185") : "";
+  return `
+    <div class="person-card" onclick="openPerson('${person.id}')" role="button" tabindex="0">
+      ${image
+        ? `<img class="person-photo" src="${image}" alt="${esc(person.name)}" loading="lazy">`
+        : `<div class="person-photo"></div>`}
+      <div class="person-name">${esc(person.name)}</div>
+      <div class="person-role">${esc(role)}</div>
+    </div>`;
+}
 
 function renderCast(cast) {
-
-  if (
-    !cast ||
-    !cast.length
-  ) {
-
-    return `
-      <div style="color:#8f95a7">
-        Cast information unavailable.
-      </div>
-    `;
-
-  }
-
-
+  if (!cast || !cast.length) return `<div class="empty">Cast information unavailable.</div>`;
   return cast
-
-    .filter(
-      person =>
-        person &&
-        person.id
-    )
-
+    .filter(p => p && p.id)
     .slice(0, 20)
-
-    .map(
-      person => {
-
-        const image =
-          person.profile_path
-            ? poster(
-                person.profile_path,
-                "w185"
-              )
-            : "";
-
-
-        return `
-
-          <div
-            class="person-card"
-            onclick="openPerson('${person.id}')"
-            role="button"
-            tabindex="0">
-
-
-            ${
-              image
-
-                ? `
-
-                  <img
-                    class="person-photo"
-                    src="${image}"
-                    alt="${esc(
-                      person.name
-                    )}"
-                    loading="lazy">
-
-                `
-
-                : `
-
-                  <div
-                    class="person-photo">
-                  </div>
-
-                `
-            }
-
-
-            <div class="person-name">
-              ${esc(
-                person.name
-              )}
-            </div>
-
-
-            <div class="person-role">
-              ${esc(
-                person.character ||
-                "Cast"
-              )}
-            </div>
-
-          </div>
-
-        `;
-
-      }
-    )
-
+    .map(p => personCard(p, p.character || "Cast"))
     .join("");
-
 }
 
-
-/* =========================================================
-   PERSON
-========================================================= */
-
-function openPerson(personId) {
-
-  if (!personId) return;
-
-
-  location.href =
-    `/person.html?id=${encodeURIComponent(
-      personId
-    )}`;
-
-}
-
-
-/* =========================================================
-   DIRECTORS
-========================================================= */
-
-function getDirectors(crew) {
-
-  if (!Array.isArray(crew)) {
-
-    return [];
-
-  }
-
-
-  const directors = [];
-
-  const seen = new Set();
-
-
-  for (const person of crew) {
-
-    if (
-      !person ||
-      !person.id
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      String(person.job || "")
-        .toLowerCase() !==
-      "director"
-    ) {
-
-      continue;
-
-    }
-
-
-    const key =
-      String(person.id);
-
-
-    if (seen.has(key)) {
-
-      continue;
-
-    }
-
-
-    seen.add(key);
-
-    directors.push(person);
-
-  }
-
-
-  return directors;
-
-}
-
-
-/* =========================================================
-   WRITERS
-========================================================= */
-
-function getWriters(
-  crew,
-  directorIds = []
-) {
-
-  if (!Array.isArray(crew)) {
-
-    return [];
-
-  }
-
-
-  const directorSet =
-    new Set(
-      directorIds.map(
-        value =>
-          String(value)
-      )
-    );
-
-
-  const writerJobs =
-    new Set([
-      "writer",
-      "screenplay",
-      "story",
-      "teleplay",
-      "novel"
-    ]);
-
-
-  const writers = [];
-
-  const seen = new Set();
-
-
-  for (const person of crew) {
-
-    if (
-      !person ||
-      !person.id
-    ) {
-
-      continue;
-
-    }
-
-
-    const job =
-      String(
-        person.job || ""
-      ).toLowerCase();
-
-
-    if (
-      !writerJobs.has(job)
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      directorSet.has(
-        String(person.id)
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    const key =
-      `${person.id}_${job}`;
-
-
-    if (seen.has(key)) {
-
-      continue;
-
-    }
-
-
-    seen.add(key);
-
-    writers.push(person);
-
-  }
-
-
-  return writers;
-
-}
-
-
-/* =========================================================
-   CREW
-========================================================= */
-
-function renderCrew(
-  people,
-  emptyText,
-  defaultRole
-) {
-
-  if (
-    !people ||
-    !people.length
-  ) {
-
-    return `
-      <div style="color:#8f95a7">
-        ${esc(emptyText)}
-      </div>
-    `;
-
-  }
-
-
+function renderCrew(people, emptyText, defaultRole) {
+  if (!people || !people.length) return `<div class="empty">${esc(emptyText)}</div>`;
   return people
-
     .slice(0, 12)
-
-    .map(
-      person => {
-
-        const image =
-          person.profile_path
-            ? poster(
-                person.profile_path,
-                "w185"
-              )
-            : "";
-
-
-        const role =
-          person.job ||
-          person.department ||
-          defaultRole;
-
-
-        return `
-
-          <div
-            class="person-card"
-            onclick="openPerson('${person.id}')"
-            role="button"
-            tabindex="0">
-
-
-            ${
-              image
-
-                ? `
-
-                  <img
-                    class="person-photo"
-                    src="${image}"
-                    alt="${esc(
-                      person.name
-                    )}"
-                    loading="lazy">
-
-                `
-
-                : `
-
-                  <div
-                    class="person-photo">
-                  </div>
-
-                `
-            }
-
-
-            <div class="person-name">
-              ${esc(
-                person.name
-              )}
-            </div>
-
-
-            <div class="person-role">
-              ${esc(role)}
-            </div>
-
-          </div>
-
-        `;
-
-      }
-    )
-
+    .map(p => personCard(p, p.job || p.department || defaultRole))
     .join("");
-
 }
-
-
-/* =========================================================
-   SIMILAR
-========================================================= */
 
 function renderSimilar(list) {
-
-  if (!list.length) {
-
+  if (!list.length) return `<div class="empty">More titles unavailable.</div>`;
+  return list.slice(0, 12).map(item => {
+    const itemType = item.media_type || type;
+    const title = item.title || item.name || "Untitled";
+    const date = item.release_date || item.first_air_date || "";
     return `
-      <div style="color:#8f95a7">
-        More titles unavailable.
-      </div>
-    `;
-
-  }
-
-
-  return list
-
-    .slice(0, 12)
-
-    .map(
-      item => {
-
-        const itemType =
-          item.media_type ||
-          type;
-
-
-        const title =
-          item.title ||
-          item.name ||
-          "Untitled";
-
-
-        const date =
-          item.release_date ||
-          item.first_air_date ||
-          "";
-
-
-        return `
-
-          <div
-            class="movie-card"
-            onclick="openMovie(
-              '${item.id}',
-              '${itemType}'
-            )">
-
-
-            ${
-              item.poster_path
-
-                ? `
-
-                  <img
-                    class="movie-poster"
-                    src="${poster(
-                      item.poster_path
-                    )}"
-                    alt="${esc(title)}"
-                    loading="lazy">
-
-                `
-
-                : `
-
-                  <div
-                    class="movie-poster">
-                  </div>
-
-                `
-            }
-
-
-            <div class="movie-title">
-              ${esc(title)}
-            </div>
-
-
-            <div class="movie-year">
-              ${year(date)}
-            </div>
-
-          </div>
-
-        `;
-
-      }
-    )
-
-    .join("");
-
+      <div class="movie-card" onclick="openMovie('${item.id}', '${itemType}')" role="button" tabindex="0">
+        ${item.poster_path
+          ? `<img class="movie-poster" src="${poster(item.poster_path)}" alt="${esc(title)}" loading="lazy">`
+          : `<div class="movie-poster"></div>`}
+        <div class="movie-title">${esc(title)}</div>
+        <div class="movie-year">${year(date)}</div>
+      </div>`;
+  }).join("");
 }
-
-
-/* =========================================================
-   TRAILERS LIST
-========================================================= */
 
 function renderTrailers(videos) {
+  const list = (videos?.results || [])
+    .filter(v => v.site === "YouTube" && v.key)
+    .slice(0, 12);
 
-  const list =
-    (videos?.results || [])
+  if (!list.length) return `<div class="empty">No trailers available.</div>`;
 
-      .filter(
-        video =>
-          video.site === "YouTube" &&
-          video.key
-      )
-
-      .slice(0, 12);
-
-
-  if (!list.length) {
-
-    return `
-      <div style="color:#8f95a7">
-        No trailers available.
+  return list.map(video => `
+    <div class="trailer-card" onclick="playTrailer('${esc(video.key)}')" role="button" tabindex="0">
+      <div class="trailer-thumb-wrap">
+        <img class="trailer-thumb" src="${ytThumb(video.key)}" alt="${esc(video.name)}" loading="lazy">
+        <div class="trailer-play"><span>▶</span></div>
       </div>
-    `;
-
-  }
-
-
-  return list
-
-    .map(
-      video => {
-
-        return `
-
-          <div
-            class="trailer-card"
-            onclick="playTrailer(
-              '${esc(video.key)}'
-            )">
-
-
-            <img
-              class="trailer-thumb"
-              src="https://img.youtube.com/vi/${encodeURIComponent(
-                video.key
-              )}/hqdefault.jpg"
-              alt="${esc(
-                video.name
-              )}"
-              loading="lazy">
-
-
-            <div class="trailer-title">
-              ${esc(
-                video.name
-              )}
-            </div>
-
-
-          </div>
-
-        `;
-
-      }
-    )
-
-    .join("");
-
+      <div class="trailer-title">${esc(video.name)}</div>
+    </div>`).join("");
 }
-
-
-/* =========================================================
-   PROVIDERS
-========================================================= */
 
 function renderProviders(providers) {
-
-  if (!providers) {
-
-    return "";
-
-  }
-
+  if (!providers) return "";
 
   const all = [
-
     ...(providers.flatrate || []),
-
     ...(providers.free || []),
-
     ...(providers.ads || []),
-
     ...(providers.rent || []),
-
     ...(providers.buy || [])
-
   ];
 
-
   const unique = [];
-
-
   for (const item of all) {
-
-    if (
-      !unique.some(
-        x =>
-          x.provider_id ===
-          item.provider_id
-      )
-    ) {
-
-      unique.push(item);
-
-    }
-
+    if (!unique.some(x => x.provider_id === item.provider_id)) unique.push(item);
   }
 
-
-  if (
-    !unique.length &&
-    !providers.link
-  ) {
-
-    return "";
-
-  }
-
+  if (!unique.length && !providers.link) return "";
 
   return `
-
-    <section
-      class="section watch-section">
-
-
+    <section class="section">
       <div class="section-head-row">
-
-        <div>
-
-          <div class="section-kicker">
-            STREAMING
-          </div>
-
-          <h2 class="section-title">
-            Watch Here
-          </h2>
-
-        </div>
-
-
-        ${
-          providers.link
-
-            ? `
-
-              <a
-                href="${esc(
-                  providers.link
-                )}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="watch-link">
-
-                View availability →
-
-              </a>
-
-            `
-
-            : ""
-
-        }
-
+        <h2 class="section-title">Where to watch</h2>
+        ${providers.link
+          ? `<a href="${esc(providers.link)}" target="_blank" rel="noopener noreferrer" class="watch-link">View all options</a>`
+          : ""}
       </div>
-
-
-      ${
-        unique.length
-
-          ? `
-
-            <div
-              class="provider-list">
-
-              ${
-                unique
-                  .slice(0, 10)
-                  .map(
-                    item => `
-
-                      <span
-                        class="provider-chip">
-
-                        ${esc(
-                          item.provider_name
-                        )}
-
-                      </span>
-
-                    `
-                  )
-                  .join("")
-              }
-
-            </div>
-
-          `
-
-          : `
-
-            <div
-              class="provider-empty">
-
-              Streaming availability unavailable.
-
-            </div>
-
-          `
-      }
-
-    </section>
-
-  `;
-
+      ${unique.length
+        ? `<div class="provider-list">${unique.slice(0, 10).map(i => `<span class="provider-chip">${esc(i.provider_name)}</span>`).join("")}</div>`
+        : `<div class="empty">Streaming availability unavailable.</div>`}
+    </section>`;
 }
-
 
 /* =========================================================
    RENDER PAGE
 ========================================================= */
-
 async function render() {
-
   try {
+    const [{ details, providers }, similar] = await Promise.all([getDetails(), getSimilar()]);
 
-    const [
-      {
-        details,
-        providers
-      },
+    currentMovie = details;
 
-      similar
+    const title = details.title || details.name || "Untitled";
+    const date = details.release_date || details.first_air_date || "";
+    const runtime = details.runtime || (details.episode_run_time && details.episode_run_time[0]);
+    const trailer = getTrailer(details.videos);
 
-    ] =
-      await Promise.all([
+    document.title = `${title} — MovieHub`;
 
-        getDetails(),
+    const genres = (details.genres || []).map(g => `<span class="genre">${esc(g.name)}</span>`).join("");
 
-        getSimilar()
+    const crew = details.credits?.crew || [];
+    const directors = getDirectors(crew);
+    const writers = getWriters(crew, directors.map(p => p.id));
 
-      ]);
+    const posterImage = details.poster_path ? poster(details.poster_path) : "";
 
+    prepareMoreVideos(details.videos?.results || []);
 
-    const title =
-      details.title ||
-      details.name ||
-      "Untitled";
-
-
-    const date =
-      details.release_date ||
-      details.first_air_date ||
-      "";
-
-
-    const runtime =
-      details.runtime ||
-
-      (
-        details.episode_run_time &&
-        details.episode_run_time[0]
-      );
-
-
-    const trailer =
-      getTrailer(
-        details.videos
-      );
-
-
-    document.title =
-      `${title} — MovieHub`;
-
-
-    /* =====================================================
-       GENRES
-    ===================================================== */
-
-    const genres =
-      (details.genres || [])
-
-        .map(
-          g => `
-
-            <span
-              class="genre">
-
-              ${esc(g.name)}
-
-            </span>
-
-          `
-        )
-
-        .join("");
-
-
-    /* =====================================================
-       CREDITS
-    ===================================================== */
-
-    const crew =
-      details.credits?.crew ||
-      [];
-
-
-    const directors =
-      getDirectors(crew);
-
-
-    const directorIds =
-      directors.map(
-        person =>
-          person.id
-      );
-
-
-    const writers =
-      getWriters(
-        crew,
-        directorIds
-      );
-
-
-    /* =====================================================
-       POSTER
-    ===================================================== */
-
-    const posterImage =
-      details.poster_path
-        ? poster(
-            details.poster_path
-          )
-        : "";
-
-
-    /* =====================================================
-       TRAILER VIDEOS
-    ===================================================== */
-
-    prepareMoreVideos(
-      details.videos?.results || []
-    );
-
-
-    /* =====================================================
-       PAGE HTML
-    ===================================================== */
-
-    document.getElementById(
-      "app"
-    ).innerHTML = `
-
+    document.getElementById("app").innerHTML = `
       <div class="page">
 
-
-        <!-- TOP BAR -->
-
-        <div class="topbar">
-
-          <button
-            class="back-btn"
-            onclick="goBack()"
-            aria-label="Back">
-
-            ‹
-
-          </button>
-
+        <div class="topbar" id="topbar">
+          <button class="back-btn" onclick="goBack()" aria-label="Back">‹</button>
         </div>
 
+        <section class="hero">
+          <div class="hero-bg" style="background-image:url('${backdrop(details.backdrop_path)}')"></div>
 
-        <!-- =================================================
-             HERO
-        ================================================= -->
+          <div id="heroTrailer" class="hero-trailer">
+            <div id="heroTrailerPlayer"></div>
 
-        <section
-          class="hero">
+            <!-- Blocks every tap from reaching YouTube -->
+            <div class="hero-shield" onclick="toggleHeroPlay()"></div>
 
+            <div id="nowPlaying" class="now-playing"></div>
 
-          <div
-            class="hero-bg"
-            style="
-              background-image:
-                url('${backdrop(
-                  details.backdrop_path
-                )}')
-            ">
-          </div>
-
-
-          <div
-            id="heroTrailer"
-            class="hero-trailer"
-            aria-hidden="true">
-
-
-            <div
-              id="heroTrailerPlayer">
+            <!-- Our own More Videos (plays inside MovieHub) -->
+            <div id="moreVideosOverlay" class="more-videos-overlay">
+              <div class="mv-head">
+                <div id="moreVideosTitle" class="more-videos-title">More videos</div>
+                <button id="mvAction" class="mv-action" type="button"></button>
+              </div>
+              <div id="moreVideosRow" class="more-videos-row"></div>
             </div>
 
+            <div class="hero-controls">
+              <button id="heroSoundButton" class="hero-control-btn" type="button"
+                onclick="toggleHeroSound()" aria-label="Turn sound on">${SOUND_OFF_ICON}</button>
 
-            <!-- MORE VIDEOS -->
-
-            <div
-              id="moreVideosOverlay"
-              class="more-videos-overlay">
-
-
-              <div
-                class="more-videos-title">
-
-                More Videos
-
-              </div>
-
-
-              <div
-                id="moreVideosRow"
-                class="more-videos-row">
-              </div>
-
-
+              <button class="hero-control-btn" type="button"
+                onclick="openHeroFullscreen()" aria-label="Fullscreen trailer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 3H3v5"></path><path d="M3 3l6 6"></path>
+                  <path d="M16 3h5v5"></path><path d="M21 3l-6 6"></path>
+                  <path d="M8 21H3v-5"></path><path d="M3 21l6-6"></path>
+                  <path d="M16 21h5v-5"></path><path d="M21 21l-6-6"></path>
+                </svg>
+              </button>
             </div>
-
-
-            <!-- HERO CONTROLS -->
-
-            ${
-              trailer?.key
-
-                ? `
-
-                  <div
-                    class="hero-controls">
-
-
-                    <!-- SOUND -->
-
-                    <button
-                      id="heroSoundButton"
-                      class="hero-control-btn"
-                      type="button"
-                      onclick="toggleHeroSound()"
-                      aria-label="Turn sound on">
-
-                      ${SOUND_OFF_ICON}
-
-                    </button>
-
-
-                    <!-- FULLSCREEN -->
-
-                    <button
-                      class="hero-control-btn"
-                      type="button"
-                      onclick="openHeroFullscreen()"
-                      aria-label="Fullscreen trailer">
-
-
-                      <svg
-                        viewBox="0 0 24 24"
-                        aria-hidden="true">
-
-                        <path d="M8 3H3v5"></path>
-
-                        <path d="M3 3l6 6"></path>
-
-                        <path d="M16 3h5v5"></path>
-
-                        <path d="M21 3l-6 6"></path>
-
-                        <path d="M8 21H3v-5"></path>
-
-                        <path d="M3 21l6-6"></path>
-
-                        <path d="M16 21h5v-5"></path>
-
-                        <path d="M21 21l-6-6"></path>
-
-                      </svg>
-
-
-                    </button>
-
-
-                  </div>
-
-                `
-
-                : ""
-
-            }
-
-
           </div>
-
-
         </section>
 
+        <section class="details-area">
+          <div class="details-inner">
 
-        <!-- =================================================
-             DETAILS
-        ================================================= -->
+            ${posterImage ? `<img class="poster" src="${posterImage}" alt="${esc(title)}">` : ""}
 
-        <section
-          class="details-area">
+            <div class="hero-info">
+              <div class="eyebrow">${type === "tv" ? "TV series" : "Movie"}</div>
 
+              <h1>${esc(title)}</h1>
 
-          <div
-            class="details-inner">
-
-
-            <div
-              class="hero-info">
-
-
-              ${
-                posterImage
-
-                  ? `
-
-                    <img
-                      class="poster"
-                      src="${posterImage}"
-                      alt="${esc(title)}">
-
-                  `
-
-                  : ""
-
-              }
-
-
-              <div class="eyebrow">
-
-                ${
-                  type === "tv"
-                    ? "TV SERIES"
-                    : "MOVIE"
-                }
-
+              <div class="facts">
+                <span class="fact">${year(date)}</span>
+                ${runtime ? `<span class="fact">${runtimeText(runtime)}</span>` : ""}
+                ${details.vote_average ? `<span class="fact rating">★ ${Number(details.vote_average).toFixed(1)}</span>` : ""}
               </div>
 
+              <div class="meta-row">
+                ${date ? `
+                  <div class="meta-block">
+                    <span class="meta-label">Release date</span>
+                    <span class="release-date">${formatReleaseDate(date)}</span>
+                  </div>` : ""}
 
-              <h1>
-                ${esc(title)}
-              </h1>
-
-
-              <!-- FACTS -->
-
-              <div
-                class="facts">
-
-
-                <span>•</span>
-
-
-                <span>
-                  ${year(date)}
-                </span>
-
-
-                ${
-                  runtime
-
-                    ? `
-
-                      <span>•</span>
-
-                      <span>
-                        ${runtimeText(
-                          runtime
-                        )}
-                      </span>
-
-                    `
-
-                    : ""
-
-                }
-
-
-                ${
-                  details.vote_average
-
-                    ? `
-
-                      <span>•</span>
-
-                      <span
-                        class="rating">
-
-                        ★
-                        ${Number(
-                          details.vote_average
-                        ).toFixed(1)}
-
-                      </span>
-
-                    `
-
-                    : ""
-
-                }
-
-
+                <div class="meta-block">
+                  <span class="meta-label">Your rating</span>
+                  <div class="my-rating-stars" id="myRatingStars">
+                    <button type="button" data-rating="1" aria-label="Rate 1 star">★</button>
+                    <button type="button" data-rating="2" aria-label="Rate 2 stars">★</button>
+                    <button type="button" data-rating="3" aria-label="Rate 3 stars">★</button>
+                    <button type="button" data-rating="4" aria-label="Rate 4 stars">★</button>
+                    <button type="button" data-rating="5" aria-label="Rate 5 stars">★</button>
+                  </div>
+                  <div class="my-rating-value" id="myRatingValue">Not rated</div>
+                </div>
               </div>
 
-
-              <!-- RELEASE DATE -->
-
-              ${
-                date
-
-                  ? `
-
-                    <div
-                      class="release-box">
-
-
-                      <span
-                        class="release-label">
-
-                        Release Date
-
-                      </span>
-
-
-                      <span
-                        class="release-date">
-
-                        ${formatReleaseDate(
-                          date
-                        )}
-
-                      </span>
-
-
-                    </div>
-
-                  `
-
-                  : ""
-
-              }
-
-
-              <!-- MY RATING -->
-
-              <div
-                class="my-rating-box">
-
-
-                <div
-                  class="my-rating-label">
-
-                  MY RATING
-
-                </div>
-
-
-                <div
-                  class="my-rating-stars"
-                  id="myRatingStars">
-
-
-                  <button
-                    type="button"
-                    data-rating="1">
-
-                    ★
-
-                  </button>
-
-
-                  <button
-                    type="button"
-                    data-rating="2">
-
-                    ★
-
-                  </button>
-
-
-                  <button
-                    type="button"
-                    data-rating="3">
-
-                    ★
-
-                  </button>
-
-
-                  <button
-                    type="button"
-                    data-rating="4">
-
-                    ★
-
-                  </button>
-
-
-                  <button
-                    type="button"
-                    data-rating="5">
-
-                    ★
-
-                  </button>
-
-
-                </div>
-
-
-                <div
-                  class="my-rating-value"
-                  id="myRatingValue">
-
-                  Not rated
-
-                </div>
-
-
-              </div>
-
-
-              <!-- ACTIONS -->
-
-              <div
-                class="hero-actions">
-
-
-                <button
-                  id="watchlistButton"
-                  class="action-btn watchlist-btn"
-                  onclick="toggleWatchlist()"
-                  aria-label="Add to Watchlist">
-
-
-                  <svg
-                    class="watchlist-icon"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true">
-
-
-                    <path
-                      d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.5L6 21V4.5Z">
-                    </path>
-
-
+              <div class="hero-actions">
+                <button id="watchlistButton" class="action-btn" onclick="toggleWatchlist()" aria-label="Add to My List">
+                  <svg class="watchlist-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.5L6 21V4.5Z"></path>
                   </svg>
-
-
-                  <span
-                    class="watchlist-text">
-
-                    MY LIST
-
-                  </span>
-
-
+                  <span class="watchlist-text">Add to My List</span>
                 </button>
 
-
-                <button
-                  class="action-btn share-btn"
-                  onclick="shareMovie()"
-                  aria-label="Share this title">
-
-
-                  <svg
-                    class="share-icon"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true">
-
-
-                    <circle
-                      cx="18"
-                      cy="5"
-                      r="2.5">
-                    </circle>
-
-
-                    <circle
-                      cx="6"
-                      cy="12"
-                      r="2.5">
-                    </circle>
-
-
-                    <circle
-                      cx="18"
-                      cy="19"
-                      r="2.5">
-                    </circle>
-
-
-                    <path
-                      d="M8.2 10.8L15.8 6.2">
-                    </path>
-
-
-                    <path
-                      d="M8.2 13.2L15.8 17.8">
-                    </path>
-
-
+                <button class="action-btn" onclick="shareMovie()" aria-label="Share this title">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="18" cy="5" r="2.5"></circle>
+                    <circle cx="6" cy="12" r="2.5"></circle>
+                    <circle cx="18" cy="19" r="2.5"></circle>
+                    <path d="M8.2 10.8L15.8 6.2"></path>
+                    <path d="M8.2 13.2L15.8 17.8"></path>
                   </svg>
-
-
-                  <span>
-                    SHARE
-                  </span>
-
-
+                  <span>Share</span>
                 </button>
-
-
               </div>
 
-
-              <!-- OVERVIEW -->
-
-              <p
-                class="overview">
-
-                ${esc(
-                  details.overview ||
-                  "Description unavailable."
-                )}
-
-              </p>
-
-
+              <p class="overview">${esc(details.overview || "Description unavailable.")}</p>
             </div>
-
-
           </div>
-
-
         </section>
 
+        <main class="content">
 
-        <!-- =================================================
-             CONTENT
-        ================================================= -->
+          ${genres ? `
+            <section class="section">
+              <h2 class="section-title">Genres</h2>
+              <div class="genres">${genres}</div>
+            </section>` : ""}
 
-        <main
-          class="content">
+          ${renderProviders(providers)}
 
-
-          <!-- GENRES -->
-
-          ${
-            genres
-
-              ? `
-
-                <section
-                  class="section">
-
-
-                  <h2
-                    class="section-title">
-
-                    Genres
-
-                  </h2>
-
-
-                  <div
-                    class="genres">
-
-                    ${genres}
-
-                  </div>
-
-
-                </section>
-
-              `
-
-              : ""
-
-          }
-
-
-          <!-- STREAMING -->
-
-          ${renderProviders(
-            providers
-          )}
-
-
-          <!-- CAST -->
-
-          <section
-            class="section">
-
-
-            <h2
-              class="section-title">
-
-              Cast
-
-            </h2>
-
-
-            <div
-              class="people-row">
-
-              ${renderCast(
-                details.credits?.cast
-              )}
-
-            </div>
-
-
+          <section class="section">
+            <h2 class="section-title">Cast</h2>
+            <div class="people-row">${renderCast(details.credits?.cast)}</div>
           </section>
 
-
-          <!-- DIRECTOR -->
-
-          <section
-            class="section">
-
-
-            <h2
-              class="section-title">
-
-              Director
-
-            </h2>
-
-
-            <div
-              class="people-row">
-
-              ${renderCrew(
-                directors,
-                "Director information unavailable.",
-                "Director"
-              )}
-
-            </div>
-
-
+          <section class="section">
+            <h2 class="section-title">Director</h2>
+            <div class="people-row">${renderCrew(directors, "Director information unavailable.", "Director")}</div>
           </section>
 
-
-          <!-- WRITERS -->
-
-          <section
-            class="section">
-
-
-            <h2
-              class="section-title">
-
-              Writers
-
-            </h2>
-
-
-            <div
-              class="people-row">
-
-              ${renderCrew(
-                writers,
-                "Writer information unavailable.",
-                "Writer"
-              )}
-
-            </div>
-
-
+          <section class="section">
+            <h2 class="section-title">Writers</h2>
+            <div class="people-row">${renderCrew(writers, "Writer information unavailable.", "Writer")}</div>
           </section>
 
-
-          <!-- MORE LIKE THIS -->
-
-          <section
-            class="section">
-
-
-            <h2
-              class="section-title">
-
-              More Like This
-
-            </h2>
-
-
-            <div
-              class="movies-row">
-
-              ${renderSimilar(
-                similar
-              )}
-
-            </div>
-
-
+          <section class="section">
+            <h2 class="section-title">More like this</h2>
+            <div class="movies-row">${renderSimilar(similar)}</div>
           </section>
 
-
-          <!-- TRAILERS -->
-
-          <section
-            class="section">
-
-
-            <h2
-              class="section-title">
-
-              Trailers & More
-
-            </h2>
-
-
-            <div
-              class="trailer-row">
-
-              ${renderTrailers(
-                details.videos
-              )}
-
-            </div>
-
-
+          <section class="section">
+            <h2 class="section-title">Trailers and clips</h2>
+            <div class="trailer-row">${renderTrailers(details.videos)}</div>
           </section>
-
 
         </main>
-
-
       </div>
-
     `;
 
-
-    /* =====================================================
-       START HERO TRAILER
-    ===================================================== */
-
-    if (trailer?.key) {
-
-      loadHeroTrailer(
-        trailer.key
-      );
-
-    }
-
+    if (trailer?.key) loadHeroTrailer(trailer.key);
 
   } catch (error) {
-
-
-    document.getElementById(
-      "app"
-    ).innerHTML = `
-
+    document.getElementById("app").innerHTML = `
       <div class="loading">
-
-        Unable to load movie details.
-
-      </div>
-
-    `;
-
-
+        <div>
+          Couldn't load this title.<br>
+          <button class="action-btn" style="margin-top:16px" onclick="location.reload()">Try again</button>
+        </div>
+      </div>`;
     console.error(error);
-
   }
-
 }
 
+/* =========================================================
+   NAVIGATION
+========================================================= */
+function openPerson(personId) {
+  if (!personId) return;
+  location.href = `/person.html?id=${encodeURIComponent(personId)}`;
+}
+
+function openMovie(movieId, movieType) {
+  location.href = `/movie.html?id=${encodeURIComponent(movieId)}&type=${encodeURIComponent(movieType)}`;
+}
+
+function goBack() {
+  if (document.referrer && document.referrer.startsWith(location.origin)) {
+    history.back();
+    return;
+  }
+  location.href = "/";
+}
+
+/* Trailers & clips row: also plays inside the hero player */
+function playTrailer(key) {
+  if (!key) return;
+  const trailerBox = document.getElementById("heroTrailer");
+  if (trailerBox) trailerBox.classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  playInHero(key);
+}
+
+window.addEventListener("scroll", function () {
+  const bar = document.getElementById("topbar");
+  if (bar) bar.classList.toggle("scrolled", window.scrollY > 40);
+}, { passive: true });
 
 /* =========================================================
    WATCHLIST
 ========================================================= */
-
 function getWatchlist() {
-
   try {
-
-    return JSON.parse(
-      localStorage.getItem(
-        "moviehub_watchlist"
-      ) || "[]"
-    );
-
+    return JSON.parse(localStorage.getItem("moviehub_watchlist") || "[]");
   } catch (_) {
-
     return [];
-
   }
-
 }
-
 
 function saveWatchlist(list) {
-
-  localStorage.setItem(
-    "moviehub_watchlist",
-    JSON.stringify(list)
-  );
-
+  try {
+    localStorage.setItem("moviehub_watchlist", JSON.stringify(list));
+  } catch (_) {}
 }
-
 
 function updateWatchlistButton() {
-
-  const button =
-    document.getElementById(
-      "watchlistButton"
-    );
-
-
+  const button = document.getElementById("watchlistButton");
   if (!button) return;
 
+  const text = button.querySelector(".watchlist-text");
+  const saved = getWatchlist().some(item => String(item.id) === String(id) && item.type === type);
 
-  const text =
-    button.querySelector(
-      ".watchlist-text"
-    );
-
-
-  const watchlist =
-    getWatchlist();
-
-
-  const saved =
-    watchlist.some(
-      item =>
-        String(item.id) ===
-          String(id) &&
-        item.type === type
-    );
-
-
-  if (saved) {
-
-    button.classList.add(
-      "saved"
-    );
-
-
-    button.setAttribute(
-      "aria-label",
-      "Remove from Watchlist"
-    );
-
-
-    if (text) {
-
-      text.textContent =
-        "MY LIST";
-
-    }
-
-  } else {
-
-    button.classList.remove(
-      "saved"
-    );
-
-
-    button.setAttribute(
-      "aria-label",
-      "Add to Watchlist"
-    );
-
-
-    if (text) {
-
-      text.textContent =
-        "MY LIST";
-
-    }
-
-  }
-
+  button.classList.toggle("saved", saved);
+  button.setAttribute("aria-label", saved ? "Remove from My List" : "Add to My List");
+  if (text) text.textContent = saved ? "In My List" : "Add to My List";
 }
-
 
 function toggleWatchlist() {
+  if (!document.getElementById("watchlistButton") || !id) return;
 
-  const button =
-    document.getElementById(
-      "watchlistButton"
-    );
+  const list = getWatchlist();
+  const index = list.findIndex(item => String(item.id) === String(id) && item.type === type);
 
-
-  if (
-    !button ||
-    !id
-  ) {
-
-    return;
-
-  }
-
-
-  const list =
-    getWatchlist();
-
-
-  const existingIndex =
-    list.findIndex(
-      item =>
-        String(item.id) ===
-          String(id) &&
-        item.type === type
-    );
-
-
-  if (
-    existingIndex >= 0
-  ) {
-
-    list.splice(
-      existingIndex,
-      1
-    );
-
-
+  if (index >= 0) {
+    list.splice(index, 1);
     saveWatchlist(list);
-
     updateWatchlistButton();
-
     return;
-
   }
 
-
-  const title =
-    document.querySelector(
-      "h1"
-    )?.textContent.trim() ||
-    "Untitled";
-
-
-  const posterElement =
-    document.querySelector(
-      ".poster"
-    );
-
-
-  const item = {
-
+  list.unshift({
     id: String(id),
-
     type: type,
-
-    title: title,
-
-    poster:
-      posterElement?.getAttribute(
-        "src"
-      ) || "",
-
-    backdrop:
-      backdrop(
-        document.body.dataset.backdrop
-      ),
-
-    addedAt:
-      Date.now()
-
-  };
-
-
-  list.unshift(item);
-
+    title: currentMovie?.title || currentMovie?.name || "Untitled",
+    poster: currentMovie?.poster_path ? poster(currentMovie.poster_path) : "",
+    backdrop: currentMovie?.backdrop_path ? backdrop(currentMovie.backdrop_path) : "",
+    addedAt: Date.now()
+  });
 
   saveWatchlist(list);
-
-
   updateWatchlistButton();
-
 }
-
 
 /* =========================================================
    SHARE
 ========================================================= */
-
 async function shareMovie() {
-
-  const title =
-    document.querySelector(
-      "h1"
-    )?.textContent.trim() ||
-    "Movie";
-
-
-  const shareUrl =
-    window.location.href;
-
-
+  const title = currentMovie?.title || currentMovie?.name || "Movie";
+  const shareUrl = window.location.href;
   const shareData = {
-
-    title:
-      `${title} — MovieHub`,
-
-    text:
-      `Check out ${title} on MovieHub.`,
-
-    url:
-      shareUrl
-
+    title: `${title} — MovieHub`,
+    text: `Check out ${title} on MovieHub.`,
+    url: shareUrl
   };
 
-
-  try {
-
-    if (
-
-      typeof navigator.share ===
-        "function" &&
-
-      (
-        !navigator.canShare ||
-        navigator.canShare(
-          shareData
-        )
-      )
-
-    ) {
-
-      await navigator.share(
-        shareData
-      );
-
-      return;
-
-    }
-
-
-    if (
-
-      navigator.clipboard &&
-
-      typeof navigator.clipboard.writeText ===
-        "function"
-
-    ) {
-
-      await navigator.clipboard.writeText(
-        shareUrl
-      );
-
-
-      alert(
-        "Movie link copied!"
-      );
-
-
-      return;
-
-    }
-
-
-    alert(
-      "Unable to share. Please copy the page URL manually."
-    );
-
-
-  } catch (error) {
-
-    if (
-      error?.name ===
-      "AbortError"
-    ) {
-
-      return;
-
-    }
-
-
-    console.error(
-      "Share failed:",
-      error
-    );
-
-
-    try {
-
-      if (
-
-        navigator.clipboard &&
-
-        typeof navigator.clipboard.writeText ===
-          "function"
-
-      ) {
-
-        await navigator.clipboard.writeText(
-          shareUrl
-        );
-
-
-        alert(
-          "Movie link copied!"
-        );
-
-      } else {
-
-        alert(
-          "Unable to share. Please copy the page URL manually."
-        );
-
-      }
-
-    } catch (_) {
-
-      alert(
-        "Unable to share. Please copy the page URL manually."
-      );
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   OPEN MOVIE
-========================================================= */
-
-function openMovie(
-  movieId,
-  movieType
-) {
-
-  location.href =
-    `/movie.html?id=${encodeURIComponent(
-      movieId
-    )}&type=${encodeURIComponent(
-      movieType
-    )}`;
-
-}
-
-
-/* =========================================================
-   BACK
-========================================================= */
-
-function goBack() {
-
-  if (
-    document.referrer &&
-    document.referrer.startsWith(
-      location.origin
-    )
-  ) {
-
-    history.back();
-
-    return;
-
-  }
-
-
-  location.href = "/";
-
-}
-
-
-/* =========================================================
-   POPUP TRAILER
-========================================================= */
-
-function playTrailer(key) {
-
-  if (!key) return;
-
-
-  const player =
-    document.getElementById(
-      "player"
-    );
-
-
-  const frame =
-    document.getElementById(
-      "playerFrame"
-    );
-
-
-  if (!player || !frame) {
-
-    return;
-
-  }
-
-
-  /*
-    Close any previous popup player.
-  */
-
-  if (popupPlayer) {
-
-    try {
-
-      popupPlayer.destroy();
-
-    } catch (_) {}
-
-    popupPlayer =
-      null;
-
-  }
-
-
-  frame.remove();
-
-
-  const newFrame =
-    document.createElement(
-      "div"
-    );
-
-
-  newFrame.id =
-    "playerFrame";
-
-
-  player.querySelector(
-    ".player-box"
-  ).appendChild(
-    newFrame
-  );
-
-
-  player.classList.add(
-    "active"
-  );
-
-
-  popupSoundOn =
-    false;
-
-
-  updatePopupSoundButton();
-
-
-  if (
-    typeof YT === "undefined" ||
-    !YT.Player
-  ) {
-
-    const iframe =
-      document.createElement(
-        "iframe"
-      );
-
-
-    iframe.src =
-      `https://www.youtube.com/embed/${encodeURIComponent(
-        key
-      )}?autoplay=1&controls=1&rel=0&playsinline=1&enablejsapi=1`;
-
-
-    iframe.allow =
-      "autoplay; encrypted-media; picture-in-picture; fullscreen";
-
-
-    iframe.allowFullscreen =
-      true;
-
-
-    iframe.style.width =
-      "100%";
-
-
-    iframe.style.height =
-      "100%";
-
-
-    iframe.style.border =
-      "0";
-
-
-    newFrame.replaceWith(
-      iframe
-    );
-
-
-    return;
-
-  }
-
-
-  popupPlayer =
-    new YT.Player(
-      "playerFrame",
-      {
-
-        videoId: key,
-
-        playerVars: {
-
-          autoplay: 1,
-
-          controls: 1,
-
-          rel: 0,
-
-          playsinline: 1,
-
-          fs: 1,
-
-          enablejsapi: 1
-
-        },
-
-
-        events: {
-
-          onReady:
-            function(event) {
-
-              try {
-
-                event.target.mute();
-
-                event.target.playVideo();
-
-              } catch (_) {}
-
-            }
-
-        }
-
-      }
-    );
-
-}
-
-
-function updatePopupSoundButton() {
-
-  const button =
-    document.getElementById(
-      "playerSoundButton"
-    );
-
-
-  if (!button) return;
-
-
-  button.innerHTML =
-    popupSoundOn
-      ? SOUND_ON_ICON
-      : SOUND_OFF_ICON;
-
-
-  button.setAttribute(
-    "aria-label",
-    popupSoundOn
-      ? "Turn sound off"
-      : "Turn sound on"
-  );
-
-}
-
-
-function togglePopupSound() {
-
-  if (!popupPlayer) {
-
-    return;
-
-  }
-
-
-  try {
-
-    if (popupSoundOn) {
-
-      popupPlayer.mute();
-
-      popupSoundOn =
-        false;
-
+  async function copyLink() {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      await navigator.clipboard.writeText(shareUrl);
+      alert("Link copied!");
     } else {
-
-      popupPlayer.unMute();
-
-      popupPlayer.setVolume(
-        100
-      );
-
-      popupSoundOn =
-        true;
-
+      alert("Couldn't share. Please copy the page URL manually.");
     }
-
-  } catch (_) {}
-
-
-  updatePopupSoundButton();
-
-}
-
-
-function closeTrailer() {
-
-  const player =
-    document.getElementById(
-      "player"
-    );
-
-
-  if (popupPlayer) {
-
-    try {
-
-      popupPlayer.stopVideo();
-
-      popupPlayer.destroy();
-
-    } catch (_) {}
-
-    popupPlayer =
-      null;
-
   }
 
-
-  const box =
-    player?.querySelector(
-      ".player-box"
-    );
-
-
-  if (box) {
-
-    const oldFrame =
-      box.querySelector(
-        "#playerFrame"
-      );
-
-
-    if (oldFrame) {
-
-      oldFrame.remove();
-
+  try {
+    if (typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare(shareData))) {
+      await navigator.share(shareData);
+      return;
     }
-
-
-    const newFrame =
-      document.createElement(
-        "div"
-      );
-
-
-    newFrame.id =
-      "playerFrame";
-
-
-    box.insertBefore(
-      newFrame,
-      box.firstChild
-    );
-
+    await copyLink();
+  } catch (error) {
+    if (error?.name === "AbortError") return;
+    try { await copyLink(); } catch (_) {
+      alert("Couldn't share. Please copy the page URL manually.");
+    }
   }
-
-
-  player.classList.remove(
-    "active"
-  );
-
-
-  popupSoundOn =
-    false;
-
-
-  updatePopupSoundButton();
-
 }
-
 
 /* =========================================================
    MY RATING
 ========================================================= */
-
 function setupMyRating() {
+  const stars = document.querySelectorAll("#myRatingStars button");
+  const value = document.getElementById("myRatingValue");
+  if (!stars.length || !value || !id) return;
 
-  const stars =
-    document.querySelectorAll(
-      "#myRatingStars button"
-    );
+  const storageKey = `moviehub_rating_${type}_${id}`;
+  let saved = 0;
+  try { saved = Number(localStorage.getItem(storageKey) || 0); } catch (_) {}
 
-
-  const value =
-    document.getElementById(
-      "myRatingValue"
-    );
-
-
-  if (
-    !stars.length ||
-    !value ||
-    !id
-  ) {
-
-    return;
-
+  function applyRating(rating) {
+    stars.forEach(star => {
+      star.classList.toggle("active", Number(star.dataset.rating) <= rating);
+    });
+    value.textContent = rating ? `${rating} / 5` : "Not rated";
   }
 
+  applyRating(saved);
 
-  const storageKey =
-    `moviehub_rating_${type}_${id}`;
-
-
-  const savedRating =
-    Number(
-      localStorage.getItem(
-        storageKey
-      ) || 0
-    );
-
-
-  function applyRating(
-    rating
-  ) {
-
-    stars.forEach(
-      star => {
-
-        const starRating =
-          Number(
-            star.dataset.rating
-          );
-
-
-        star.classList.toggle(
-          "active",
-          starRating <= rating
-        );
-
-      }
-    );
-
-
-    value.textContent =
-      rating
-        ? `${rating} / 5`
-        : "Rate this title";
-
-  }
-
-
-  applyRating(
-    savedRating
-  );
-
-
-  stars.forEach(
-    star => {
-
-      star.addEventListener(
-        "click",
-        () => {
-
-          const rating =
-            Number(
-              star.dataset.rating
-            );
-
-
-          localStorage.setItem(
-            storageKey,
-            String(rating)
-          );
-
-
-          applyRating(
-            rating
-          );
-
-        }
-      );
-
-    }
-  );
-
+  stars.forEach(star => {
+    star.addEventListener("click", () => {
+      const rating = Number(star.dataset.rating);
+      try { localStorage.setItem(storageKey, String(rating)); } catch (_) {}
+      applyRating(rating);
+    });
+  });
 }
-
 
 /* =========================================================
    START
 ========================================================= */
-
-render().then(
-  () => {
-
-    updateWatchlistButton();
-
-    setupMyRating();
-
-    updateHeroSoundButton();
-
-    updatePopupSoundButton();
-
-  }
-);
-
+render().then(() => {
+  updateWatchlistButton();
+  setupMyRating();
+  updateHeroSoundButton();
+});
 </script>
-
 
 </body>
 </html>
