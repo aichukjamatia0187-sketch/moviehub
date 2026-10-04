@@ -132,8 +132,10 @@ if (!path && req.url) {
       await response.json();
 
 
-    return res
-      .status(response.status)
+    if (response.ok) res.setHeader('Cache-Control','public, s-maxage=600, stale-while-revalidate=86400');
+
+
+    return res.status(response.status)
       .json(data);
 
 
