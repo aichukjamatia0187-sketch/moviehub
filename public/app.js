@@ -1592,12 +1592,17 @@ async function heroAction() {
    BUTTONS
 ========================= */
 
+function goToHero(autoplay) {
+  if (!state.hero) return;
+  const t = isTV(state.hero) ? 'tv' : 'movie';
+  location.href = `/movie.html?id=${encodeURIComponent(state.hero.id)}&type=${t}`;
+}
+
 const trailerBtn =
   $('#trailerBtn');
 
 if (trailerBtn) {
-  trailerBtn.onclick =
-    heroAction;
+  trailerBtn.onclick = () => goToHero(true);
 }
 
 
@@ -1606,18 +1611,7 @@ const detailsBtn =
 
 if (detailsBtn) {
 
-  detailsBtn.onclick = () => {
-
-    if (!state.hero) return;
-
-    openDetails(
-      state.hero.id,
-      isTV(state.hero)
-        ? 'tv'
-        : 'movie'
-    );
-
-  };
+  detailsBtn.onclick = () => goToHero(false);
 }
 
 
@@ -2102,12 +2096,19 @@ async function performSearch() {
       Interstellar
       Tom Cruise
     */
-    if (!hasSmartFilters) {
+    const onlyType =
+      parsed.filters.type &&
+      !parsed.filters.year &&
+      !parsed.filters.minRating &&
+      !parsed.filters.genre;
+
+    if (!hasSmartFilters || onlyType) {
+      const rawQuery2 = onlyType ? parsed.searchText : rawQuery;
       const [movieRes, tvRes, personRes] =
         await Promise.allSettled([
-          fetch(`/api/search/movie?query=${encodeURIComponent(rawQuery)}&page=1`),
-          fetch(`/api/search/tv?query=${encodeURIComponent(rawQuery)}&page=1`),
-          fetch(`/api/search/person?query=${encodeURIComponent(rawQuery)}&page=1`)
+          fetch(`/api/search/movie?query=${encodeURIComponent(rawQuery2)}&page=1`),
+          fetch(`/api/search/tv?query=${encodeURIComponent(rawQuery2)}&page=1`),
+          fetch(`/api/search/person?query=${encodeURIComponent(rawQuery2)}&page=1`)
         ]);
 
       const movieData =
@@ -2142,12 +2143,20 @@ async function performSearch() {
         }))
       ];
 
+      /* a matched actor/director -> add their best-known titles */
+      const topPerson = (personData.results || [])[0];
+      if (topPerson && (!parsed.filters.type || onlyType)) {
+        (topPerson.known_for || []).forEach((k) => {
+          if (k.media_type === 'movie' || k.media_type === 'tv') results.unshift(k);
+        });
+      }
+
       /*
         Put exact text matches first.
         This makes searches like "Spider man"
         show Spider-Man results before unrelated results.
       */
-      const q = rawQuery.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      const q = rawQuery2.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
       results.sort((a, b) => {
         const aName = (
@@ -2300,6 +2309,10 @@ endpoints.push(
 
     results = Array.from(unique.values());
 
+    if (onlyType) {
+      results = results.filter(i => i.media_type === parsed.filters.type);
+    }
+
     /*
       Current filter button
     */
@@ -2335,6 +2348,16 @@ endpoints.push(
     }
   }
 }
+
+/* FILTER BUTTONS */
+document.querySelectorAll('.search-filter').forEach((b) => {
+  b.addEventListener('click', () => {
+    currentSearchFilter = b.dataset.filter || 'all';
+    document.querySelectorAll('.search-filter')
+      .forEach((x) => x.classList.toggle('active', x === b));
+    if (searchInput?.value.trim()) performSearch();
+  });
+});
 
 /* SEARCH BUTTON */
 
