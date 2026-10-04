@@ -693,18 +693,6 @@ h1 { letter-spacing: -.025em; text-wrap: balance; }
   .hero-trailer:fullscreen .more-videos-overlay.ended { justify-content: center; }
 }
 
-/* View all */
-.viewall-card { text-decoration: none; color: inherit; }
-.viewall-box {
-  width: 150px; height: 225px; border-radius: 10px;
-  border: 1px dashed rgba(255,255,255,.28);
-  background: var(--surface);
-  display: grid; place-items: center;
-  font-size: 30px;
-  transition: background .2s ease;
-}
-.viewall-card:hover .viewall-box { background: var(--surface-2); }
-@media (max-width: 700px) { .viewall-box { width: 132px; height: 198px; } }
 
 /* =========================================================
    FIXES: poster no longer overlaps the video, auto-hide controls
@@ -1293,7 +1281,7 @@ function renderSimilar(list) {
         <div class="movie-title">${esc(title)}</div>
         <div class="movie-year">${year(date)}</div>
       </div>`;
-  }).join("") + viewAllTile();
+  }).join("");
 }
 
 function renderTrailers(videos) {
@@ -1774,15 +1762,6 @@ function viewAllHead(title, kind) {
   return `<div class="section-head-row"><h2 class="section-title">${title}</h2>${link}</div>`;
 }
 
-function viewAllTile() {
-  if (id === "demo") return "";
-  return `
-    <a class="movie-card viewall-card" href="${listUrl("similar")}">
-      <div class="viewall-box"><span>→</span></div>
-      <div class="movie-title">View all</div>
-    </a>`;
-}
-
 /* =========================================================
    CUSTOM CONTROL BAR
 ========================================================= */
@@ -1880,6 +1859,71 @@ function setupHeroBar() {
     seeking = false;
   });
 }
+
+
+/* =========================================================
+   SWIPE LEFT  ->  HOME PAGE
+========================================================= */
+(function setupSwipeHome() {
+  let sx = 0, sy = 0, tracking = false;
+
+  /* swipes that start here keep their normal job (scrolling rows, seeking, etc.) */
+  const IGNORE = ".people-row, .movies-row, .trailer-row, .more-videos-row, .hero, input, button, a";
+
+  document.addEventListener("touchstart", e => {
+    tracking = e.touches.length === 1 && !e.target.closest(IGNORE) && !document.fullscreenElement;
+    if (tracking) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }
+  }, { passive: true });
+
+  document.addEventListener("touchend", e => {
+    if (!tracking) return;
+    tracking = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - sx;
+    const dy = t.clientY - sy;
+
+    /* clear, mostly-horizontal swipe to the left */
+    if (dx < -90 && Math.abs(dy) < 60 && Math.abs(dx) > Math.abs(dy) * 2) {
+      location.href = "/";
+    }
+  }, { passive: true });
+
+  document.addEventListener("touchcancel", () => { tracking = false; }, { passive: true });
+})();
+
+
+/* =========================================================
+   SWIPE LEFT = HOME PAGE
+========================================================= */
+(function setupSwipeHome() {
+  let sx = 0, sy = 0, st = 0, ok = false;
+  /* don't hijack horizontal scrolling rows, seek bar, overlay */
+  const blocked = ".people-row, .movies-row, .trailer-row, .more-videos-row, .more-videos-overlay, .hero-bar, input, textarea";
+
+  document.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1) { ok = false; return; }
+    const t = e.touches[0];
+    const nearEdge = t.clientX < 20 || t.clientX > window.innerWidth - 20;   // leave system back gesture alone
+    ok = !nearEdge &&
+         !document.fullscreenElement &&
+         !document.querySelector(".custom-fullscreen") &&
+         !e.target.closest(blocked);
+    sx = t.clientX; sy = t.clientY; st = Date.now();
+  }, { passive: true });
+
+  document.addEventListener("touchend", e => {
+    if (!ok) return;
+    ok = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - sx;
+    const dy = t.clientY - sy;
+    if (Date.now() - st < 800 && dx <= -90 && Math.abs(dx) > Math.abs(dy) * 2) {
+      location.href = "/";
+    }
+  }, { passive: true });
+
+  document.addEventListener("touchcancel", () => { ok = false; }, { passive: true });
+})();
 
 render().then(() => {
   updateWatchlistButton();
