@@ -4,15 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#080807" />
-  <meta name="description" content="MovieHub — real movies and TV dramas, trailers and details." />
+  <meta name="description" content="MovieHub — real movies and TV dramas, trailers and details powered by TMDB." />
   <title>MovieHub — Movies, TV Shows & Dramas</title>
   <link rel="preconnect" href="https://image.tmdb.org" />
   <link rel="preconnect" href="https://api.themoviedb.org" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <meta property="og:title" content="MovieHub — Movies, TV Shows & Dramas" />
-  <meta property="og:description" content="Discover trending movies, web series and dramas. Trailers, cast and details." />
-  <meta property="og:type" content="website" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
     :root{--bg:#080807;--panel:#0d0d0c;--line:#2a261d;--gold:#d7ae61;--text:#f4f0e9;--muted:#9b958a;--serif:'Playfair Display',Georgia,serif;--sans:'DM Sans',Arial,sans-serif;--mono:'DM Mono',monospace}
@@ -764,162 +759,7 @@
   transform:scale(1.04);
   transition:transform .2s ease;
 }
-  
-/* =========================================================
-   MOVIEHUB — PROFESSIONAL DESIGN LAYER
-========================================================= */
-:root{--gold-2:#e8c987;--card-w:clamp(138px,14.5vw,190px);--ease:cubic-bezier(.22,1,.36,1)}
-html{scroll-padding-top:84px}
-body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-
-/* ---------- header ---------- */
-.top{height:68px;background:rgba(8,8,7,.82);border-bottom:1px solid #16150f;transition:background .3s,border-color .3s,box-shadow .3s}
-.top.scrolled{background:rgba(8,8,7,.96);border-bottom-color:#26231b;box-shadow:0 10px 40px rgba(0,0,0,.45)}
-.nav a{position:relative;padding:8px 0}
-.nav a::after{content:'';position:absolute;left:0;right:0;bottom:2px;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
-.nav a:hover::after,.nav a.active::after{transform:scaleX(1)}
-.nav a.active{color:#fff}
-.search-btn{font-size:18px;transition:border-color .2s,color .2s,background .2s}
-.search-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(215,174,97,.06)}
-
-/* ---------- hero ---------- */
-.hero{min-height:560px;height:min(88vh,840px);max-height:none}
-.hero-content{max-width:780px;padding-bottom:84px}
-.eyebrow{display:inline-flex;align-items:center;gap:10px}
-.eyebrow::before{content:'';width:26px;height:1px;background:var(--gold)}
-.hero h1{font-size:clamp(46px,6.4vw,96px);text-wrap:balance;text-shadow:0 4px 40px rgba(0,0,0,.5)}
-.hero .meta{gap:8px}
-.hero .meta span{padding:5px 11px;border:1px solid #3a352a;border-radius:999px;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#cfc8ba}
-.hero .meta .score{color:#ffd35a;border-color:#6b5a30}
-.overview{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.actions{gap:12px}
-.btn{height:48px;padding:0 26px;white-space:nowrap;border-radius:6px;transition:transform .2s var(--ease),filter .2s,background .2s,border-color .2s}
-.btn:hover{transform:translateY(-2px)}
-.btn:active{transform:scale(.97)}
-.btn.primary::before{content:'▶';margin-right:10px;font-size:9px}
-.btn:not(.primary){backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(8,8,7,.45)}
-.btn:not(.primary):hover{border-color:var(--gold);color:var(--gold-2)}
-
-/* ---------- sections ---------- */
-main{padding-bottom:40px}
-.section{margin-top:58px}
-.section-head{border-bottom:0;padding-bottom:0;margin-bottom:18px;align-items:center}
-.section h2{font-size:clamp(24px,2.6vw,32px);letter-spacing:-.01em}
-.section-kicker{color:var(--gold);opacity:.85}
-.see{border:1px solid #3a3529;border-radius:999px;padding:9px 16px;white-space:nowrap;transition:color .2s,border-color .2s,background .2s}
-.see::after{content:' →'}
-.see:hover{color:var(--gold-2);border-color:var(--gold);background:rgba(215,174,97,.06)}
-
-/* ---------- rows ---------- */
-.rail-wrap{position:relative}
-.rail{gap:16px;padding:6px 2px 14px;scroll-snap-type:x proximity;scroll-padding-left:2px}
-.rail-arrow{position:absolute;top:38%;z-index:5;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(8,8,7,.88);color:#fff;font-size:26px;line-height:1;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .2s,color .2s}
-.rail-arrow.prev{left:-14px}.rail-arrow.next{right:-14px}
-.rail-arrow:hover{background:var(--gold);color:#16130c;border-color:var(--gold)}
-@media (hover:hover) and (min-width:900px){.rail-wrap:hover .rail-arrow{display:flex}}
-
-.card{flex:0 0 var(--card-w);width:var(--card-w);min-width:0;scroll-snap-align:start;cursor:pointer;transition:transform .35s var(--ease)}
-.card:hover{transform:translateY(-5px)}
-.poster{height:auto;aspect-ratio:2/3;border-radius:10px;border-color:#27251d;transition:box-shadow .35s,border-color .35s}
-.card:hover .poster{border-color:#5b4d31;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 24px rgba(215,174,97,.08)}
-.poster::after{content:'';position:absolute;inset:auto 0 0 0;height:42%;background:linear-gradient(to top,rgba(0,0,0,.72),transparent);pointer-events:none}
-.badge{z-index:2;border-radius:4px;background:rgba(5,5,4,.66);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.rate{position:absolute;left:9px;bottom:9px;z-index:2;font:600 11px var(--mono);color:#ffd35a;letter-spacing:.02em}
-.card-info{margin-top:10px;align-items:baseline}
-.card-title{font-size:14px;min-width:0;flex:1}
-.year{padding-top:0}
-.empty{height:100%;font:10px var(--mono);letter-spacing:.14em}
-
-.rail-error{flex:1;min-height:150px;display:flex;align-items:center;justify-content:center;gap:14px;border:1px dashed #302c24;border-radius:10px;color:#8d887f;font:12px var(--mono)}
-.rail-error button{border:1px solid var(--gold);background:transparent;color:var(--gold-2);border-radius:999px;padding:8px 16px;font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase}
-
-/* skeleton loading */
-.card.skel{pointer-events:none}
-.card.skel .poster{border-color:#1c1b17;background:linear-gradient(100deg,#10100f 30%,#1b1a16 48%,#10100f 66%);background-size:220% 100%;animation:skeletonMove 1.4s infinite}
-.card.skel .poster::after{display:none}
-
-/* ---------- genres ---------- */
-.genre{border-radius:999px;padding:11px 18px;background:#0e0e0c;transition:border-color .2s,color .2s,background .2s,transform .2s}
-.genre:hover{background:rgba(215,174,97,.07);transform:translateY(-2px)}
-
-/* ---------- footer ---------- */
-.site-footer{display:block;margin-top:70px;border-top:1px solid #1f1d18;padding:34px 4vw 40px;color:#777267}
-.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.footer-links{display:flex;gap:26px;font:500 10px var(--mono);letter-spacing:.16em;text-transform:uppercase}
-.footer-links a{transition:color .2s}.footer-links a:hover{color:var(--gold-2)}
-.tmdb-note{margin:22px 0 0;max-width:640px;font:10px/1.7 var(--mono);color:#625e56}
-
-/* ---------- mobile bottom navigation ---------- */
-.bottom-nav{display:none}
-@media (max-width:700px){
-  body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
-  .bottom-nav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(10,10,9,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #24211a;padding:7px 6px calc(7px + env(safe-area-inset-bottom,0px))}
-  .bottom-nav a,.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:transparent;color:#8d887f;font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 0}
-  .bottom-nav i{font-style:normal;font-size:19px;line-height:1}
-  .bottom-nav .active{color:var(--gold-2)}
-  .toast{bottom:84px}
-  .hero{height:min(84svh,720px);min-height:560px}
-  .hero-content{padding:0 20px 38px}
-  .hero h1{font-size:clamp(38px,12vw,52px)}
-  .actions .btn{flex:1;padding:0 14px}
-  .section{margin-top:44px}
-  .see{padding:8px 13px}
-  .rail{gap:12px}
-  :root{--card-w:138px}
-  .footer-inner{flex-direction:column;align-items:flex-start}
-}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-</style>
-
-<style id="mh-polish">
-/* ===== MovieHub polish ===== */
-:root{--r:14px;--card-bg:#12120f;--ring:rgba(215,174,97,.35)}
-.top{height:68px;background:rgba(8,8,7,.78);border-bottom:1px solid rgba(255,255,255,.06);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);transition:box-shadow .3s}
-.top.scrolled{box-shadow:0 10px 30px rgba(0,0,0,.45)}
-.nav a{position:relative;padding:6px 0}
-.nav a:after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1px;background:var(--gold);transform:scaleX(0);transition:transform .25s}
-.nav a:hover:after,.nav a.active:after{transform:scaleX(1)}
-.nav a.active{color:#fff}
-.hero{height:calc(100vh - 68px)}
-.hero h1{text-shadow:0 4px 30px rgba(0,0,0,.5)}
-.btn{border-radius:999px;height:46px;padding:0 26px;display:inline-flex;align-items:center;gap:8px;transition:transform .2s,filter .2s,background .2s}
-.btn:active{transform:scale(.97)}
-.btn.primary{box-shadow:0 8px 24px rgba(215,174,97,.25)}
-.btn:not(.primary){background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.section{margin-top:46px}
-.section h2{font-size:30px;letter-spacing:-.01em}
-.section-head{border-bottom:0;padding-bottom:0;margin-bottom:18px}
-.view-all{border:1px solid #3a3529;border-radius:999px;padding:9px 16px;transition:.2s}
-.view-all:hover{border-color:var(--gold);color:var(--gold)}
-.rail{gap:16px;padding:6px 2px 10px;scroll-snap-type:x proximity}
-.card{cursor:pointer;scroll-snap-align:start;-webkit-tap-highlight-color:transparent;transition:transform .3s cubic-bezier(.22,1,.36,1)}
-.card:hover{transform:translateY(-6px)}
-.card:active{transform:scale(.97)}
-.poster{border-radius:var(--r);border:1px solid rgba(255,255,255,.07);box-shadow:0 10px 24px rgba(0,0,0,.4);transition:box-shadow .3s,border-color .3s}
-.card:hover .poster{border-color:var(--ring);box-shadow:0 18px 40px rgba(0,0,0,.6)}
-.poster:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent 38%);pointer-events:none}
-.badge{z-index:2;border-radius:6px;background:rgba(8,8,7,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.14)}
-.rate{position:absolute;z-index:2;left:9px;bottom:9px;font:500 10px var(--mono);color:#f1d79b}
-.card-title{font-size:14px}
-.genre{border-radius:999px;background:#12120f;padding:11px 18px;transition:.2s}
-.genre:hover{background:var(--gold);color:#16130c;border-color:var(--gold)}
-.site-footer{border-top:1px solid #1f1d17;padding:26px 4vw calc(26px + env(safe-area-inset-bottom))}
-.site-footer .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
-.footer-links{display:flex;gap:26px}
-.footer-links a{font:500 10px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:#8d887f;transition:color .2s}
-.footer-links a:hover{color:var(--gold)}
-@media (max-width:760px){
-  .top{height:60px}
-  .nav{gap:22px;overflow-x:auto;scrollbar-width:none;flex:1;margin:0 12px;padding:0 4px;white-space:nowrap}
-  .nav::-webkit-scrollbar{display:none}
-  .brand{font-size:20px}
-  .hero{min-height:560px;height:78vh}
-  .card{flex-basis:140px}.poster{height:208px}
-  .section h2{font-size:24px}
-  .actions{flex-wrap:wrap}
-}
-</style>
+  </style>
 </head>
 <body>
  <!-- MovieHub Loading Screen -->
@@ -957,13 +797,13 @@ main{padding-bottom:40px}
 
   </div>
 </div>
-  <header class="top"><a class="brand" href="/">MOVIE<b>HUB</b></a><nav class="nav" aria-label="Main">
-  <a href="#home" class="active">HOME</a>
-  <a href="#sec-trending">MOVIES</a>
-  <a href="#sec-webseries">TV SHOWS</a>
-  <a href="#sec-korean">DRAMAS</a>
+  <header class="top"><a class="brand" href="#">MOVIE<b>HUB</b></a><nav class="nav">
+  <a href="#home">HOME</a>
+  <a href="#movies">MOVIES</a>
+  <a href="#shows">TV SHOWS</a>
+  <a href="#dramas">DRAMAS</a>
   <a href="#genres">GENRES</a>
-  <a href="/watchlist.html">WATCHLIST</a></nav> <button class="search-btn" id="searchBtn" aria-label="Search">⌕</button></header>
+  <a href="#watchlistSection">WATCHLIST</a></nav> <button class="search-btn" id="searchBtn" aria-label="Search">⌕</button></header>
   <section class="hero" id="home">
   <div class="hero-bg" id="heroBg"></div>
 
@@ -995,51 +835,271 @@ main{padding-bottom:40px}
 </section>
 
 <main>
+    <!-- =========================
+     DISCOVERY COLLECTIONS
+========================= -->
 
-  <!-- rows are generated from categories.js -->
-  <div id="rails"></div>
-
-  <!-- MY WATCHLIST (hidden until the user saves something) -->
-  <section class="section" id="watchlistSection" style="display:none">
-    <div class="section-head">
-      <div>
-        <div class="section-kicker">Saved by you</div>
-        <h2>My Watchlist</h2>
-      </div>
-      <a class="see view-all" href="/watchlist.html">View all</a>
+<!-- 1. TRENDING TODAY -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🔥 TRENDING TODAY</div>
+      <h2>Trending Today</h2>
     </div>
-    <div class="rail" id="watchlistRail"></div>
-  </section>
+    <a class="see view-all" href="/browse.html?type=trending">VIEW ALL</a>
+  </div>
+  <div class="rail" id="trendingRail"></div>
+</section>
 
-  <!-- GENRES -->
-  <section class="section" id="genres">
-    <div class="section-head">
-      <div>
-        <div class="section-kicker">Browse</div>
-        <h2>Genres</h2>
-      </div>
+
+<!-- 2. HIGHLY RATED -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">⭐ HIGHLY RATED</div>
+      <h2>Highly Rated</h2>
     </div>
-    <div class="genres" id="genresList"></div>
-  </section>
+    <a class="see view-all" href="/browse.html?type=highly-rated">VIEW ALL</a>
+  </div>
+  <div class="rail" id="popularRail"></div>
+</section>
+
+
+<!-- 3. NEW RELEASES -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🎬 NEW RELEASES</div>
+      <h2>New Releases</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=new-releases">VIEW ALL</a>
+  </div>
+  <div class="rail" id="nowRail"></div>
+</section>
+
+
+<!-- 4. WEBSERIES -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">📺 WEBSERIES</div>
+      <h2>Webseries</h2>
+    </div>
+   <a class="see view-all" href="/browse.html?type=webseries">VIEW ALL</a> 
+  </div>
+  <div class="rail" id="tvPopularRail"></div>
+</section>
+
+
+<!-- 5. ROMANCE -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">❤️ ROMANCE</div>
+      <h2>Romance</h2>
+    </div>
+   <a class="see view-all" href="/genre.html?id=10749&name=Romance">VIEW ALL</a> 
+  </div>
+  <div class="rail" id="romanceRail"></div>
+</section>
+
+
+<!-- 6. ACTION -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">💥 ACTION</div>
+      <h2>Action</h2>
+    </div>
+    <a class="see view-all" href="/genre.html?id=28&name=Action">VIEW ALL</a>
+  </div>
+  <div class="rail" id="actionRail"></div>
+</section>
+
+
+<!-- 7. HORROR -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">👻 HORROR</div>
+      <h2>Horror</h2>
+    </div>
+   <a class="see view-all" href="/genre.html?id=27&name=Horror">VIEW ALL</a> 
+  </div>
+  <div class="rail" id="horrorRail"></div>
+</section>
+
+
+<!-- 8. MIND-BENDING -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🧠 MIND-BENDING</div>
+      <h2>Mind-Bending</h2>
+    </div>
+   <a class="see view-all" href="/browse.html?type=mind-bending">VIEW ALL</a> 
+  </div>
+  <div class="rail" id="mindBendingRail"></div>
+</section>
+
+
+<!-- 9. BASED ON TRUE STORIES -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🎭 TRUE STORIES</div>
+      <h2>Based on True Stories</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=true-stories">VIEW ALL</a>
+  </div>
+  <div class="rail" id="trueStoriesRail"></div>
+</section>
+
+
+<!-- 10. FAMILY NIGHT -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🍿 FAMILY NIGHT</div>
+      <h2>Family Night</h2>
+    </div>
+    <a class="see view-all" href="/genre.html?id=10751&name=Family">VIEW ALL</a>
+  </div>
+  <div class="rail" id="familyRail"></div>
+</section>
+
+
+<!-- 11. HOLLYWOOD -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🇺🇸 HOLLYWOOD</div>
+      <h2>Hollywood</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=hollywood">VIEW ALL</a>
+  </div>
+  <div class="rail" id="hollywoodRail"></div>
+</section>
+
+
+<!-- 12. LATE NIGHT MOVIES -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🌙 LATE NIGHT MOVIES</div>
+      <h2>Late Night Movies</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=late-night">VIEW ALL</a>
+  </div>
+  <div class="rail" id="lateNightRail"></div>
+</section>
+
+
+<!-- 13. KOREAN -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🇰🇷 KOREAN</div>
+      <h2>Korean Drama &amp; more</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=korean">VIEW ALL</a>
+  </div>
+  <div class="rail" id="koreanRail"></div>
+</section>
+
+
+<!-- 14. CHINA -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🇨🇳 CHINA</div>
+      <h2>China</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=china">VIEW ALL</a>
+  </div>
+  <div class="rail" id="chinaRail"></div>
+</section>
+
+
+<!-- 15. JAPANESE -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🇯🇵 JAPANESE</div>
+      <h2>Japanese</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=japanese">VIEW ALL</a>
+  </div>
+  <div class="rail" id="japaneseRail"></div>
+</section>
+
+
+<!-- 16. INDIAN -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🇮🇳 INDIAN</div>
+      <h2>Indian</h2>
+    </div>
+    <a class="see view-all" href="/browse.html?type=indian">VIEW ALL</a>
+  </div>
+  <div class="rail" id="indianRail"></div>
+</section>
+
+
+<!-- 17. COMING SOON -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">📅 COMING SOON</div>
+      <h2>Coming Soon</h2>
+    </div>
+   <a class="see view-all" href="/browse.html?type=coming-soon">VIEW ALL</a> 
+  </div>
+  <div class="rail" id="upcomingRail"></div>
+</section>
+
+<!-- =========================
+     MY WATCHLIST
+========================= -->
+
+<section class="section" id="watchlistSection">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">🔖 MY COLLECTION</div>
+      <h2>My Watchlist</h2>
+    </div>
+
+    <a class="see" href="/watchlist.html">VIEW ALL</a>
+  </div>
+
+  <div class="rail" id="watchlistRail"></div>
+</section>
+<!-- =========================
+     GENRES — ABSOLUTELY LAST
+========================= -->
+
+<section class="section" id="genres">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker">BROWSE</div>
+      <h2>Genres</h2>
+    </div>
+  </div>
+
+  <div class="genres" id="genresList"></div>
+</section>
+
 
 </main>
 <footer class="site-footer">
   <div class="footer-inner">
-    <a class="brand" href="/">MOVIE<b>HUB</b></a>
     <div class="footer-links">
       <a href="/about.html">About</a>
       <a href="/privacy.html">Privacy</a>
     </div>
   </div>
-  </footer>
-
-<!-- Mobile bottom navigation -->
-<nav class="bottom-nav" aria-label="Quick navigation">
-  <a href="#home" class="active"><i>⌂</i><span>Home</span></a>
-  <button type="button" id="bottomSearch"><i>⌕</i><span>Search</span></button>
-  <a href="#genres"><i>▦</i><span>Genres</span></a>
-  <a href="/watchlist.html"><i>✚</i><span>My List</span></a>
-</nav>
+</footer>
 
   <div class="search" id="searchPanel">
 
@@ -1116,7 +1176,6 @@ main{padding-bottom:40px}
 </div>
   <div class="modal" id="modal"><div class="modal-box" id="modalBox"></div><button class="modal-close" id="modalClose">×</button></div>
   <div class="toast" id="toast"></div>
-  <script src="categories.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
