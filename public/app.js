@@ -70,50 +70,33 @@ function card(m, forcedType) {
 
   const title = tv ? m.name : m.title;
   const date = tv ? m.first_air_date : m.release_date;
+  const rating = m.vote_average
+    ? Number(m.vote_average).toFixed(1)
+    : '';
 
   return `
     <article
       class="card"
       data-id="${m.id}"
       data-type="${tv ? 'tv' : 'movie'}"
+      role="link"
+      tabindex="0"
+      aria-label="${esc(title)}"
     >
-
       <div class="poster">
-
         ${
           m.poster_path
-            ? `
-              <img
-                loading="lazy"
-                src="${poster(m)}"
-                alt="${esc(title)}"
-              >
-            `
-            : `
-              <div class="empty">
-                NO POSTER
-              </div>
-            `
+            ? `<img loading="lazy" src="${poster(m)}" alt="${esc(title)}">`
+            : `<div class="empty">NO POSTER</div>`
         }
-
-        <span class="badge">
-          ${tv ? 'TV' : 'FILM'}
-        </span>
-
+        <span class="badge">${tv ? 'TV' : 'FILM'}</span>
+        ${rating ? `<span class="rate">★ ${rating}</span>` : ''}
       </div>
 
       <div class="card-info">
-
-        <span class="card-title">
-          ${esc(title)}
-        </span>
-
-        <span class="year">
-          ${(date || '').slice(0, 4)}
-        </span>
-
+        <span class="card-title">${esc(title)}</span>
+        <span class="year">${(date || '').slice(0, 4)}</span>
       </div>
-
     </article>
   `;
 }
@@ -358,6 +341,13 @@ function bindCards(root = document) {
 
       };
 
+      c.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          c.onclick();
+        }
+      };
+
     });
 }
 
@@ -402,14 +392,12 @@ function setHero(m) {
   if (heroMeta) {
     heroMeta.innerHTML = `
       <span class="score">
-        ${
+        ★ ${
           m.vote_average
             ? Number(m.vote_average).toFixed(1)
             : '—'
         }
       </span>
-
-      <span>★</span>
 
       <span>
         ${
@@ -582,332 +570,242 @@ async function loadHeroTrailer(m) {
    HOME DATA
 ========================= */
 
-async function load() {
+/* =========================
+   HOME ROWS
+   - every row comes from categories.js
+   - a title is shown only ONCE on the whole page
+   - rows appear one by one as data arrives
+========================= */
+
+const shownGlobal = new Set();
+
+const skeletonCards = (n) =>
+  Array.from({ length: n }, () => `
+    <article class="card skel" aria-hidden="true">
+      <div class="poster"></div>
+      <div class="card-info"><span class="card-title">&nbsp;</span></div>
+    </article>
+  `).join('');
+
+function buildRails() {
+  const mount = $('#rails');
+  if (!mount) return;
+
+  mount.innerHTML = (window.MH_CATEGORIES || []).map((cat) => `
+    <section class="section" id="sec-${cat.id}" data-cat="${cat.id}">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">${esc(cat.kicker)}</div>
+          <h2>${esc(cat.title)}</h2>
+        </div>
+        <a class="see view-all" href="${esc(cat.href)}">View all</a>
+      </div>
+      <div class="rail" id="${cat.rail}">${skeletonCards(8)}</div>
+    </section>
+  `).join('');
+
+  setupRails();
+}
+
+async function fetchCategory(cat) {
+  const qs = new URLSearchParams(cat.params || {}).toString();
+
   try {
+    const data = await api(cat.endpoint + (qs ? '?' + qs : ''));
+    return { cat, items: data.results || [] };
+  } catch (error) {
+    console.warn('Row failed:', cat.id, error);
+    return { cat, items: [], error };
+  }
+}
 
-    /* =========================
-       MOVIE DISCOVERY
-    ========================= */
+function renderCategory({ cat, items, error }) {
+  const rail = document.getElementById(cat.rail);
+  const section = document.getElementById('sec-' + cat.id);
 
-    const requests = [
+  if (!rail || !section) return [];
 
-      /* Trending Today */
-      api('/api/trending'),
+  if (error) {
+    rail.innerHTML = `
+      <div class="rail-error">
+        Couldn't load this row.
+        <button type="button" data-retry="${cat.id}">Try again</button>
+      </div>`;
+    return [];
+  }
 
-      /* Highly Rated */
-      api('/api/discover/movie?sort_by=vote_average.desc&vote_count.gte=300'),
+  const blocked = cat.excludeTitle
+    ? new RegExp(cat.excludeTitle, 'i')
+    : null;
 
-      /* New Releases */
-      api('/api/discover/movie?sort_by=primary_release_date.desc&primary_release_date.lte=' + new Date().toISOString().slice(0, 10)),
+  const picked = [];
 
-      /* Webseries */
-      api('/api/discover/tv?sort_by=popularity.desc'),
+  for (const m of items) {
+    if (!m || !m.poster_path) continue;
+    if (shownGlobal.has(cat.mode + ':' + m.id)) continue;
+    if (blocked && blocked.test(m.title || m.name || '')) continue;
 
-      /* Romance */
-      api('/api/discover/movie?with_genres=10749&sort_by=popularity.desc'),
+    picked.push(m);
+    if (picked.length >= 14) break;
+  }
 
-      /* Action */
-      api('/api/discover/movie?with_genres=28&sort_by=popularity.desc'),
+  picked.forEach((m) => shownGlobal.add(cat.mode + ':' + m.id));
 
-      /* Horror */
-      api('/api/discover/movie?with_genres=27&sort_by=popularity.desc'),
+  if (!picked.length) {
+    section.style.display = 'none';
+    return [];
+  }
 
-      /* Mind-Bending */      
-api('/api/discover/movie?with_genres=878%7C9648&sort_by=popularity.desc'),
-      /* Based on True Stories */
-      api('/api/discover/movie?with_keywords=9672&sort_by=popularity.desc'),
+  section.style.display = '';
+  rail.innerHTML = picked.map((m) => card(m, cat.mode)).join('');
+  bindCards(rail);
 
-      /* Family Night */
-      api('/api/discover/movie?with_genres=10751&sort_by=popularity.desc'),
+  return picked;
+}
 
-      /* Hollywood */
-      api('/api/discover/movie?with_original_language=en&sort_by=popularity.desc'),
+document.addEventListener('click', async (event) => {
+  const btn = event.target.closest('[data-retry]');
+  if (!btn) return;
 
-      /* Late Night Movies */
-api('/api/discover/movie?with_runtime.gte=90&with_runtime.lte=180&sort_by=popularity.desc'),
+  const cat = (window.MH_CATEGORIES || [])
+    .find((c) => c.id === btn.dataset.retry);
+  if (!cat) return;
 
-      /* Korean Drama */
-      api('/api/discover/tv?with_original_language=ko&sort_by=popularity.desc'),
-
-      /* China */
-      api('/api/discover/movie?with_original_language=zh&sort_by=popularity.desc'),
-
-      /* Japanese */
-      api('/api/discover/movie?with_original_language=ja&sort_by=popularity.desc'),
-
-      /* Indian */
-api('/api/discover/movie?with_origin_country=IN&sort_by=popularity.desc'),
-
-      /* Coming Soon */
-      api('/api/upcoming')
-
-    ];
-
-
-    const results =
-      await Promise.allSettled(requests);
-console.log('MOVIEHUB DISCOVERY RESULTS:', results);
-
-results.forEach((result, index) => {
-  console.log(
-    `DISCOVERY ${index}:`,
-    result.status,
-    result.status === 'fulfilled'
-      ? result.value
-      : result.reason
-  );
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  renderCategory(await fetchCategory(cat));
 });
 
-    const get = (index) => {
+async function load() {
+  if (!window.MH_CATEGORIES) {
+    toast('categories.js is missing');
+    return;
+  }
 
-      const result =
-        results[index];
+  shownGlobal.clear();
+  buildRails();
 
-      if (
-        result &&
-        result.status === 'fulfilled'
-      ) {
-        return result.value || {};
+  const jobs = window.MH_CATEGORIES.map(fetchCategory);
+
+  let markReady;
+  const firstReady = new Promise((resolve) => { markReady = resolve; });
+
+  (async () => {
+    let fallbackHero = null;
+
+    for (let i = 0; i < jobs.length; i++) {
+      const result = await jobs[i];
+      const picked = renderCategory(result);
+
+      if (!fallbackHero && picked.length) fallbackHero = picked[0];
+
+      if (i === 0) {
+        const hero =
+          result.items.find((m) => m.backdrop_path) ||
+          picked[0] ||
+          null;
+
+        if (hero) {
+          setHero(hero);
+          loadHeroTrailer(hero).catch(console.warn);
+        }
+
+        loadHomeWatchlist();
+        markReady();
       }
+    }
 
-      return {};
-    };
+    /* trending failed? use the first title we could load */
+    if (!state.hero && fallbackHero) {
+      setHero(fallbackHero);
+      loadHeroTrailer(fallbackHero).catch(console.warn);
+    }
 
-
-    /* =========================
-       DISCOVERY DATA
-    ========================= */
-
-    const discovery = {
-
-      trending:
-        get(0).results || [],
-
-      highlyRated:
-        get(1).results || [],
-
-      newReleases:
-        get(2).results || [],
-
-      webseries:
-        get(3).results || [],
-
-      romance:
-        get(4).results || [],
-
-      action:
-        get(5).results || [],
-
-      horror:
-        get(6).results || [],
-
-      mindBending:
-        get(7).results || [],
-
-      trueStories:
-        get(8).results || [],
-
-      family:
-        get(9).results || [],
-
-      hollywood:
-        get(10).results || [],
-
-      lateNight:
-        get(11).results || [],
-
-      korean:
-        get(12).results || [],
-
-      china:
-        get(13).results || [],
-
-      japanese:
-        get(14).results || [],
-
-      indian:
-  get(15).results || [],
-      comingSoon:
-        get(16).results || []
-
-    };
-
-
-    /* =========================
-       HERO
-    ========================= */
-
-    const hero =
-      discovery.trending[0] ||
-      discovery.webseries[0] ||
-      discovery.highlyRated[0] ||
-      {};
-
-
-    setHero(hero);
-
-    loadHeroTrailer(hero)
-      .catch(console.warn);
-
-
-    /* =========================
-       MOVIE DISCOVERY SECTIONS
-    ========================= */
-
-    fill(
-      '#trendingRail',
-      discovery.trending,
-      'movie'
-    );
-
-    fill(
-      '#popularRail',
-      discovery.highlyRated,
-      'movie'
-    );
-
-    fill(
-      '#nowRail',
-      discovery.newReleases,
-      'movie'
-    );
-
-    fill(
-      '#upcomingRail',
-      discovery.comingSoon,
-      'movie'
-    );
-
-
-    /* =========================
-       TV / WEBSERIES
-    ========================= */
-
-    fill(
-      '#tvPopularRail',
-      discovery.webseries,
-      'tv'
-    );
-
-
-    /* =========================
-       GENRE / CATEGORY RAILS
-    ========================= */
-
-    fill(
-      '#romanceRail',
-      discovery.romance,
-      'movie'
-    );
-
-    fill(
-      '#actionRail',
-      discovery.action,
-      'movie'
-    );
-
-    fill(
-      '#horrorRail',
-      discovery.horror,
-      'movie'
-    );
-
-    fill(
-      '#mindBendingRail',
-      discovery.mindBending,
-      'movie'
-    );
-
-    fill(
-      '#trueStoriesRail',
-      discovery.trueStories,
-      'movie'
-    );
-
-    fill(
-      '#familyRail',
-      discovery.family,
-      'movie'
-    );
-
-    fill(
-      '#hollywoodRail',
-      discovery.hollywood,
-      'movie'
-    );
-
-    fill(
-      '#lateNightRail',
-      discovery.lateNight,
-      'movie'
-    );
-
-    fill(
-      '#koreanRail',
-      discovery.korean,
-      'tv'
-    );
-
-    fill(
-      '#chinaRail',
-      discovery.china,
-      'movie'
-    );
-
-    fill(
-      '#japaneseRail',
-      discovery.japanese,
-      'movie'
-    );
-
-fill(
-  '#indianRail',
-  discovery.indian,
-  'movie'
-);
-
-
-    /* =========================
-       MY WATCHLIST
-    ========================= */
-
+    setupRails();
     loadHomeWatchlist();
+  })().catch((error) => {
+    console.error(error);
+    markReady();
+  });
 
-    bindCards();
+  await firstReady;
+}
 
-    /* REMOVE LOADING ELEMENT
-       if your HTML has one */
 
-    const loading =
-      $('#loading');
+/* =========================
+   UI ENHANCEMENTS
+   - header shadow on scroll
+   - active nav link
+   - scroll arrows on rows (desktop)
+========================= */
 
-    if (loading) {
-      loading.style.display = 'none';
+function setupRails() {
+  document.querySelectorAll('.rail').forEach((rail) => {
+    let wrap = rail.parentElement;
+
+    if (!wrap.classList.contains('rail-wrap')) {
+      wrap = document.createElement('div');
+      wrap.className = 'rail-wrap';
+      rail.parentNode.insertBefore(wrap, rail);
+      wrap.appendChild(rail);
     }
-console.log('MovieHub LOAD FINISHED');
 
-    /* Check if any request failed */
+    if (wrap.querySelector('.rail-arrow')) return;
 
-    const failed =
-      results.find(
-        (x) => x.status === 'rejected'
-      );
+    ['prev', 'next'].forEach((dir) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'rail-arrow ' + dir;
+      b.setAttribute('aria-label', dir === 'prev' ? 'Scroll left' : 'Scroll right');
+      b.textContent = dir === 'prev' ? '‹' : '›';
+      b.onclick = () => rail.scrollBy({
+        left: (dir === 'prev' ? -1 : 1) * rail.clientWidth * 0.85,
+        behavior: 'smooth'
+      });
+      wrap.appendChild(b);
+    });
+  });
+}
 
-    if (failed) {
-      console.warn(
-        'Some MovieHub API requests failed:',
-        failed.reason
-      );
-    }
+function enhanceUI() {
+  const top = document.querySelector('.top');
 
-  } catch (e) {
+  const onScroll = () => {
+    if (top) top.classList.toggle('scrolled', window.scrollY > 10);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
-    console.error(e);
+  /* active nav link */
+  const links = [...document.querySelectorAll('.nav a[href^="#"], .bottom-nav a[href^="#"]')];
 
-    toast(
-      'TMDB connection error: ' +
-      e.message
-    );
+  if ('IntersectionObserver' in window && links.length) {
+    const targets = new Map();
+
+    links.forEach((a) => {
+      const el = document.querySelector(a.getAttribute('href'));
+      if (el) targets.set(el, a.getAttribute('href'));
+    });
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const href = targets.get(entry.target);
+        links.forEach((a) =>
+          a.classList.toggle('active', a.getAttribute('href') === href));
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+
+    targets.forEach((_, el) => io.observe(el));
+  }
+
+  /* bottom-nav search button */
+  const bottomSearch = document.getElementById('bottomSearch');
+  if (bottomSearch) {
+    bottomSearch.addEventListener('click', () => {
+      const btn = document.getElementById('searchBtn');
+      if (btn) btn.click();
+    });
   }
 }
 
@@ -2617,8 +2515,9 @@ async function startMovieHub() {
     document.getElementById('movieLoader');
 
   try {
+    enhanceUI();
     await load();
-await loadGenres();
+    loadGenres().catch(console.warn);
     // Movies/hero/sections render hone ke baad
     // hi main animated loader hide hoga.
     if (movieLoader) {

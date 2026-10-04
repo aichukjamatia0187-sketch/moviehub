@@ -311,7 +311,8 @@
 </div>
 
 
-<script>
+<script src="categories.js"></script>
+  <script>
 
   /* =========================
      IMAGE BASE
@@ -523,9 +524,16 @@
   };
 
 
+  /* shared with the home page (categories.js) so both always match */
   const config =
+    (window.MH_BROWSE && window.MH_BROWSE[type]) ||
     configs[type] ||
     configs.trending;
+
+  const blockedTitles =
+    config.excludeTitle
+      ? new RegExp(config.excludeTitle, "i")
+      : null;
 
 
   /* =========================
@@ -780,7 +788,14 @@
       const titles =
         (data.results || [])
           .filter(
-            item => item.poster_path
+            item =>
+              item.poster_path &&
+              !(
+                blockedTitles &&
+                blockedTitles.test(
+                  item.title || item.name || ""
+                )
+              )
           );
 
 
