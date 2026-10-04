@@ -109,7 +109,6 @@
 
     /* =========================================================
        HERO
-       ONLY TRAILER / BACKDROP
     ========================================================= */
 
     .hero {
@@ -166,13 +165,23 @@
       display: block;
     }
 
+    #heroTrailerPlayer {
+      position: absolute;
+
+      inset: 0;
+
+      z-index: 1;
+
+      overflow: hidden;
+    }
+
     /*
       IMPORTANT:
-      The iframe always stays 16:9.
-      It is NOT stretched to portrait fullscreen.
+      Native YouTube controls are hidden.
+      MovieHub controls are used instead.
     */
 
-    .hero-trailer iframe {
+    #heroTrailerPlayer iframe {
       position: absolute;
 
       top: 50%;
@@ -186,85 +195,16 @@
       border: 0;
 
       display: block;
+
+      pointer-events: none;
     }
 
 
     /* =========================================================
-       HERO SOUND BUTTON
+       HERO CONTROLS
     ========================================================= */
 
-    .hero-sound-btn {
-      position: absolute;
-
-      right: 72px;
-      bottom: 18px;
-
-      z-index: 20;
-
-      width: 44px;
-      height: 44px;
-
-      border:
-        1px solid rgba(255,255,255,.24);
-
-      border-radius: 8px;
-
-      background:
-        rgba(0,0,0,.70);
-
-      color: #ffffff;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      cursor: pointer;
-
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-
-      transition:
-        background .2s ease,
-        transform .2s ease,
-        border-color .2s ease;
-    }
-
-    .hero-sound-btn:hover {
-      background:
-        rgba(255,255,255,.15);
-
-      border-color:
-        rgba(255,255,255,.38);
-
-      transform:
-        scale(1.05);
-    }
-
-    .hero-sound-btn:active {
-      transform:
-        scale(.93);
-    }
-
-    .hero-sound-btn svg {
-      width: 21px;
-      height: 21px;
-
-      fill: none;
-
-      stroke: currentColor;
-
-      stroke-width: 2;
-
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-
-    /* =========================================================
-       FULLSCREEN BUTTON
-    ========================================================= */
-
-    .hero-fullscreen-btn {
+    .hero-controls {
       position: absolute;
 
       right: 18px;
@@ -272,6 +212,14 @@
 
       z-index: 20;
 
+      display: flex;
+
+      align-items: center;
+
+      gap: 8px;
+    }
+
+    .hero-control-btn {
       width: 44px;
       height: 44px;
 
@@ -281,11 +229,12 @@
       border-radius: 8px;
 
       background:
-        rgba(0,0,0,.70);
+        rgba(0,0,0,.72);
 
       color: #ffffff;
 
       display: flex;
+
       align-items: center;
       justify-content: center;
 
@@ -300,23 +249,21 @@
         border-color .2s ease;
     }
 
-    .hero-fullscreen-btn:hover {
+    .hero-control-btn:hover {
       background:
         rgba(255,255,255,.15);
 
       border-color:
         rgba(255,255,255,.38);
 
-      transform:
-        scale(1.05);
+      transform: scale(1.05);
     }
 
-    .hero-fullscreen-btn:active {
-      transform:
-        scale(.93);
+    .hero-control-btn:active {
+      transform: scale(.93);
     }
 
-    .hero-fullscreen-btn svg {
+    .hero-control-btn svg {
       width: 21px;
       height: 21px;
 
@@ -352,11 +299,6 @@
       display: block !important;
     }
 
-    /*
-      Inner 16:9 area.
-      This prevents stretching on portrait phones.
-    */
-
     .hero-trailer.custom-fullscreen::before {
       content: "";
 
@@ -375,15 +317,15 @@
         calc(100vw * 9 / 16)
       );
 
-      transform:
-        translate(-50%, -50%);
+      transform: translate(-50%, -50%);
 
       background: #000;
 
       z-index: 0;
     }
 
-    .hero-trailer.custom-fullscreen iframe {
+    .hero-trailer.custom-fullscreen
+    #heroTrailerPlayer iframe {
       position: absolute;
 
       left: 50%;
@@ -402,23 +344,14 @@
       min-width: 0 !important;
       min-height: 0 !important;
 
-      transform:
-        translate(-50%, -50%);
+      transform: translate(-50%, -50%);
 
       z-index: 1;
     }
 
     .hero-trailer.custom-fullscreen
-    .hero-fullscreen-btn {
+    .hero-controls {
       right: 18px;
-      bottom: 18px;
-
-      z-index: 30;
-    }
-
-    .hero-trailer.custom-fullscreen
-    .hero-sound-btn {
-      right: 72px;
       bottom: 18px;
 
       z-index: 30;
@@ -426,7 +359,7 @@
 
 
     /* =========================================================
-       DETAILS AREA
+       DETAILS
     ========================================================= */
 
     .details-area {
@@ -626,8 +559,7 @@
     .my-rating-stars button:hover {
       color: #f5c451;
 
-      transform:
-        scale(1.08);
+      transform: scale(1.08);
     }
 
     .my-rating-stars button.active {
@@ -686,8 +618,7 @@
 
       min-height: 46px;
 
-      padding:
-        12px 18px;
+      padding: 12px 18px;
 
       background:
         rgba(23,25,32,.92);
@@ -721,8 +652,7 @@
 
     .watchlist-btn:active,
     .share-btn:active {
-      transform:
-        scale(.97);
+      transform: scale(.97);
     }
 
     .watchlist-btn.saved {
@@ -733,7 +663,8 @@
         rgba(255,255,255,.28);
     }
 
-    .watchlist-icon {
+    .watchlist-icon,
+    .share-icon {
       width: 18px;
       height: 18px;
 
@@ -753,22 +684,6 @@
       fill: currentColor;
 
       stroke: currentColor;
-    }
-
-    .share-icon {
-      width: 18px;
-      height: 18px;
-
-      fill: none;
-
-      stroke: currentColor;
-
-      stroke-width: 2;
-
-      stroke-linecap: round;
-      stroke-linejoin: round;
-
-      flex-shrink: 0;
     }
 
 
@@ -937,7 +852,7 @@
 
 
     /* =========================================================
-       PEOPLE ROW
+       PEOPLE
     ========================================================= */
 
     .people-row {
@@ -987,8 +902,7 @@
     }
 
     .person-card:hover .person-photo {
-      transform:
-        translateY(-3px);
+      transform: translateY(-3px);
 
       opacity: .92;
     }
@@ -1084,7 +998,7 @@
 
 
     /* =========================================================
-       TRAILERS
+       TRAILERS SECTION
     ========================================================= */
 
     .trailer-row {
@@ -1108,6 +1022,10 @@
       cursor: pointer;
     }
 
+    .trailer-thumb-wrap {
+      position: relative;
+    }
+
     .trailer-thumb {
       width: 300px;
       height: 169px;
@@ -1119,6 +1037,64 @@
       background: #151820;
 
       display: block;
+
+      transition:
+        transform .2s ease,
+        opacity .2s ease;
+    }
+
+    .trailer-card:hover .trailer-thumb {
+      transform: translateY(-2px);
+
+      opacity: .92;
+    }
+
+    .trailer-play-icon {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      transform:
+        translate(-50%, -50%);
+
+      width: 46px;
+      height: 46px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background:
+        rgba(0,0,0,.68);
+
+      border:
+        1px solid rgba(255,255,255,.25);
+
+      color: #ffffff;
+
+      pointer-events: none;
+    }
+
+    .trailer-play-icon::after {
+      content: "";
+
+      margin-left: 3px;
+
+      width: 0;
+      height: 0;
+
+      border-top:
+        7px solid transparent;
+
+      border-bottom:
+        7px solid transparent;
+
+      border-left:
+        10px solid #ffffff;
     }
 
     .trailer-title {
@@ -1149,6 +1125,8 @@
 
     /* =========================================================
        TRAILER POPUP
+       IMPORTANT:
+       NO NATIVE YOUTUBE CONTROLS
     ========================================================= */
 
     .player {
@@ -1179,40 +1157,88 @@
 
     .player-box {
       width:
-        min(1000px, 100%);
-
-      aspect-ratio: 16 / 9;
+        min(1100px, 100%);
 
       position: relative;
+
+      background: #000;
 
       border-radius: 12px;
 
       overflow: hidden;
 
-      background: #000;
-
       box-shadow:
         0 25px 80px rgba(0,0,0,.65),
         0 0 0 1px rgba(255,255,255,.08);
+
+      display: flex;
+
+      flex-direction: column;
     }
 
-    .player iframe {
+
+    /* =========================================================
+       VIDEO AREA
+    ========================================================= */
+
+    .player-video {
+      position: relative;
+
+      width: 100%;
+
+      aspect-ratio: 16 / 9;
+
+      background: #000;
+
+      overflow: hidden;
+    }
+
+    #playerFrame {
+      position: absolute;
+
+      inset: 0;
+
       width: 100%;
       height: 100%;
 
       border: 0;
 
-      border-radius: 8px;
+      pointer-events: none;
+    }
+
+
+    /* =========================================================
+       PLAYER TOP
+    ========================================================= */
+
+    .player-top {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+      right: 0;
+
+      z-index: 20;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: flex-end;
+
+      padding: 12px;
+
+      pointer-events: none;
+
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,.72),
+          rgba(0,0,0,0)
+        );
     }
 
     .close-player {
-      position: absolute;
-
-      right: 12px;
-      top: 12px;
-
-      z-index: 5;
-
       width: 42px;
       height: 42px;
 
@@ -1237,6 +1263,8 @@
 
       cursor: pointer;
 
+      pointer-events: auto;
+
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
 
@@ -1253,8 +1281,283 @@
       border-color:
         rgba(255,255,255,.35);
 
+      transform: scale(1.05);
+    }
+
+
+    /* =========================================================
+       PLAYER CONTROLS
+    ========================================================= */
+
+    .player-controls {
+      position: absolute;
+
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      z-index: 20;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: flex-end;
+
+      gap: 8px;
+
+      padding: 12px;
+
+      background:
+        linear-gradient(
+          to top,
+          rgba(0,0,0,.80),
+          rgba(0,0,0,0)
+        );
+    }
+
+    .player-control-btn {
+      width: 42px;
+      height: 42px;
+
+      border:
+        1px solid rgba(255,255,255,.18);
+
+      border-radius: 8px;
+
+      background:
+        rgba(0,0,0,.70);
+
+      color: #ffffff;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+
+      transition:
+        background .2s ease,
+        transform .2s ease,
+        border-color .2s ease;
+    }
+
+    .player-control-btn:hover {
+      background:
+        rgba(255,255,255,.14);
+
+      border-color:
+        rgba(255,255,255,.35);
+
+      transform: scale(1.04);
+    }
+
+    .player-control-btn:active {
+      transform: scale(.94);
+    }
+
+    .player-control-btn svg {
+      width: 20px;
+      height: 20px;
+
+      fill: none;
+
+      stroke: currentColor;
+
+      stroke-width: 2;
+
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+
+    /* =========================================================
+       CUSTOM MORE VIDEOS
+    ========================================================= */
+
+    .player-more {
+      background:
+        #08090d;
+
+      padding:
+        14px 14px 16px;
+
+      border-top:
+        1px solid rgba(255,255,255,.08);
+    }
+
+    .player-more-title {
+      color: #ffffff;
+
+      font-size: 14px;
+
+      font-weight: 800;
+
+      margin-bottom: 10px;
+    }
+
+    .player-more-row {
+      display: flex;
+
+      gap: 10px;
+
+      overflow-x: auto;
+
+      scrollbar-width: none;
+    }
+
+    .player-more-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .player-more-card {
+      position: relative;
+
+      flex:
+        0 0 150px;
+
+      width: 150px;
+
+      cursor: pointer;
+
+      border-radius: 7px;
+
+      overflow: hidden;
+
+      background: #151820;
+
+      border:
+        1px solid transparent;
+
+      transition:
+        border-color .2s ease,
+        transform .2s ease;
+    }
+
+    .player-more-card:hover {
+      transform: translateY(-2px);
+
+      border-color:
+        rgba(255,255,255,.28);
+    }
+
+    .player-more-card.active {
+      border-color:
+        rgba(255,255,255,.75);
+    }
+
+    .player-more-thumb {
+      width: 150px;
+      height: 84px;
+
+      object-fit: cover;
+
+      display: block;
+
+      background: #151820;
+    }
+
+    .player-more-name {
+      padding:
+        7px 8px 9px;
+
+      color: #d9dce4;
+
+      font-size: 11px;
+
+      line-height: 1.25;
+
+      white-space: nowrap;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
+    }
+
+    .player-more-play {
+      position: absolute;
+
+      left: 50%;
+      top: 42px;
+
       transform:
-        scale(1.05);
+        translate(-50%, -50%);
+
+      width: 34px;
+      height: 34px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(0,0,0,.70);
+
+      border:
+        1px solid rgba(255,255,255,.22);
+
+      pointer-events: none;
+    }
+
+    .player-more-play::after {
+      content: "";
+
+      position: absolute;
+
+      left: 13px;
+      top: 10px;
+
+      width: 0;
+      height: 0;
+
+      border-top:
+        7px solid transparent;
+
+      border-bottom:
+        7px solid transparent;
+
+      border-left:
+        10px solid #ffffff;
+    }
+
+
+    /* =========================================================
+       POPUP CUSTOM FULLSCREEN
+    ========================================================= */
+
+    .player.custom-player-fullscreen {
+      padding: 0;
+
+      background: #000;
+    }
+
+    .player.custom-player-fullscreen
+    .player-box {
+      width: 100vw;
+
+      max-width: none;
+
+      height: 100dvh;
+
+      border-radius: 0;
+
+      box-shadow: none;
+    }
+
+    .player.custom-player-fullscreen
+    .player-video {
+      flex: 1;
+
+      aspect-ratio: auto;
+
+      min-height: 0;
+    }
+
+    .player.custom-player-fullscreen
+    .player-more {
+      max-height: 190px;
     }
 
 
@@ -1284,28 +1587,19 @@
         max-height: none;
       }
 
-      .hero-fullscreen-btn {
+      .hero-controls {
         right: 12px;
         bottom: 12px;
 
+        gap: 6px;
+      }
+
+      .hero-control-btn {
         width: 40px;
         height: 40px;
       }
 
-      .hero-fullscreen-btn svg {
-        width: 19px;
-        height: 19px;
-      }
-
-      .hero-sound-btn {
-        right: 60px;
-        bottom: 12px;
-
-        width: 40px;
-        height: 40px;
-      }
-
-      .hero-sound-btn svg {
+      .hero-control-btn svg {
         width: 19px;
         height: 19px;
       }
@@ -1395,6 +1689,29 @@
         height: 152px;
       }
 
+      .player {
+        padding: 10px;
+      }
+
+      .player-box {
+        width: 100%;
+      }
+
+      .player-more-card {
+        flex-basis: 135px;
+
+        width: 135px;
+      }
+
+      .player-more-thumb {
+        width: 135px;
+        height: 76px;
+      }
+
+      .player-more-play {
+        top: 38px;
+      }
+
     }
 
 
@@ -1404,7 +1721,8 @@
 
     @media (orientation: landscape) and (max-height: 600px) {
 
-      .hero-trailer.custom-fullscreen iframe {
+      .hero-trailer.custom-fullscreen
+      #heroTrailerPlayer iframe {
         width: 100vw !important;
         height: 100vh !important;
       }
@@ -1437,20 +1755,119 @@
 
   <div class="player-box">
 
-    <button
-      class="close-player"
-      onclick="closeTrailer()"
-      aria-label="Close trailer">
+    <div class="player-video">
 
-      ×
+      <div
+        class="player-top">
 
-    </button>
+        <button
+          class="close-player"
+          onclick="closeTrailer()"
+          aria-label="Close trailer">
 
-    <iframe
-      id="playerFrame"
-      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-      allowfullscreen>
-    </iframe>
+          ×
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="playerFrame">
+      </div>
+
+
+      <div
+        class="player-controls">
+
+
+        <!-- SOUND -->
+
+        <button
+          id="playerSoundButton"
+          class="player-control-btn"
+          type="button"
+          onclick="togglePlayerSound()"
+          aria-label="Turn sound on">
+
+          <svg
+            id="playerSoundIcon"
+            viewBox="0 0 24 24"
+            aria-hidden="true">
+
+            <path
+              d="M11 5 6 9H3v6h3l5 4V5Z">
+            </path>
+
+            <path
+              d="M15 9.5a4 4 0 0 1 0 5">
+            </path>
+
+            <path
+              d="M18 7a7.5 7.5 0 0 1 0 10">
+            </path>
+
+          </svg>
+
+        </button>
+
+
+        <!-- FULLSCREEN -->
+
+        <button
+          class="player-control-btn"
+          type="button"
+          onclick="openPlayerFullscreen()"
+          aria-label="Fullscreen">
+
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true">
+
+            <path d="M8 3H3v5"></path>
+
+            <path d="M3 3l6 6"></path>
+
+            <path d="M16 3h5v5"></path>
+
+            <path d="M21 3l-6 6"></path>
+
+            <path d="M8 21H3v-5"></path>
+
+            <path d="M3 21l6-6"></path>
+
+            <path d="M16 21h5v-5"></path>
+
+            <path d="M21 21l-6-6"></path>
+
+          </svg>
+
+        </button>
+
+
+      </div>
+
+    </div>
+
+
+    <!-- =======================================================
+         MOVIEHUB CUSTOM MORE VIDEOS
+    ======================================================== -->
+
+    <div
+      id="playerMore"
+      class="player-more">
+
+      <div class="player-more-title">
+        More videos
+      </div>
+
+      <div
+        id="playerMoreRow"
+        class="player-more-row">
+      </div>
+
+    </div>
 
   </div>
 
@@ -1469,7 +1886,13 @@
 
 let heroTrailerPlayer = null;
 
+let popupTrailerPlayer = null;
+
 let pendingHeroTrailerId = null;
+
+let currentPopupTrailerId = null;
+
+let currentTrailerVideos = [];
 
 
 /* =========================================================
@@ -1553,7 +1976,12 @@ function createHeroTrailerPlayer(videoId) {
 
           playlist: videoId,
 
-          fs: 1
+          fs: 0,
+
+          enablejsapi: 1,
+
+          origin:
+            window.location.origin
 
         },
 
@@ -1564,21 +1992,11 @@ function createHeroTrailerPlayer(videoId) {
 
             try {
 
-              /*
-                Trailer starts muted so
-                autoplay can work.
-              */
-
               event.target.mute();
 
               event.target.playVideo();
 
             } catch (_) {}
-
-
-            updateHeroSoundButton(
-              true
-            );
 
 
             const iframe =
@@ -1637,28 +2055,21 @@ function onYouTubeIframeAPIReady() {
 
 
 /* =========================================================
-   HERO SOUND ON / OFF
+   HERO SOUND
 ========================================================= */
 
-function toggleHeroSound(event) {
-
-  if (event) {
-
-    event.stopPropagation();
-
-  }
-
+function toggleHeroSound() {
 
   if (!heroTrailerPlayer) {
-
     return;
-
   }
 
 
   try {
 
     if (
+      typeof heroTrailerPlayer.isMuted ===
+        "function" &&
       heroTrailerPlayer.isMuted()
     ) {
 
@@ -1668,7 +2079,7 @@ function toggleHeroSound(event) {
         100
       );
 
-      updateHeroSoundButton(
+      updateHeroSoundIcon(
         false
       );
 
@@ -1676,7 +2087,7 @@ function toggleHeroSound(event) {
 
       heroTrailerPlayer.mute();
 
-      updateHeroSoundButton(
+      updateHeroSoundIcon(
         true
       );
 
@@ -1687,14 +2098,9 @@ function toggleHeroSound(event) {
 }
 
 
-function updateHeroSoundButton(
-  isMuted
+function updateHeroSoundIcon(
+  muted
 ) {
-
-  const button =
-    document.getElementById(
-      "heroSoundButton"
-    );
 
   const icon =
     document.getElementById(
@@ -1702,26 +2108,10 @@ function updateHeroSoundButton(
     );
 
 
-  if (!button || !icon) {
-
-    return;
-
-  }
+  if (!icon) return;
 
 
-  if (isMuted) {
-
-    button.setAttribute(
-      "aria-label",
-      "Turn sound on"
-    );
-
-
-    button.setAttribute(
-      "title",
-      "Sound off — tap to turn on"
-    );
-
+  if (muted) {
 
     icon.innerHTML = `
 
@@ -1741,18 +2131,6 @@ function updateHeroSoundButton(
 
   } else {
 
-    button.setAttribute(
-      "aria-label",
-      "Turn sound off"
-    );
-
-
-    button.setAttribute(
-      "title",
-      "Sound on — tap to turn off"
-    );
-
-
     icon.innerHTML = `
 
       <path
@@ -1760,11 +2138,11 @@ function updateHeroSoundButton(
       </path>
 
       <path
-        d="M15.5 8.5a5 5 0 0 1 0 7">
+        d="M15 9.5a4 4 0 0 1 0 5">
       </path>
 
       <path
-        d="M18.5 5.5a9 9 0 0 1 0 13">
+        d="M18 7a7.5 7.5 0 0 1 0 10">
       </path>
 
     `;
@@ -1775,7 +2153,7 @@ function updateHeroSoundButton(
 
 
 /* =========================================================
-   FULLSCREEN
+   HERO FULLSCREEN
 ========================================================= */
 
 async function openHeroFullscreen() {
@@ -1787,11 +2165,6 @@ async function openHeroFullscreen() {
 
   if (!trailerBox) return;
 
-
-  /*
-    If already fullscreen:
-    exit fullscreen.
-  */
 
   if (
     document.fullscreenElement
@@ -1808,10 +2181,6 @@ async function openHeroFullscreen() {
   }
 
 
-  /*
-    Native fullscreen first.
-  */
-
   if (
     document.fullscreenEnabled &&
     typeof trailerBox.requestFullscreen ===
@@ -1824,11 +2193,6 @@ async function openHeroFullscreen() {
         navigationUI: "hide"
       });
 
-
-      /*
-        Ask the browser to rotate
-        to landscape when supported.
-      */
 
       if (
         screen.orientation &&
@@ -1846,6 +2210,7 @@ async function openHeroFullscreen() {
 
       }
 
+
       document.body.style.overflow =
         "hidden";
 
@@ -1862,10 +2227,6 @@ async function openHeroFullscreen() {
 
   }
 
-
-  /*
-    CSS fullscreen fallback.
-  */
 
   trailerBox.classList.add(
     "custom-fullscreen"
@@ -1941,7 +2302,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   ESCAPE KEY
+   ESCAPE
 ========================================================= */
 
 document.addEventListener(
@@ -1949,31 +2310,32 @@ document.addEventListener(
   function(event) {
 
     if (
-      event.key === "Escape" &&
+      event.key !== "Escape"
+    ) {
+      return;
+    }
+
+
+    const trailerBox =
+      document.getElementById(
+        "heroTrailer"
+      );
+
+
+    if (
+      trailerBox &&
+      trailerBox.classList.contains(
+        "custom-fullscreen"
+      ) &&
       !document.fullscreenElement
     ) {
 
-      const trailerBox =
-        document.getElementById(
-          "heroTrailer"
-        );
+      trailerBox.classList.remove(
+        "custom-fullscreen"
+      );
 
-
-      if (
-        trailerBox &&
-        trailerBox.classList.contains(
-          "custom-fullscreen"
-        )
-      ) {
-
-        trailerBox.classList.remove(
-          "custom-fullscreen"
-        );
-
-        document.body.style.overflow =
-          "";
-
-      }
+      document.body.style.overflow =
+        "";
 
     }
 
@@ -2417,7 +2779,7 @@ function renderCast(cast) {
 
 
 /* =========================================================
-   PERSON PAGE
+   PERSON
 ========================================================= */
 
 function openPerson(personId) {
@@ -2493,8 +2855,6 @@ function getDirectors(crew) {
 
 /* =========================================================
    WRITERS
-   Director IDs are excluded so the same person
-   doesn't appear twice.
 ========================================================= */
 
 function getWriters(
@@ -2555,11 +2915,6 @@ function getWriters(
     }
 
 
-    /*
-      Do not duplicate the director
-      inside Writers.
-    */
-
     if (
       directorSet.has(
         String(person.id)
@@ -2591,7 +2946,7 @@ function getWriters(
 
 
 /* =========================================================
-   DIRECTOR / WRITER CARD
+   CREW CARD
 ========================================================= */
 
 function renderCrew(
@@ -2791,10 +3146,11 @@ function renderTrailers(videos) {
 
       .filter(
         v =>
-          v.site === "YouTube"
+          v.site === "YouTube" &&
+          v.key
       )
 
-      .slice(0, 8);
+      .slice(0, 12);
 
 
   if (!list.length) {
@@ -2816,17 +3172,26 @@ function renderTrailers(videos) {
 
         <div
           class="trailer-card"
-          onclick="playTrailer(
-            '${esc(video.key)}'
-          )">
+          onclick="playTrailer('${esc(video.key)}')">
 
-          <img
-            class="trailer-thumb"
-            src="https://img.youtube.com/vi/${encodeURIComponent(
-              video.key
-            )}/hqdefault.jpg"
-            alt="${esc(video.name)}"
-            loading="lazy">
+          <div
+            class="trailer-thumb-wrap">
+
+            <img
+              class="trailer-thumb"
+              src="https://img.youtube.com/vi/${encodeURIComponent(
+                video.key
+              )}/hqdefault.jpg"
+              alt="${esc(video.name)}"
+              loading="lazy">
+
+
+            <div
+              class="trailer-play-icon">
+            </div>
+
+          </div>
+
 
           <div class="trailer-title">
             ${esc(video.name)}
@@ -3004,13 +3369,1190 @@ function renderProviders(providers) {
 
 
 /* =========================================================
+   PLAYER MORE VIDEOS
+========================================================= */
+
+function renderPlayerMoreVideos(
+  videos,
+  activeKey
+) {
+
+  const row =
+    document.getElementById(
+      "playerMoreRow"
+    );
+
+
+  if (!row) return;
+
+
+  const list =
+    (videos || [])
+
+      .filter(
+        video =>
+          video &&
+          video.site === "YouTube" &&
+          video.key
+      )
+
+      .slice(0, 12);
+
+
+  if (!list.length) {
+
+    row.innerHTML = "";
+
+    return;
+
+  }
+
+
+  row.innerHTML =
+    list.map(video => {
+
+      const active =
+        String(video.key) ===
+        String(activeKey);
+
+
+      return `
+
+        <div
+          class="
+            player-more-card
+            ${active ? "active" : ""}
+          "
+          onclick="playTrailer('${esc(video.key)}')"
+          role="button"
+          tabindex="0">
+
+          <img
+            class="player-more-thumb"
+            src="https://img.youtube.com/vi/${encodeURIComponent(
+              video.key
+            )}/hqdefault.jpg"
+            alt="${esc(video.name)}"
+            loading="lazy">
+
+
+          <div
+            class="player-more-play">
+          </div>
+
+
+          <div
+            class="player-more-name">
+
+            ${esc(
+              video.name ||
+              "Trailer"
+            )}
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   POPUP PLAYER
+========================================================= */
+
+function createPopupTrailerPlayer(
+  videoId
+) {
+
+  if (!videoId) return;
+
+
+  const container =
+    document.getElementById(
+      "playerFrame"
+    );
+
+
+  if (!container) return;
+
+
+  if (popupTrailerPlayer) {
+
+    try {
+
+      popupTrailerPlayer.destroy();
+
+    } catch (_) {}
+
+    popupTrailerPlayer = null;
+
+  }
+
+
+  container.innerHTML = "";
+
+
+  popupTrailerPlayer =
+    new YT.Player(
+      "playerFrame",
+      {
+
+        videoId: videoId,
+
+        playerVars: {
+
+          autoplay: 1,
+
+          controls: 0,
+
+          rel: 0,
+
+          playsinline: 1,
+
+          fs: 0,
+
+          modestbranding: 1,
+
+          enablejsapi: 1,
+
+          origin:
+            window.location.origin
+
+        },
+
+
+        events: {
+
+          onReady:
+            function(event) {
+
+              try {
+
+                /*
+                  Start muted.
+                  User can turn sound ON
+                  with MovieHub button.
+                */
+
+                event.target.mute();
+
+                event.target.setVolume(
+                  100
+                );
+
+                event.target.playVideo();
+
+              } catch (_) {}
+
+
+              const iframe =
+                event.target.getIframe();
+
+
+              if (iframe) {
+
+                iframe.setAttribute(
+                  "allow",
+                  "autoplay; encrypted-media; picture-in-picture; fullscreen"
+                );
+
+                iframe.setAttribute(
+                  "allowfullscreen",
+                  ""
+                );
+
+                iframe.setAttribute(
+                  "playsinline",
+                  "1"
+                );
+
+              }
+
+
+              updatePlayerSoundButton(
+                true
+              );
+
+            },
+
+
+          onError:
+            function(error) {
+
+              console.error(
+                "Trailer player error:",
+                error
+              );
+
+            }
+
+        }
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   PLAY TRAILER
+   IMPORTANT:
+   DOES NOT REDIRECT TO YOUTUBE
+========================================================= */
+
+function playTrailer(key) {
+
+  if (!key) return;
+
+
+  currentPopupTrailerId =
+    String(key);
+
+
+  const player =
+    document.getElementById(
+      "player"
+    );
+
+
+  if (!player) return;
+
+
+  player.classList.add(
+    "active"
+  );
+
+
+  document.body.style.overflow =
+    "hidden";
+
+
+  renderPlayerMoreVideos(
+    currentTrailerVideos,
+    key
+  );
+
+
+  if (
+    typeof YT !== "undefined" &&
+    YT.Player
+  ) {
+
+    createPopupTrailerPlayer(
+      key
+    );
+
+    return;
+
+  }
+
+
+  /*
+    If API hasn't loaded yet,
+    wait for it.
+  */
+
+  setTimeout(
+    function() {
+
+      if (
+        typeof YT !== "undefined" &&
+        YT.Player
+      ) {
+
+        createPopupTrailerPlayer(
+          key
+        );
+
+      }
+
+    },
+    300
+  );
+
+}
+
+
+/* =========================================================
+   CLOSE TRAILER
+========================================================= */
+
+function closeTrailer() {
+
+  const player =
+    document.getElementById(
+      "player"
+    );
+
+
+  if (!player) return;
+
+
+  if (popupTrailerPlayer) {
+
+    try {
+
+      popupTrailerPlayer.stopVideo();
+
+      popupTrailerPlayer.destroy();
+
+    } catch (_) {}
+
+    popupTrailerPlayer = null;
+
+  }
+
+
+  const container =
+    document.getElementById(
+      "playerFrame"
+    );
+
+
+  if (container) {
+
+    container.innerHTML = "";
+
+  }
+
+
+  player.classList.remove(
+    "active"
+  );
+
+  player.classList.remove(
+    "custom-player-fullscreen"
+  );
+
+
+  document.body.style.overflow =
+    "";
+
+}
+
+
+/* =========================================================
+   PLAYER SOUND
+========================================================= */
+
+function togglePlayerSound() {
+
+  if (!popupTrailerPlayer) {
+    return;
+  }
+
+
+  try {
+
+    if (
+      typeof popupTrailerPlayer.isMuted ===
+        "function" &&
+      popupTrailerPlayer.isMuted()
+    ) {
+
+      popupTrailerPlayer.unMute();
+
+      popupTrailerPlayer.setVolume(
+        100
+      );
+
+      updatePlayerSoundButton(
+        false
+      );
+
+    } else {
+
+      popupTrailerPlayer.mute();
+
+      updatePlayerSoundButton(
+        true
+      );
+
+    }
+
+  } catch (_) {}
+
+}
+
+
+function updatePlayerSoundButton(
+  muted
+) {
+
+  const icon =
+    document.getElementById(
+      "playerSoundIcon"
+    );
+
+
+  const button =
+    document.getElementById(
+      "playerSoundButton"
+    );
+
+
+  if (!icon) return;
+
+
+  if (muted) {
+
+    icon.innerHTML = `
+
+      <path
+        d="M11 5 6 9H3v6h3l5 4V5Z">
+      </path>
+
+      <path
+        d="m17 9 4 6">
+      </path>
+
+      <path
+        d="m21 9-4 6">
+      </path>
+
+    `;
+
+
+    if (button) {
+
+      button.setAttribute(
+        "aria-label",
+        "Turn sound on"
+      );
+
+    }
+
+  } else {
+
+    icon.innerHTML = `
+
+      <path
+        d="M11 5 6 9H3v6h3l5 4V5Z">
+      </path>
+
+      <path
+        d="M15 9.5a4 4 0 0 1 0 5">
+      </path>
+
+      <path
+        d="M18 7a7.5 7.5 0 0 1 0 10">
+      </path>
+
+    `;
+
+
+    if (button) {
+
+      button.setAttribute(
+        "aria-label",
+        "Turn sound off"
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   PLAYER FULLSCREEN
+========================================================= */
+
+async function openPlayerFullscreen() {
+
+  const player =
+    document.getElementById(
+      "player"
+    );
+
+
+  const box =
+    player?.querySelector(
+      ".player-box"
+    );
+
+
+  if (!player || !box) {
+    return;
+  }
+
+
+  if (
+    document.fullscreenElement
+  ) {
+
+    try {
+
+      await document.exitFullscreen();
+
+    } catch (_) {}
+
+    return;
+
+  }
+
+
+  if (
+    document.fullscreenEnabled &&
+    typeof box.requestFullscreen ===
+      "function"
+  ) {
+
+    try {
+
+      await box.requestFullscreen({
+        navigationUI: "hide"
+      });
+
+
+      if (
+        screen.orientation &&
+        typeof screen.orientation.lock ===
+          "function"
+      ) {
+
+        try {
+
+          await screen.orientation.lock(
+            "landscape"
+          );
+
+        } catch (_) {}
+
+      }
+
+
+      return;
+
+    } catch (_) {}
+
+  }
+
+
+  player.classList.add(
+    "custom-player-fullscreen"
+  );
+
+
+  if (
+    screen.orientation &&
+    typeof screen.orientation.lock ===
+      "function"
+  ) {
+
+    try {
+
+      await screen.orientation.lock(
+        "landscape"
+      );
+
+    } catch (_) {}
+
+  }
+
+}
+
+
+/* =========================================================
+   POPUP FULLSCREEN CHANGE
+========================================================= */
+
+document.addEventListener(
+  "fullscreenchange",
+  function() {
+
+    const player =
+      document.getElementById(
+        "player"
+      );
+
+
+    if (!player) return;
+
+
+    if (
+      !document.fullscreenElement
+    ) {
+
+      player.classList.remove(
+        "custom-player-fullscreen"
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   POPUP ESCAPE
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key !== "Escape"
+    ) {
+      return;
+    }
+
+
+    const player =
+      document.getElementById(
+        "player"
+      );
+
+
+    if (
+      player &&
+      player.classList.contains(
+        "active"
+      )
+    ) {
+
+      if (
+        document.fullscreenElement
+      ) {
+
+        try {
+
+          document.exitFullscreen();
+
+        } catch (_) {}
+
+        return;
+
+      }
+
+
+      closeTrailer();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   CLICK OUTSIDE PLAYER
+========================================================= */
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+    const player =
+      document.getElementById(
+        "player"
+      );
+
+
+    if (
+      !player ||
+      !player.classList.contains(
+        "active"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      event.target === player
+    ) {
+
+      closeTrailer();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   WATCHLIST
+========================================================= */
+
+function getWatchlist() {
+
+  try {
+
+    return JSON.parse(
+      localStorage.getItem(
+        "moviehub_watchlist"
+      ) || "[]"
+    );
+
+  } catch (_) {
+
+    return [];
+
+  }
+
+}
+
+
+function saveWatchlist(list) {
+
+  localStorage.setItem(
+    "moviehub_watchlist",
+    JSON.stringify(list)
+  );
+
+}
+
+
+function updateWatchlistButton() {
+
+  const button =
+    document.getElementById(
+      "watchlistButton"
+    );
+
+
+  if (!button) return;
+
+
+  const text =
+    button.querySelector(
+      ".watchlist-text"
+    );
+
+
+  const watchlist =
+    getWatchlist();
+
+
+  const saved =
+    watchlist.some(
+      item =>
+        String(item.id) ===
+          String(id) &&
+        item.type === type
+    );
+
+
+  if (saved) {
+
+    button.classList.add(
+      "saved"
+    );
+
+
+    button.setAttribute(
+      "aria-label",
+      "Remove from Watchlist"
+    );
+
+
+  } else {
+
+    button.classList.remove(
+      "saved"
+    );
+
+
+    button.setAttribute(
+      "aria-label",
+      "Add to Watchlist"
+    );
+
+  }
+
+
+  if (text) {
+
+    text.textContent =
+      "MY LIST";
+
+  }
+
+}
+
+
+function toggleWatchlist() {
+
+  const button =
+    document.getElementById(
+      "watchlistButton"
+    );
+
+
+  if (
+    !button ||
+    !id
+  ) {
+    return;
+  }
+
+
+  const list =
+    getWatchlist();
+
+
+  const existingIndex =
+    list.findIndex(
+      item =>
+        String(item.id) ===
+          String(id) &&
+        item.type === type
+    );
+
+
+  if (
+    existingIndex >= 0
+  ) {
+
+    list.splice(
+      existingIndex,
+      1
+    );
+
+
+    saveWatchlist(list);
+
+    updateWatchlistButton();
+
+    return;
+
+  }
+
+
+  const title =
+    document.querySelector(
+      "h1"
+    )?.textContent.trim() ||
+    "Untitled";
+
+
+  const posterElement =
+    document.querySelector(
+      ".poster"
+    );
+
+
+  const item = {
+
+    id: String(id),
+
+    type: type,
+
+    title: title,
+
+    poster:
+      posterElement?.getAttribute(
+        "src"
+      ) || "",
+
+    addedAt:
+      Date.now()
+
+  };
+
+
+  list.unshift(item);
+
+
+  saveWatchlist(list);
+
+
+  updateWatchlistButton();
+
+}
+
+
+/* =========================================================
+   SHARE
+========================================================= */
+
+async function shareMovie() {
+
+  const title =
+    document.querySelector(
+      "h1"
+    )?.textContent.trim() ||
+    "Movie";
+
+
+  const shareUrl =
+    window.location.href;
+
+
+  const shareData = {
+
+    title:
+      `${title} — MovieHub`,
+
+    text:
+      `Check out ${title} on MovieHub.`,
+
+    url:
+      shareUrl
+
+  };
+
+
+  try {
+
+    if (
+
+      typeof navigator.share ===
+        "function" &&
+
+      (
+        !navigator.canShare ||
+        navigator.canShare(
+          shareData
+        )
+      )
+
+    ) {
+
+      await navigator.share(
+        shareData
+      );
+
+      return;
+
+    }
+
+
+    if (
+
+      navigator.clipboard &&
+
+      typeof navigator.clipboard.writeText ===
+        "function"
+
+    ) {
+
+      await navigator.clipboard.writeText(
+        shareUrl
+      );
+
+
+      alert(
+        "Movie link copied!"
+      );
+
+
+      return;
+
+    }
+
+
+    alert(
+      "Unable to share. Please copy the page URL manually."
+    );
+
+
+  } catch (error) {
+
+    if (
+      error?.name ===
+      "AbortError"
+    ) {
+
+      return;
+
+    }
+
+
+    try {
+
+      if (
+
+        navigator.clipboard &&
+
+        typeof navigator.clipboard.writeText ===
+          "function"
+
+      ) {
+
+        await navigator.clipboard.writeText(
+          shareUrl
+        );
+
+
+        alert(
+          "Movie link copied!"
+        );
+
+      }
+
+    } catch (_) {}
+
+  }
+
+}
+
+
+/* =========================================================
+   OPEN MOVIE
+========================================================= */
+
+function openMovie(
+  movieId,
+  movieType
+) {
+
+  location.href =
+    `/movie.html?id=${encodeURIComponent(
+      movieId
+    )}&type=${encodeURIComponent(
+      movieType
+    )}`;
+
+}
+
+
+/* =========================================================
+   BACK
+========================================================= */
+
+function goBack() {
+
+  if (
+    document.referrer &&
+    document.referrer.startsWith(
+      location.origin
+    )
+  ) {
+
+    history.back();
+
+    return;
+
+  }
+
+
+  location.href = "/";
+
+}
+
+
+/* =========================================================
+   MY RATING
+========================================================= */
+
+function setupMyRating() {
+
+  const stars =
+    document.querySelectorAll(
+      "#myRatingStars button"
+    );
+
+
+  const value =
+    document.getElementById(
+      "myRatingValue"
+    );
+
+
+  if (
+    !stars.length ||
+    !value ||
+    !id
+  ) {
+    return;
+  }
+
+
+  const storageKey =
+    `moviehub_rating_${type}_${id}`;
+
+
+  const savedRating =
+    Number(
+      localStorage.getItem(
+        storageKey
+      ) || 0
+    );
+
+
+  function applyRating(
+    rating
+  ) {
+
+    stars.forEach(
+      star => {
+
+        const starRating =
+          Number(
+            star.dataset.rating
+          );
+
+
+        star.classList.toggle(
+          "active",
+          starRating <= rating
+        );
+
+      }
+    );
+
+
+    value.textContent =
+      rating
+        ? `${rating} / 5`
+        : "Rate this title";
+
+  }
+
+
+  applyRating(
+    savedRating
+  );
+
+
+  stars.forEach(
+    star => {
+
+      star.addEventListener(
+        "click",
+        () => {
+
+          const rating =
+            Number(
+              star.dataset.rating
+            );
+
+
+          localStorage.setItem(
+            storageKey,
+            String(rating)
+          );
+
+
+          applyRating(
+            rating
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
    RENDER PAGE
 ========================================================= */
 
 async function render() {
 
   try {
-
 
     const [
       {
@@ -3055,6 +4597,24 @@ async function render() {
       getTrailer(
         details.videos
       );
+
+
+    /*
+      Save all YouTube videos
+      for MovieHub custom More videos.
+    */
+
+    currentTrailerVideos =
+      (details.videos?.results || [])
+
+        .filter(
+          video =>
+            video &&
+            video.site === "YouTube" &&
+            video.key
+        )
+
+        .slice(0, 12);
 
 
     document.title =
@@ -3149,9 +4709,7 @@ async function render() {
         </div>
 
 
-        <!-- =================================================
-             CLEAN HERO
-        ================================================= -->
+        <!-- HERO -->
 
         <section
           class="hero">
@@ -3184,86 +4742,75 @@ async function render() {
 
                 ? `
 
-                  <!-- SOUND BUTTON -->
-
-                  <button
-                    id="heroSoundButton"
-                    class="hero-sound-btn"
-                    type="button"
-                    onclick="toggleHeroSound(event)"
-                    aria-label="Turn sound on"
-                    title="Sound off — tap to turn on">
-
-                    <svg
-                      id="heroSoundIcon"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true">
-
-                      <path
-                        d="M11 5 6 9H3v6h3l5 4V5Z">
-                      </path>
-
-                      <path
-                        d="m17 9 4 6">
-                      </path>
-
-                      <path
-                        d="m21 9-4 6">
-                      </path>
-
-                    </svg>
-
-                  </button>
+                  <div
+                    class="hero-controls">
 
 
-                  <!-- FULLSCREEN BUTTON -->
+                    <!-- HERO SOUND -->
 
-                  <button
-                    class="hero-fullscreen-btn"
-                    type="button"
-                    onclick="openHeroFullscreen()"
-                    aria-label="Fullscreen trailer"
-                    title="Fullscreen">
+                    <button
+                      id="heroSoundButton"
+                      class="hero-control-btn"
+                      type="button"
+                      onclick="toggleHeroSound()"
+                      aria-label="Turn sound on">
 
-                    <svg
-                      viewBox="0 0 24 24"
-                      aria-hidden="true">
+                      <svg
+                        id="heroSoundIcon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
 
-                      <path
-                        d="M8 3H3v5">
-                      </path>
+                        <path
+                          d="M11 5 6 9H3v6h3l5 4V5Z">
+                        </path>
 
-                      <path
-                        d="M3 3l6 6">
-                      </path>
+                        <path
+                          d="m17 9 4 6">
+                        </path>
 
-                      <path
-                        d="M16 3h5v5">
-                      </path>
+                        <path
+                          d="m21 9-4 6">
+                        </path>
 
-                      <path
-                        d="M21 3l-6 6">
-                      </path>
+                      </svg>
 
-                      <path
-                        d="M8 21H3v-5">
-                      </path>
+                    </button>
 
-                      <path
-                        d="M3 21l6-6">
-                      </path>
 
-                      <path
-                        d="M16 21h5v-5">
-                      </path>
+                    <!-- HERO FULLSCREEN -->
 
-                      <path
-                        d="M21 21l-6-6">
-                      </path>
+                    <button
+                      class="hero-control-btn"
+                      type="button"
+                      onclick="openHeroFullscreen()"
+                      aria-label="Fullscreen trailer">
 
-                    </svg>
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
 
-                  </button>
+                        <path d="M8 3H3v5"></path>
+
+                        <path d="M3 3l6 6"></path>
+
+                        <path d="M16 3h5v5"></path>
+
+                        <path d="M21 3l-6 6"></path>
+
+                        <path d="M8 21H3v-5"></path>
+
+                        <path d="M3 21l6-6"></path>
+
+                        <path d="M16 21h5v-5"></path>
+
+                        <path d="M21 21l-6-6"></path>
+
+                      </svg>
+
+                    </button>
+
+
+                  </div>
 
                 `
 
@@ -3277,9 +4824,7 @@ async function render() {
         </section>
 
 
-        <!-- =================================================
-             ALL TITLE INFORMATION BELOW HERO
-        ================================================= -->
+        <!-- DETAILS -->
 
         <section
           class="details-area">
@@ -3321,13 +4866,9 @@ async function render() {
 
 
               <h1>
-
                 ${esc(title)}
-
               </h1>
 
-
-              <!-- FACTS -->
 
               <div
                 class="facts">
@@ -3385,8 +4926,6 @@ async function render() {
               </div>
 
 
-              <!-- RELEASE DATE -->
-
               ${
                 date
 
@@ -3440,41 +4979,31 @@ async function render() {
                   <button
                     type="button"
                     data-rating="1">
-
                     ★
-
                   </button>
 
                   <button
                     type="button"
                     data-rating="2">
-
                     ★
-
                   </button>
 
                   <button
                     type="button"
                     data-rating="3">
-
                     ★
-
                   </button>
 
                   <button
                     type="button"
                     data-rating="4">
-
                     ★
-
                   </button>
 
                   <button
                     type="button"
                     data-rating="5">
-
                     ★
-
                   </button>
 
                 </div>
@@ -3503,7 +5032,6 @@ async function render() {
                   onclick="toggleWatchlist()"
                   aria-label="Add to Watchlist">
 
-
                   <svg
                     class="watchlist-icon"
                     viewBox="0 0 24 24"
@@ -3523,7 +5051,6 @@ async function render() {
 
                   </span>
 
-
                 </button>
 
 
@@ -3531,7 +5058,6 @@ async function render() {
                   class="action-btn share-btn"
                   onclick="shareMovie()"
                   aria-label="Share this title">
-
 
                   <svg
                     class="share-icon"
@@ -3571,14 +5097,11 @@ async function render() {
                     SHARE
                   </span>
 
-
                 </button>
 
 
               </div>
 
-
-              <!-- OVERVIEW -->
 
               <p
                 class="overview">
@@ -3593,21 +5116,16 @@ async function render() {
 
             </div>
 
-
           </div>
 
         </section>
 
 
-        <!-- =================================================
-             CONTENT
-        ================================================= -->
+        <!-- CONTENT -->
 
         <main
           class="content">
 
-
-          <!-- GENRES -->
 
           ${
             genres
@@ -3641,8 +5159,6 @@ async function render() {
           }
 
 
-          <!-- STREAMING -->
-
           ${renderProviders(
             providers
           )}
@@ -3652,7 +5168,6 @@ async function render() {
 
           <section
             class="section">
-
 
             <h2
               class="section-title">
@@ -3671,7 +5186,6 @@ async function render() {
 
             </div>
 
-
           </section>
 
 
@@ -3679,7 +5193,6 @@ async function render() {
 
           <section
             class="section">
-
 
             <h2
               class="section-title">
@@ -3700,7 +5213,6 @@ async function render() {
 
             </div>
 
-
           </section>
 
 
@@ -3708,7 +5220,6 @@ async function render() {
 
           <section
             class="section">
-
 
             <h2
               class="section-title">
@@ -3729,7 +5240,6 @@ async function render() {
 
             </div>
 
-
           </section>
 
 
@@ -3737,7 +5247,6 @@ async function render() {
 
           <section
             class="section">
-
 
             <h2
               class="section-title">
@@ -3756,7 +5265,6 @@ async function render() {
 
             </div>
 
-
           </section>
 
 
@@ -3764,7 +5272,6 @@ async function render() {
 
           <section
             class="section">
-
 
             <h2
               class="section-title">
@@ -3783,7 +5290,6 @@ async function render() {
 
             </div>
 
-
           </section>
 
 
@@ -3796,7 +5302,7 @@ async function render() {
 
 
     /* =====================================================
-       START HERO TRAILER
+       START HERO
     ===================================================== */
 
     if (trailer?.key) {
@@ -3809,7 +5315,6 @@ async function render() {
 
 
   } catch (error) {
-
 
     document.getElementById(
       "app"
@@ -3827,592 +5332,6 @@ async function render() {
     console.error(error);
 
   }
-
-}
-
-
-/* =========================================================
-   WATCHLIST
-========================================================= */
-
-function getWatchlist() {
-
-  try {
-
-    return JSON.parse(
-      localStorage.getItem(
-        "moviehub_watchlist"
-      ) || "[]"
-    );
-
-  } catch (_) {
-
-    return [];
-
-  }
-
-}
-
-
-function saveWatchlist(list) {
-
-  localStorage.setItem(
-    "moviehub_watchlist",
-    JSON.stringify(list)
-  );
-
-}
-
-
-function updateWatchlistButton() {
-
-  const button =
-    document.getElementById(
-      "watchlistButton"
-    );
-
-
-  if (!button) return;
-
-
-  const text =
-    button.querySelector(
-      ".watchlist-text"
-    );
-
-
-  const watchlist =
-    getWatchlist();
-
-
-  const saved =
-    watchlist.some(
-      item =>
-        String(item.id) ===
-          String(id) &&
-        item.type === type
-    );
-
-
-  if (saved) {
-
-    button.classList.add(
-      "saved"
-    );
-
-
-    button.setAttribute(
-      "aria-label",
-      "Remove from Watchlist"
-    );
-
-
-    if (text) {
-
-      text.textContent =
-        "MY LIST";
-
-    }
-
-  } else {
-
-    button.classList.remove(
-      "saved"
-    );
-
-
-    button.setAttribute(
-      "aria-label",
-      "Add to Watchlist"
-    );
-
-
-    if (text) {
-
-      text.textContent =
-        "MY LIST";
-
-    }
-
-  }
-
-}
-
-
-function toggleWatchlist() {
-
-  const button =
-    document.getElementById(
-      "watchlistButton"
-    );
-
-
-  if (
-    !button ||
-    !id
-  ) {
-
-    return;
-
-  }
-
-
-  const list =
-    getWatchlist();
-
-
-  const existingIndex =
-    list.findIndex(
-      item =>
-        String(item.id) ===
-          String(id) &&
-        item.type === type
-    );
-
-
-  if (
-    existingIndex >= 0
-  ) {
-
-    list.splice(
-      existingIndex,
-      1
-    );
-
-
-    saveWatchlist(list);
-
-    updateWatchlistButton();
-
-    return;
-
-  }
-
-
-  const title =
-    document.querySelector(
-      "h1"
-    )?.textContent.trim() ||
-    "Untitled";
-
-
-  const posterElement =
-    document.querySelector(
-      ".poster"
-    );
-
-
-  const item = {
-
-    id: String(id),
-
-    type: type,
-
-    title: title,
-
-    poster:
-      posterElement?.getAttribute(
-        "src"
-      ) || "",
-
-    backdrop:
-      backdrop(
-        document.body.dataset.backdrop
-      ),
-
-    addedAt:
-      Date.now()
-
-  };
-
-
-  list.unshift(item);
-
-
-  saveWatchlist(list);
-
-
-  updateWatchlistButton();
-
-}
-
-
-/* =========================================================
-   SHARE
-========================================================= */
-
-async function shareMovie() {
-
-  const title =
-    document.querySelector(
-      "h1"
-    )?.textContent.trim() ||
-    "Movie";
-
-
-  const shareUrl =
-    window.location.href;
-
-
-  const shareData = {
-
-    title:
-      `${title} — MovieHub`,
-
-    text:
-      `Check out ${title} on MovieHub.`,
-
-    url:
-      shareUrl
-
-  };
-
-
-  try {
-
-
-    if (
-
-      typeof navigator.share ===
-        "function" &&
-
-      (
-        !navigator.canShare ||
-        navigator.canShare(
-          shareData
-        )
-      )
-
-    ) {
-
-
-      await navigator.share(
-        shareData
-      );
-
-
-      return;
-
-    }
-
-
-    if (
-
-      navigator.clipboard &&
-
-      typeof navigator.clipboard.writeText ===
-        "function"
-
-    ) {
-
-
-      await navigator.clipboard.writeText(
-        shareUrl
-      );
-
-
-      alert(
-        "Movie link copied!"
-      );
-
-
-      return;
-
-    }
-
-
-    alert(
-      "Unable to share. Please copy the page URL manually."
-    );
-
-
-  } catch (error) {
-
-
-    if (
-      error?.name ===
-      "AbortError"
-    ) {
-
-      return;
-
-    }
-
-
-    console.error(
-      "Share failed:",
-      error
-    );
-
-
-    try {
-
-
-      if (
-
-        navigator.clipboard &&
-
-        typeof navigator.clipboard.writeText ===
-          "function"
-
-      ) {
-
-
-        await navigator.clipboard.writeText(
-          shareUrl
-        );
-
-
-        alert(
-          "Movie link copied!"
-        );
-
-
-      } else {
-
-
-        alert(
-          "Unable to share. Please copy the page URL manually."
-        );
-
-
-      }
-
-
-    } catch (_) {
-
-
-      alert(
-        "Unable to share. Please copy the page URL manually."
-      );
-
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   OPEN MOVIE
-========================================================= */
-
-function openMovie(
-  movieId,
-  movieType
-) {
-
-  location.href =
-    `/movie.html?id=${encodeURIComponent(
-      movieId
-    )}&type=${encodeURIComponent(
-      movieType
-    )}`;
-
-}
-
-
-/* =========================================================
-   BACK
-========================================================= */
-
-function goBack() {
-
-  if (
-    document.referrer &&
-    document.referrer.startsWith(
-      location.origin
-    )
-  ) {
-
-    history.back();
-
-    return;
-
-  }
-
-
-  location.href = "/";
-
-}
-
-
-/* =========================================================
-   TRAILER POPUP
-========================================================= */
-
-function playTrailer(key) {
-
-  if (!key) return;
-
-
-  const player =
-    document.getElementById(
-      "player"
-    );
-
-
-  const frame =
-    document.getElementById(
-      "playerFrame"
-    );
-
-
-  /*
-    Trailer opens INSIDE MovieHub.
-    It does not redirect the page
-    to YouTube.
-  */
-
-  frame.src =
-    `https://www.youtube.com/embed/${encodeURIComponent(
-      key
-    )}?autoplay=1&rel=0&playsinline=1&fs=1&controls=1`;
-
-
-  player.classList.add(
-    "active"
-  );
-
-}
-
-
-function closeTrailer() {
-
-  const player =
-    document.getElementById(
-      "player"
-    );
-
-
-  const frame =
-    document.getElementById(
-      "playerFrame"
-    );
-
-
-  frame.src = "";
-
-
-  player.classList.remove(
-    "active"
-  );
-
-}
-
-
-/* =========================================================
-   MY RATING
-========================================================= */
-
-function setupMyRating() {
-
-  const stars =
-    document.querySelectorAll(
-      "#myRatingStars button"
-    );
-
-
-  const value =
-    document.getElementById(
-      "myRatingValue"
-    );
-
-
-  if (
-    !stars.length ||
-    !value ||
-    !id
-  ) {
-
-    return;
-
-  }
-
-
-  const storageKey =
-    `moviehub_rating_${type}_${id}`;
-
-
-  const savedRating =
-    Number(
-      localStorage.getItem(
-        storageKey
-      ) || 0
-    );
-
-
-  function applyRating(
-    rating
-  ) {
-
-
-    stars.forEach(
-      star => {
-
-        const starRating =
-          Number(
-            star.dataset.rating
-          );
-
-
-        star.classList.toggle(
-          "active",
-          starRating <= rating
-        );
-
-      }
-    );
-
-
-    value.textContent =
-      rating
-
-        ? `${rating} / 5`
-
-        : "Rate this title";
-
-  }
-
-
-  applyRating(
-    savedRating
-  );
-
-
-  stars.forEach(
-    star => {
-
-
-      star.addEventListener(
-        "click",
-        () => {
-
-
-          const rating =
-            Number(
-              star.dataset.rating
-            );
-
-
-          localStorage.setItem(
-            storageKey,
-            String(rating)
-          );
-
-
-          applyRating(
-            rating
-          );
-
-
-        }
-      );
-
-
-    }
-  );
 
 }
 
