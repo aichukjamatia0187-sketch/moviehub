@@ -620,7 +620,6 @@ h1 { letter-spacing: -.025em; text-wrap: balance; }
   position: absolute !important;
   left: 0 !important; top: -30% !important;
   width: 100% !important; height: 160% !important;
-  inset: auto !important;
   transform: none !important;
   border: 0;
 }
@@ -706,6 +705,29 @@ h1 { letter-spacing: -.025em; text-wrap: balance; }
 }
 .viewall-card:hover .viewall-box { background: var(--surface-2); }
 @media (max-width: 700px) { .viewall-box { width: 132px; height: 198px; } }
+
+/* =========================================================
+   FIXES: poster no longer overlaps the video, auto-hide controls
+========================================================= */
+.poster { margin-top: 0 !important; }
+.skel-poster { margin-top: 0 !important; }
+.details-area { padding-top: 26px; }
+
+.hero-bar, .now-playing { transition: opacity .25s ease; }
+.hero-trailer.hide-ui .hero-bar { opacity: 0; pointer-events: none; }
+.hero-trailer.hide-ui .now-playing { opacity: 0; }
+.hero-trailer.hide-ui { cursor: none; }
+
+.mini-progress {
+  position: absolute; left: 0; bottom: 0;
+  height: 3px; width: 0;
+  background: #fff;
+  z-index: 55;
+  opacity: 0;
+  transition: opacity .25s ease;
+  pointer-events: none;
+}
+.hero-trailer.hide-ui .mini-progress { opacity: .9; }
 </style>
 </head>
 
@@ -1364,9 +1386,10 @@ async function render() {
             <div class="video-frame"><div id="heroTrailerPlayer"></div></div>
 
             <!-- Blocks every tap from reaching YouTube -->
-            <div class="hero-shield" onclick="toggleHeroPlay()"></div>
+            <div class="hero-shield" onclick="onShieldTap()"></div>
 
             <div id="nowPlaying" class="now-playing"></div>
+            <div id="miniProgress" class="mini-progress"></div>
 
             <!-- Our own More Videos (plays inside MovieHub) -->
             <div id="moreVideosOverlay" class="more-videos-overlay">
@@ -1771,7 +1794,31 @@ function fmtTime(t) {
   return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
 }
 
+let heroPlaying = false;
+let uiTimer = null;
+
+function showUi() {
+  const box = document.getElementById("heroTrailer");
+  if (!box) return;
+  box.classList.remove("hide-ui");
+  clearTimeout(uiTimer);
+  if (heroPlaying) uiTimer = setTimeout(() => box.classList.add("hide-ui"), 3000);
+}
+
+function hideUi() {
+  const box = document.getElementById("heroTrailer");
+  if (box && heroPlaying) box.classList.add("hide-ui");
+}
+
+function onShieldTap() {
+  const box = document.getElementById("heroTrailer");
+  if (!box) return;
+  if (box.classList.contains("hide-ui")) showUi(); else hideUi();
+}
+
 function setPlayIcon(playing) {
+  heroPlaying = playing;
+  showUi();
   const btn = document.getElementById("heroPlayButton");
   if (btn) {
     btn.innerHTML = playing ? HB_PAUSE : HB_PLAY;
@@ -1780,6 +1827,8 @@ function setPlayIcon(playing) {
 }
 
 function setSeekFill(value) {
+  const mini = document.getElementById("miniProgress");
+  if (mini) mini.style.width = (value / 10) + "%";
   const seek = document.getElementById("heroSeek");
   if (seek) seek.style.setProperty("--pct", (value / 10) + "%");
 }
@@ -1810,6 +1859,9 @@ function startProgressTimer() {
 function setupHeroBar() {
   const seek = document.getElementById("heroSeek");
   if (!seek) return;
+
+  const bar = document.getElementById("heroBar");
+  if (bar) bar.addEventListener("pointerdown", showUi);
 
   seek.addEventListener("input", () => {
     seeking = true;
