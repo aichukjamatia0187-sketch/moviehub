@@ -190,6 +190,77 @@
 
 
     /* =========================================================
+       HERO SOUND BUTTON
+    ========================================================= */
+
+    .hero-sound-btn {
+      position: absolute;
+
+      right: 72px;
+      bottom: 18px;
+
+      z-index: 20;
+
+      width: 44px;
+      height: 44px;
+
+      border:
+        1px solid rgba(255,255,255,.24);
+
+      border-radius: 8px;
+
+      background:
+        rgba(0,0,0,.70);
+
+      color: #ffffff;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+
+      transition:
+        background .2s ease,
+        transform .2s ease,
+        border-color .2s ease;
+    }
+
+    .hero-sound-btn:hover {
+      background:
+        rgba(255,255,255,.15);
+
+      border-color:
+        rgba(255,255,255,.38);
+
+      transform:
+        scale(1.05);
+    }
+
+    .hero-sound-btn:active {
+      transform:
+        scale(.93);
+    }
+
+    .hero-sound-btn svg {
+      width: 21px;
+      height: 21px;
+
+      fill: none;
+
+      stroke: currentColor;
+
+      stroke-width: 2;
+
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+
+    /* =========================================================
        FULLSCREEN BUTTON
     ========================================================= */
 
@@ -204,11 +275,13 @@
       width: 44px;
       height: 44px;
 
-      border: 1px solid rgba(255,255,255,.24);
+      border:
+        1px solid rgba(255,255,255,.24);
 
       border-radius: 8px;
 
-      background: rgba(0,0,0,.70);
+      background:
+        rgba(0,0,0,.70);
 
       color: #ffffff;
 
@@ -228,16 +301,19 @@
     }
 
     .hero-fullscreen-btn:hover {
-      background: rgba(255,255,255,.15);
+      background:
+        rgba(255,255,255,.15);
 
       border-color:
         rgba(255,255,255,.38);
 
-      transform: scale(1.05);
+      transform:
+        scale(1.05);
     }
 
     .hero-fullscreen-btn:active {
-      transform: scale(.93);
+      transform:
+        scale(.93);
     }
 
     .hero-fullscreen-btn svg {
@@ -257,7 +333,7 @@
 
     /* =========================================================
        CUSTOM FULLSCREEN MODE
-       ========================================================= */
+    ========================================================= */
 
     .hero-trailer.custom-fullscreen {
       position: fixed !important;
@@ -299,7 +375,8 @@
         calc(100vw * 9 / 16)
       );
 
-      transform: translate(-50%, -50%);
+      transform:
+        translate(-50%, -50%);
 
       background: #000;
 
@@ -325,7 +402,8 @@
       min-width: 0 !important;
       min-height: 0 !important;
 
-      transform: translate(-50%, -50%);
+      transform:
+        translate(-50%, -50%);
 
       z-index: 1;
     }
@@ -338,10 +416,18 @@
       z-index: 30;
     }
 
+    .hero-trailer.custom-fullscreen
+    .hero-sound-btn {
+      right: 72px;
+      bottom: 18px;
+
+      z-index: 30;
+    }
+
 
     /* =========================================================
        DETAILS AREA
-       ========================================================= */
+    ========================================================= */
 
     .details-area {
       position: relative;
@@ -540,7 +626,8 @@
     .my-rating-stars button:hover {
       color: #f5c451;
 
-      transform: scale(1.08);
+      transform:
+        scale(1.08);
     }
 
     .my-rating-stars button.active {
@@ -599,7 +686,8 @@
 
       min-height: 46px;
 
-      padding: 12px 18px;
+      padding:
+        12px 18px;
 
       background:
         rgba(23,25,32,.92);
@@ -633,7 +721,8 @@
 
     .watchlist-btn:active,
     .share-btn:active {
-      transform: scale(.97);
+      transform:
+        scale(.97);
     }
 
     .watchlist-btn.saved {
@@ -849,7 +938,7 @@
 
     /* =========================================================
        PEOPLE ROW
-       ========================================================= */
+    ========================================================= */
 
     .people-row {
       display: flex;
@@ -898,7 +987,8 @@
     }
 
     .person-card:hover .person-photo {
-      transform: translateY(-3px);
+      transform:
+        translateY(-3px);
 
       opacity: .92;
     }
@@ -1163,7 +1253,8 @@
       border-color:
         rgba(255,255,255,.35);
 
-      transform: scale(1.05);
+      transform:
+        scale(1.05);
     }
 
 
@@ -1202,6 +1293,19 @@
       }
 
       .hero-fullscreen-btn svg {
+        width: 19px;
+        height: 19px;
+      }
+
+      .hero-sound-btn {
+        right: 60px;
+        bottom: 12px;
+
+        width: 40px;
+        height: 40px;
+      }
+
+      .hero-sound-btn svg {
         width: 19px;
         height: 19px;
       }
@@ -1460,11 +1564,21 @@ function createHeroTrailerPlayer(videoId) {
 
             try {
 
+              /*
+                Trailer starts muted so
+                autoplay can work.
+              */
+
               event.target.mute();
 
               event.target.playVideo();
 
             } catch (_) {}
+
+
+            updateHeroSoundButton(
+              true
+            );
 
 
             const iframe =
@@ -1523,6 +1637,144 @@ function onYouTubeIframeAPIReady() {
 
 
 /* =========================================================
+   HERO SOUND ON / OFF
+========================================================= */
+
+function toggleHeroSound(event) {
+
+  if (event) {
+
+    event.stopPropagation();
+
+  }
+
+
+  if (!heroTrailerPlayer) {
+
+    return;
+
+  }
+
+
+  try {
+
+    if (
+      heroTrailerPlayer.isMuted()
+    ) {
+
+      heroTrailerPlayer.unMute();
+
+      heroTrailerPlayer.setVolume(
+        100
+      );
+
+      updateHeroSoundButton(
+        false
+      );
+
+    } else {
+
+      heroTrailerPlayer.mute();
+
+      updateHeroSoundButton(
+        true
+      );
+
+    }
+
+  } catch (_) {}
+
+}
+
+
+function updateHeroSoundButton(
+  isMuted
+) {
+
+  const button =
+    document.getElementById(
+      "heroSoundButton"
+    );
+
+  const icon =
+    document.getElementById(
+      "heroSoundIcon"
+    );
+
+
+  if (!button || !icon) {
+
+    return;
+
+  }
+
+
+  if (isMuted) {
+
+    button.setAttribute(
+      "aria-label",
+      "Turn sound on"
+    );
+
+
+    button.setAttribute(
+      "title",
+      "Sound off — tap to turn on"
+    );
+
+
+    icon.innerHTML = `
+
+      <path
+        d="M11 5 6 9H3v6h3l5 4V5Z">
+      </path>
+
+      <path
+        d="m17 9 4 6">
+      </path>
+
+      <path
+        d="m21 9-4 6">
+      </path>
+
+    `;
+
+  } else {
+
+    button.setAttribute(
+      "aria-label",
+      "Turn sound off"
+    );
+
+
+    button.setAttribute(
+      "title",
+      "Sound on — tap to turn off"
+    );
+
+
+    icon.innerHTML = `
+
+      <path
+        d="M11 5 6 9H3v6h3l5 4V5Z">
+      </path>
+
+      <path
+        d="M15.5 8.5a5 5 0 0 1 0 7">
+      </path>
+
+      <path
+        d="M18.5 5.5a9 9 0 0 1 0 13">
+      </path>
+
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
    FULLSCREEN
 ========================================================= */
 
@@ -1552,6 +1804,7 @@ async function openHeroFullscreen() {
     } catch (_) {}
 
     return;
+
   }
 
 
@@ -1575,10 +1828,6 @@ async function openHeroFullscreen() {
       /*
         Ask the browser to rotate
         to landscape when supported.
-
-        If unsupported, the CSS keeps
-        the trailer in correct 16:9
-        aspect ratio with black space.
       */
 
       if (
@@ -1678,7 +1927,9 @@ document.addEventListener(
       ) {
 
         try {
+
           screen.orientation.unlock();
+
         } catch (_) {}
 
       }
@@ -1707,6 +1958,7 @@ document.addEventListener(
           "heroTrailer"
         );
 
+
       if (
         trailerBox &&
         trailerBox.classList.contains(
@@ -1725,53 +1977,6 @@ document.addEventListener(
 
     }
 
-  }
-);
-
-
-/* =========================================================
-   FIRST USER TAP
-   ENABLE TRAILER AUDIO
-========================================================= */
-
-document.addEventListener(
-  "click",
-  function(event) {
-
-    if (!heroTrailerPlayer) {
-      return;
-    }
-
-
-    if (
-      event.target.closest(
-        ".hero-fullscreen-btn"
-      )
-    ) {
-      return;
-    }
-
-
-    try {
-
-      if (
-        typeof heroTrailerPlayer.unMute ===
-          "function"
-      ) {
-
-        heroTrailerPlayer.unMute();
-
-        heroTrailerPlayer.setVolume(
-          100
-        );
-
-      }
-
-    } catch (_) {}
-
-  },
-  {
-    once: true
   }
 );
 
@@ -2979,31 +3184,82 @@ async function render() {
 
                 ? `
 
+                  <!-- SOUND BUTTON -->
+
+                  <button
+                    id="heroSoundButton"
+                    class="hero-sound-btn"
+                    type="button"
+                    onclick="toggleHeroSound(event)"
+                    aria-label="Turn sound on"
+                    title="Sound off — tap to turn on">
+
+                    <svg
+                      id="heroSoundIcon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true">
+
+                      <path
+                        d="M11 5 6 9H3v6h3l5 4V5Z">
+                      </path>
+
+                      <path
+                        d="m17 9 4 6">
+                      </path>
+
+                      <path
+                        d="m21 9-4 6">
+                      </path>
+
+                    </svg>
+
+                  </button>
+
+
+                  <!-- FULLSCREEN BUTTON -->
+
                   <button
                     class="hero-fullscreen-btn"
                     type="button"
                     onclick="openHeroFullscreen()"
-                    aria-label="Fullscreen trailer">
+                    aria-label="Fullscreen trailer"
+                    title="Fullscreen">
 
                     <svg
                       viewBox="0 0 24 24"
                       aria-hidden="true">
 
-                      <path d="M8 3H3v5"></path>
+                      <path
+                        d="M8 3H3v5">
+                      </path>
 
-                      <path d="M3 3l6 6"></path>
+                      <path
+                        d="M3 3l6 6">
+                      </path>
 
-                      <path d="M16 3h5v5"></path>
+                      <path
+                        d="M16 3h5v5">
+                      </path>
 
-                      <path d="M21 3l-6 6"></path>
+                      <path
+                        d="M21 3l-6 6">
+                      </path>
 
-                      <path d="M8 21H3v-5"></path>
+                      <path
+                        d="M8 21H3v-5">
+                      </path>
 
-                      <path d="M3 21l6-6"></path>
+                      <path
+                        d="M3 21l6-6">
+                      </path>
 
-                      <path d="M16 21h5v-5"></path>
+                      <path
+                        d="M16 21h5v-5">
+                      </path>
 
-                      <path d="M21 21l-6-6"></path>
+                      <path
+                        d="M21 21l-6-6">
+                      </path>
 
                     </svg>
 
@@ -3695,7 +3951,9 @@ function toggleWatchlist() {
     !button ||
     !id
   ) {
+
     return;
+
   }
 
 
@@ -4001,10 +4259,16 @@ function playTrailer(key) {
     );
 
 
+  /*
+    Trailer opens INSIDE MovieHub.
+    It does not redirect the page
+    to YouTube.
+  */
+
   frame.src =
     `https://www.youtube.com/embed/${encodeURIComponent(
       key
-    )}?autoplay=1&rel=0&playsinline=1&fs=1`;
+    )}?autoplay=1&rel=0&playsinline=1&fs=1&controls=1`;
 
 
   player.classList.add(
@@ -4061,7 +4325,9 @@ function setupMyRating() {
     !value ||
     !id
   ) {
+
     return;
+
   }
 
 
