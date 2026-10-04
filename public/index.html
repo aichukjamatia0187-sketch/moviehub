@@ -759,7 +759,20 @@
   transform:scale(1.04);
   transition:transform .2s ease;
 }
-  </style>
+  
+/* ===== HOME POLISH + SMOOTHNESS ===== */
+.section{content-visibility:auto;contain-intrinsic-size:auto 400px}
+.section-kicker{display:flex;align-items:center;gap:10px}.section-kicker:before{content:'';width:18px;height:1px;background:var(--gold)}
+.see:after{content:' \2192'}.see{transition:color .2s}.see:hover{color:var(--gold)}
+.rail{scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-padding:0 4vw}
+.card{scroll-snap-align:start;cursor:pointer;contain:layout}
+.poster{background:#151513}.card:hover .poster{border-color:#5a4b30}
+.sk{background:linear-gradient(100deg,#10100f 30%,#1a1916 45%,#10100f 60%) 0 0/200% 100%;animation:skeletonMove 1.4s infinite}
+.card .sk{height:260px;border:1px solid #24221d;border-radius:4px}
+@media(hover:none){.card:hover .poster img{transform:none}}
+@media(max-width:700px){.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:#080807}.card .sk{height:215px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
 </head>
 <body>
  <!-- MovieHub Loading Screen -->
@@ -835,229 +848,7 @@
 </section>
 
 <main>
-    <!-- =========================
-     DISCOVERY COLLECTIONS
-========================= -->
-
-<!-- 1. TRENDING TODAY -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🔥 TRENDING TODAY</div>
-      <h2>Trending Today</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=trending">VIEW ALL</a>
-  </div>
-  <div class="rail" id="trendingRail"></div>
-</section>
-
-
-<!-- 2. HIGHLY RATED -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">⭐ HIGHLY RATED</div>
-      <h2>Highly Rated</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=highly-rated">VIEW ALL</a>
-  </div>
-  <div class="rail" id="popularRail"></div>
-</section>
-
-
-<!-- 3. NEW RELEASES -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🎬 NEW RELEASES</div>
-      <h2>New Releases</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=new-releases">VIEW ALL</a>
-  </div>
-  <div class="rail" id="nowRail"></div>
-</section>
-
-
-<!-- 4. WEBSERIES -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">📺 WEBSERIES</div>
-      <h2>Webseries</h2>
-    </div>
-   <a class="see view-all" href="/browse.html?type=webseries">VIEW ALL</a> 
-  </div>
-  <div class="rail" id="tvPopularRail"></div>
-</section>
-
-
-<!-- 5. ROMANCE -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">❤️ ROMANCE</div>
-      <h2>Romance</h2>
-    </div>
-   <a class="see view-all" href="/genre.html?id=10749&name=Romance">VIEW ALL</a> 
-  </div>
-  <div class="rail" id="romanceRail"></div>
-</section>
-
-
-<!-- 6. ACTION -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">💥 ACTION</div>
-      <h2>Action</h2>
-    </div>
-    <a class="see view-all" href="/genre.html?id=28&name=Action">VIEW ALL</a>
-  </div>
-  <div class="rail" id="actionRail"></div>
-</section>
-
-
-<!-- 7. HORROR -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">👻 HORROR</div>
-      <h2>Horror</h2>
-    </div>
-   <a class="see view-all" href="/genre.html?id=27&name=Horror">VIEW ALL</a> 
-  </div>
-  <div class="rail" id="horrorRail"></div>
-</section>
-
-
-<!-- 8. MIND-BENDING -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🧠 MIND-BENDING</div>
-      <h2>Mind-Bending</h2>
-    </div>
-   <a class="see view-all" href="/browse.html?type=mind-bending">VIEW ALL</a> 
-  </div>
-  <div class="rail" id="mindBendingRail"></div>
-</section>
-
-
-<!-- 9. BASED ON TRUE STORIES -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🎭 TRUE STORIES</div>
-      <h2>Based on True Stories</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=true-stories">VIEW ALL</a>
-  </div>
-  <div class="rail" id="trueStoriesRail"></div>
-</section>
-
-
-<!-- 10. FAMILY NIGHT -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🍿 FAMILY NIGHT</div>
-      <h2>Family Night</h2>
-    </div>
-    <a class="see view-all" href="/genre.html?id=10751&name=Family">VIEW ALL</a>
-  </div>
-  <div class="rail" id="familyRail"></div>
-</section>
-
-
-<!-- 11. HOLLYWOOD -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🇺🇸 HOLLYWOOD</div>
-      <h2>Hollywood</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=hollywood">VIEW ALL</a>
-  </div>
-  <div class="rail" id="hollywoodRail"></div>
-</section>
-
-
-<!-- 12. LATE NIGHT MOVIES -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🌙 LATE NIGHT MOVIES</div>
-      <h2>Late Night Movies</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=late-night">VIEW ALL</a>
-  </div>
-  <div class="rail" id="lateNightRail"></div>
-</section>
-
-
-<!-- 13. KOREAN -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🇰🇷 KOREAN</div>
-      <h2>Korean Drama &amp; more</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=korean">VIEW ALL</a>
-  </div>
-  <div class="rail" id="koreanRail"></div>
-</section>
-
-
-<!-- 14. CHINA -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🇨🇳 CHINA</div>
-      <h2>China</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=china">VIEW ALL</a>
-  </div>
-  <div class="rail" id="chinaRail"></div>
-</section>
-
-
-<!-- 15. JAPANESE -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🇯🇵 JAPANESE</div>
-      <h2>Japanese</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=japanese">VIEW ALL</a>
-  </div>
-  <div class="rail" id="japaneseRail"></div>
-</section>
-
-
-<!-- 16. INDIAN -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">🇮🇳 INDIAN</div>
-      <h2>Indian</h2>
-    </div>
-    <a class="see view-all" href="/browse.html?type=indian">VIEW ALL</a>
-  </div>
-  <div class="rail" id="indianRail"></div>
-</section>
-
-
-<!-- 17. COMING SOON -->
-<section class="section">
-  <div class="section-head">
-    <div>
-      <div class="section-kicker">📅 COMING SOON</div>
-      <h2>Coming Soon</h2>
-    </div>
-   <a class="see view-all" href="/browse.html?type=coming-soon">VIEW ALL</a> 
-  </div>
-  <div class="rail" id="upcomingRail"></div>
-</section>
+    <div id="rows"></div>
 
 <!-- =========================
      MY WATCHLIST
