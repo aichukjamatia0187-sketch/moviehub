@@ -582,60 +582,6 @@ async function loadHeroTrailer(m) {
    HOME DATA
 ========================= */
 
-async function loadFreeClassics() {
-  const rail = $('#rail-free-classics');
-  if (!rail) return;
-
-  const data = await api('/api/free/list');
-  const list = (data && data.results) || [];
-
-  if (list.length < 6) {
-    $('#sec-free-classics').style.display = 'none';
-    return;
-  }
-
-  rail.innerHTML = list.slice(0, 14).map((m) => `
-    <a class="card" href="/free.html?id=${encodeURIComponent(m.id)}">
-      <div class="poster">
-        <img loading="lazy"
-             src="https://archive.org/services/img/${encodeURIComponent(m.id)}"
-             alt="${esc(m.title)}">
-        <span class="badge">FREE</span>
-      </div>
-      <div class="card-info">
-        <span class="card-title">${esc(m.title)}</span>
-        <span class="year">${esc(String(m.year || '').slice(0, 4))}</span>
-      </div>
-    </a>
-  `).join('');
-}
-
-async function loadFreeYouTube() {
-  const rail = $('#rail-free-youtube');
-  const sec = $('#sec-free-youtube');
-  if (!rail || !sec) return;
-
-  const data = await api('/api/free/youtube');
-  const list = (data && data.results) || [];
-  if (list.length < 6) return; // kam ho to section dikhana hi nahi
-
-  rail.innerHTML = list.slice(0, 14).map((m) => `
-    <a class="card" style="flex:0 0 260px"
-       href="/free.html?yt=${encodeURIComponent(m.id)}&t=${encodeURIComponent(m.title)}&ch=${encodeURIComponent(m.channel)}">
-      <div class="poster" style="height:146px">
-        <img loading="lazy" src="https://i.ytimg.com/vi/${encodeURIComponent(m.id)}/hqdefault.jpg" alt="${esc(m.title)}">
-        <span class="badge">FREE</span>
-      </div>
-      <div class="card-info">
-        <span class="card-title">${esc(m.title)}</span>
-      </div>
-      <div class="year" style="padding-top:2px">${esc(m.channel)}</div>
-    </a>
-  `).join('');
-
-  sec.style.display = '';
-}
-
 async function load() {
   try {
 
@@ -664,41 +610,6 @@ async function load() {
           <div class="rail" id="rail-${s.key}"></div>
         </section>
       `).join('');
-    }
-
-    // 🎞️ Free Classics (Internet Archive, public domain)
-    if (host) {
-      host.insertAdjacentHTML('beforeend', `
-        <section class="section" id="sec-free-classics">
-          <div class="section-head">
-            <div>
-              <div class="section-kicker">Free to Watch</div>
-              <h2>🎞️ Free Classics</h2>
-            </div>
-            <a class="see view-all" href="/free.html">VIEW ALL</a>
-          </div>
-          <div class="rail" id="rail-free-classics"></div>
-        </section>
-      `);
-      host.insertAdjacentHTML('beforeend', `
-        <section class="section" id="sec-free-youtube" style="display:none">
-          <div class="section-head">
-            <div>
-              <div class="section-kicker">Free to Watch</div>
-              <h2>📺 Free on YouTube</h2>
-            </div>
-            <a class="see view-all" href="/free.html">VIEW ALL</a>
-          </div>
-          <div class="rail" id="rail-free-youtube"></div>
-        </section>
-      `);
-      loadFreeYouTube().catch((e) => console.warn('Free YouTube failed:', e));
-
-      loadFreeClassics().catch((e) => {
-        console.warn('Free classics failed:', e);
-        const sec = $('#sec-free-classics');
-        if (sec) sec.style.display = 'none';
-      });
     }
 
     const toQuery = (o) => Object.entries(o || {})
