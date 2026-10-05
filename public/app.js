@@ -2224,6 +2224,7 @@ async function initHome() {
 
     bindCards();
 
+
   } catch (error) {
 
     console.error(
@@ -2231,7 +2232,13 @@ async function initHome() {
       error
     );
 
+
+  } finally {
+
+    hidePageLoader();
+
   }
+
 }
 
 
@@ -2259,5 +2266,28 @@ if (
 } else {
 
   initHome();
+
+}
+/* =========================
+   HIDE PAGE LOADER
+========================= */
+
+function hidePageLoader() {
+
+  const loader =
+    document.querySelector(
+      '#pageLoader, #loadingScreen, .page-loader, .loading-screen'
+    );
+
+  if (!loader) return;
+
+  loader.style.opacity = '0';
+  loader.style.pointerEvents = 'none';
+
+  setTimeout(() => {
+
+    loader.style.display = 'none';
+
+  }, 300);
 
 }
