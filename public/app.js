@@ -616,21 +616,24 @@ async function load() {
       .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
       .join('&');
 
+    // Har section ke 2 pages mangwate hain taaki dedupe ke baad bhi rail bhari rahe
     const fetchSection = async (s) => {
-      // multi-query section (International): sab ko merge karke popularity se sort
-      if (s.queries) {
-        const parts = await Promise.allSettled(
-          s.queries.map((p) => api(s.endpoint + '?' + toQuery(p)))
-        );
-        const all = [];
-        parts.forEach((r) => {
-          if (r.status === 'fulfilled') all.push(...((r.value && r.value.results) || []));
-        });
-        all.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-        return { results: all };
-      }
-      const q = toQuery(window.MH_RESOLVE(s));
-      return api(s.endpoint + (q ? '?' + q : ''));
+      const base = s.queries || [window.MH_RESOLVE(s)];
+      const calls = [];
+      base.forEach((p) => [1, 2].forEach((page) => {
+        calls.push(api(s.endpoint + '?' + toQuery({ ...p, page })));
+      }));
+      const parts = await Promise.allSettled(calls);
+      let all = [];
+      parts.forEach((r) => {
+        if (r.status === 'fulfilled') all = all.concat((r.value && r.value.results) || []);
+      });
+      // multi-query sections ko popularity se sort karo
+      if (s.queries) all.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      // same item do baar na aaye
+      const ids = new Set();
+      all = all.filter((x) => !ids.has(x.id) && ids.add(x.id));
+      return { results: all };
     };
 
     const results = await Promise.allSettled(SECTIONS.map(fetchSection));
@@ -647,14 +650,16 @@ async function load() {
       const r = results[i];
       const list = (r.status === 'fulfilled' && r.value && r.value.results) || [];
       const unique = list.filter((x) => x.poster_path && !seen[s.mode].has(x.id));
-      unique.slice(0, 14).forEach((x) => seen[s.mode].add(x.id));
+      // jo section chhup jayega, uske titles dusre sections se na rokein
+      if (unique.length >= 8) unique.slice(0, 14).forEach((x) => seen[s.mode].add(x.id));
       discovery[s.key] = unique;
       fill('#rail-' + s.key, unique, s.mode);
     });
 
-    // Section jo bilkul khali ho, use chhupa do
+    // Jis section me kam titles hon (8 se kam), use chhupa do
+    const MIN_ITEMS = 8;
     SECTIONS.forEach((s) => {
-      if (!discovery[s.key].length) {
+      if (discovery[s.key].length < MIN_ITEMS) {
         const el = $('#sec-' + s.key);
         if (el) el.style.display = 'none';
       }
