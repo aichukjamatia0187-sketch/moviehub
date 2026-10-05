@@ -15,6 +15,11 @@ const state = {
   hero: null
 };
 
+
+/* =========================
+   HELPERS
+========================= */
+
 const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({
     '&': '&amp;',
@@ -24,14 +29,41 @@ const esc = (s) =>
     "'": '&#039;'
   }[c]));
 
+
 const poster = (m) =>
-  m?.poster_path ? IMG + 'w500' + m.poster_path : '';
+  m?.poster_path
+    ? IMG + 'w500' + m.poster_path
+    : '';
+
 
 const backdrop = (m) =>
-  m?.backdrop_path ? IMG + 'original' + m.backdrop_path : '';
+  m?.backdrop_path
+    ? IMG + 'original' + m.backdrop_path
+    : '';
+
 
 const isTV = (m) =>
-  m?.media_type === 'tv' || m?.name !== undefined;
+  m?.media_type === 'tv' ||
+  (
+    m?.name !== undefined &&
+    m?.title === undefined
+  );
+
+
+const getTitle = (m, type) => {
+  if (type === 'tv') {
+    return m?.name || m?.original_name || 'Untitled';
+  }
+
+  return m?.title || m?.original_title || 'Untitled';
+};
+
+
+const getDate = (m, type) => {
+  return type === 'tv'
+    ? (m?.first_air_date || '')
+    : (m?.release_date || '');
+};
 
 
 /* =========================
@@ -39,6 +71,7 @@ const isTV = (m) =>
 ========================= */
 
 async function api(url) {
+
   const r = await fetch(url, {
     headers: {
       Accept: 'application/json'
@@ -54,7 +87,9 @@ async function api(url) {
   }
 
   if (!r.ok || d.error) {
-    throw new Error(d.error || `Request failed (${r.status})`);
+    throw new Error(
+      d.error || `Request failed (${r.status})`
+    );
   }
 
   return d;
@@ -62,20 +97,32 @@ async function api(url) {
 
 
 /* =========================
-   MOVIE / TV CARD
+   CARD
 ========================= */
 
 function card(m, forcedType) {
-  const tv = forcedType === 'tv' || isTV(m);
 
-  const title = tv ? m.name : m.title;
-  const date = tv ? m.first_air_date : m.release_date;
+  const tv =
+    forcedType === 'tv'
+      ? true
+      : forcedType === 'movie'
+        ? false
+        : isTV(m);
+
+  const type =
+    tv ? 'tv' : 'movie';
+
+  const title =
+    getTitle(m, type);
+
+  const date =
+    getDate(m, type);
 
   return `
     <article
       class="card"
-      data-id="${m.id}"
-      data-type="${tv ? 'tv' : 'movie'}"
+      data-id="${esc(m.id)}"
+      data-type="${type}"
     >
 
       <div class="poster">
@@ -97,7 +144,7 @@ function card(m, forcedType) {
         }
 
         <span class="badge">
-          ${tv ? 'TV' : 'FILM'}
+          ${type === 'tv' ? 'TV' : 'FILM'}
         </span>
 
       </div>
@@ -109,7 +156,7 @@ function card(m, forcedType) {
         </span>
 
         <span class="year">
-          ${(date || '').slice(0, 4)}
+          ${esc((date || '').slice(0, 4))}
         </span>
 
       </div>
@@ -124,23 +171,38 @@ function card(m, forcedType) {
 ========================= */
 
 function fill(id, arr, type) {
+
   const el = $(id);
 
   if (!el) return;
 
-  el.innerHTML = (arr || [])
-    .filter((x) => x.poster_path)
-    .slice(0, 14)
-    .map((x) => card(x, type))
-    .join('') || `
+  const clean =
+    Array.isArray(arr)
+      ? arr
+          .filter(Boolean)
+          .filter(x =>
+            type === 'tv'
+              ? isTV(x)
+              : !isTV(x)
+          )
+          .filter(x => x.poster_path)
+      : [];
+
+  el.innerHTML =
+    clean
+      .slice(0, 14)
+      .map(x => card(x, type))
+      .join('') ||
+    `
       <div class="empty">
         No titles found
       </div>
     `;
 }
 
+
 /* =========================
-   HOME WATCHLIST
+   WATCHLIST
 ========================= */
 
 function loadHomeWatchlist() {
@@ -196,8 +258,6 @@ function loadHomeWatchlist() {
   ];
 
 
-  /* Latest tracked first */
-
   items.sort((a, b) =>
     String(b.added_at || '')
       .localeCompare(
@@ -206,8 +266,6 @@ function loadHomeWatchlist() {
   );
 
 
-  /* Nothing tracked */
-
   if (!items.length) {
 
     section.style.display = 'none';
@@ -215,8 +273,6 @@ function loadHomeWatchlist() {
     return;
   }
 
-
-  /* Show Watchlist */
 
   section.style.display = 'block';
 
@@ -234,7 +290,7 @@ function loadHomeWatchlist() {
         return `
           <article
             class="card"
-            data-id="${item.id}"
+            data-id="${esc(item.id)}"
             data-type="${type}"
           >
 
@@ -249,11 +305,21 @@ function loadHomeWatchlist() {
             <div class="card-info">
 
               <span class="card-title">
-                ${esc(item.title || 'Untitled')}
+                ${esc(
+                  item.title ||
+                  item.name ||
+                  'Untitled'
+                )}
               </span>
 
               <span class="year">
-                ${(item.release_date || '').slice(0, 4)}
+                ${esc(
+                  (
+                    item.release_date ||
+                    item.first_air_date ||
+                    ''
+                  ).slice(0, 4)
+                )}
               </span>
 
             </div>
@@ -264,11 +330,6 @@ function loadHomeWatchlist() {
       })
       .join('');
 
-
-  /*
-    Load actual TMDB details
-    so poster is available.
-  */
 
   items
     .slice(0, 14)
@@ -283,7 +344,7 @@ function loadHomeWatchlist() {
 
         const data =
           await api(
-            `/api/${type}/${item.id}`
+            `/api/${type}/${encodeURIComponent(item.id)}`
           );
 
         const element =
@@ -298,17 +359,16 @@ function loadHomeWatchlist() {
 
         if (!posterBox) return;
 
+        const title =
+          getTitle(data, type);
+
         posterBox.innerHTML =
           data.poster_path
             ? `
               <img
                 loading="lazy"
                 src="${poster(data)}"
-                alt="${esc(
-                  type === 'tv'
-                    ? data.name
-                    : data.title
-                )}"
+                alt="${esc(title)}"
               >
 
               <span class="badge">
@@ -336,11 +396,14 @@ function loadHomeWatchlist() {
 
   bindCards(rail);
 }
+
+
 /* =========================
    CARD CLICK
 ========================= */
 
 function bindCards(root = document) {
+
   root
     .querySelectorAll('.card[data-id]')
     .forEach((c) => {
@@ -353,7 +416,9 @@ function bindCards(root = document) {
         const type =
           c.dataset.type || 'movie';
 
-        location.href =
+        if (!id) return;
+
+        window.location.href =
           `/movie.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
 
       };
@@ -363,2276 +428,1839 @@ function bindCards(root = document) {
 
 
 /* =========================
-   HERO
+   SECTION HELPERS
 ========================= */
 
-function setHero(m) {
-  state.hero = m;
+function showSection(id, show = true) {
 
-  if (!m) return;
+  const el = $(id);
 
-  const tv = isTV(m);
+  if (!el) return;
 
-  const title = tv ? m.name : m.title;
-  const date = tv
-    ? m.first_air_date
-    : m.release_date;
+  el.style.display =
+    show ? '' : 'none';
+}
 
-  const heroTitle = $('#heroTitle');
-  const heroOverview = $('#heroOverview');
-  const heroBg = $('#heroBg');
-  const heroMeta = $('#heroMeta');
 
-  if (heroTitle) {
-    heroTitle.textContent =
-      title || 'Untitled';
-  }
+function sectionHasItems(arr) {
 
-  if (heroOverview) {
-    heroOverview.textContent =
-      m.overview ||
-      'No synopsis available.';
-  }
-
-  if (heroBg) {
-    heroBg.style.backgroundImage =
-      `url("${backdrop(m)}")`;
-  }
-
-  if (heroMeta) {
-    heroMeta.innerHTML = `
-      <span class="score">
-        ${
-          m.vote_average
-            ? Number(m.vote_average).toFixed(1)
-            : '—'
-        }
-      </span>
-
-      <span>★</span>
-
-      <span>
-        ${
-          m.vote_count
-            ? Number(m.vote_count).toLocaleString()
-            : '0'
-        } votes
-      </span>
-
-      <span>
-        ${(date || '').slice(0, 4)}
-      </span>
-
-      <span>
-        ${tv ? 'TV' : 'FILM'}
-      </span>
-    `;
-  }
+  return Array.isArray(arr) &&
+    arr.some(
+      item =>
+        item &&
+        item.poster_path
+    );
 }
 
 
 /* =========================
-   HERO AUTOPLAY TRAILER
+   CATEGORY CONFIG
 ========================= */
 
-async function loadHeroTrailer(m) {
-  const heroVideo = $('#heroVideo');
-  const heroVideoFrame = $('#heroVideoFrame');
+const CATEGORY_CONFIG = {
 
-  if (!m || !heroVideo || !heroVideoFrame) return;
+  action: {
+    type: 'movie',
+    genre: 28
+  },
 
-  // Video ko pehle hidden rakho.
-  // Isliye slow network ya unavailable trailer mein banner hi dikhega.
-  heroVideo.classList.remove('active');
+  adventure: {
+    type: 'movie',
+    genre: 12
+  },
 
-  try {
-    const tv = isTV(m);
+  animation: {
+    type: 'movie',
+    genre: 16
+  },
 
-    const details = await api(
-      tv
-        ? `/api/tv/${m.id}`
-        : `/api/movie/${m.id}`
+  comedy: {
+    type: 'movie',
+    genre: 35
+  },
+
+  crime: {
+    type: 'movie',
+    genre: 80
+  },
+
+  documentary: {
+    type: 'movie',
+    genre: 99
+  },
+
+  drama: {
+    type: 'movie',
+    genre: 18
+  },
+
+  family: {
+    type: 'movie',
+    genre: 10751
+  },
+
+  fantasy: {
+    type: 'movie',
+    genre: 14
+  },
+
+  history: {
+    type: 'movie',
+    genre: 36
+  },
+
+  horror: {
+    type: 'movie',
+    genre: 27
+  },
+
+  music: {
+    type: 'movie',
+    genre: 10402
+  },
+
+  mystery: {
+    type: 'movie',
+    genre: 9648
+  },
+
+  romance: {
+    type: 'movie',
+    genre: 10749
+  },
+
+  'science-fiction': {
+    type: 'movie',
+    genre: 878
+  },
+
+  thriller: {
+    type: 'movie',
+    genre: 53
+  },
+
+  war: {
+    type: 'movie',
+    genre: 10752
+  },
+
+  western: {
+    type: 'movie',
+    genre: 37
+  },
+
+
+  /*
+   * MIND-BENDING
+   *
+   * Only movies having BOTH:
+   * Sci-Fi + Thriller
+   */
+
+  'mind-bending': {
+    type: 'movie',
+    genres: '878,53'
+  },
+
+
+  /*
+   * ACTION & ADVENTURE
+   *
+   * Action OR Adventure
+   */
+
+  'action-adventure': {
+    type: 'movie',
+    genres: '28|12'
+  },
+
+
+  /*
+   * INDIAN
+   *
+   * Movies originating from India.
+   */
+
+  indian: {
+    type: 'movie',
+    country: 'IN'
+  },
+
+
+  /*
+   * KOREAN
+   */
+
+  korean: {
+    type: 'movie',
+    country: 'KR'
+  },
+
+
+  /*
+   * JAPANESE
+   */
+
+  japanese: {
+    type: 'movie',
+    country: 'JP'
+  },
+
+
+  /*
+   * CHINESE
+   */
+
+  chinese: {
+    type: 'movie',
+    country: 'CN'
+  },
+
+
+  /*
+   * HOLLYWOOD
+   *
+   * US + English original language.
+   */
+
+  hollywood: {
+    type: 'movie',
+    country: 'US',
+    language: 'en'
+  },
+
+
+  /*
+   * WEB SERIES
+   *
+   * TV ONLY.
+   */
+
+  webseries: {
+    type: 'tv'
+  }
+
+};
+
+
+/* =========================
+   DISCOVER URL
+========================= */
+
+function buildDiscoverURL(config = {}) {
+
+  const type =
+    config.type === 'tv'
+      ? 'tv'
+      : 'movie';
+
+  const params =
+    new URLSearchParams();
+
+
+  params.set(
+    'page',
+    config.page || '1'
+  );
+
+
+  params.set(
+    'sort_by',
+    config.sort_by ||
+      'popularity.desc'
+  );
+
+
+  params.set(
+    'include_adult',
+    'false'
+  );
+
+
+  params.set(
+    'include_video',
+    'false'
+  );
+
+
+  /*
+   * MOVIE / TV GENRES
+   */
+
+  if (config.genre) {
+
+    params.set(
+      'with_genres',
+      String(config.genre)
     );
 
-    const videos =
-      details?.videos?.results || [];
+  }
 
-    const trailer =
-      videos.find(v =>
-        v.site === 'YouTube' &&
-        v.type === 'Trailer'
-      ) ||
-      videos.find(v =>
-        v.site === 'YouTube'
+
+  if (config.genres) {
+
+    params.set(
+      'with_genres',
+      String(config.genres)
+    );
+
+  }
+
+
+  /*
+   * COUNTRY
+   */
+
+  if (config.country) {
+
+    params.set(
+      'with_origin_country',
+      String(config.country)
+    );
+
+  }
+
+
+  /*
+   * LANGUAGE
+   */
+
+  if (config.language) {
+
+    params.set(
+      'with_original_language',
+      String(config.language)
+    );
+
+  }
+
+
+  /*
+   * RATING
+   */
+
+  if (
+    config.vote_average_gte !== undefined
+  ) {
+
+    params.set(
+      'vote_average.gte',
+      String(
+        config.vote_average_gte
+      )
+    );
+
+  }
+
+
+  /*
+   * VOTE COUNT
+   */
+
+  if (
+    config.vote_count_gte !== undefined
+  ) {
+
+    params.set(
+      'vote_count.gte',
+      String(
+        config.vote_count_gte
+      )
+    );
+
+  }
+
+
+  /*
+   * YEAR
+   */
+
+  if (config.year) {
+
+    if (type === 'tv') {
+
+      params.set(
+        'first_air_date_year',
+        String(config.year)
       );
-
-    // Trailer hi nahi mila → banner rehne do.
-    if (!trailer?.key) return;
-
-    const videoId = trailer.key;
-
-    function createHeroPlayer() {
-
-      if (!window.YT || !window.YT.Player) {
-        return;
-      }
-
-      new YT.Player('heroVideoFrame', {
-
-        videoId: videoId,
-
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          rel: 0,
-          playsinline: 1,
-          loop: 1,
-          playlist: videoId
-        },
-
-        events: {
-
-          onReady: (event) => {
-
-            event.target.mute();
-
-            event.target.playVideo();
-
-          },
-
-          onStateChange: (event) => {
-
-            // Trailer actually start ho gaya.
-            if (
-              event.data ===
-              YT.PlayerState.PLAYING
-            ) {
-
-              heroVideo.classList.add(
-                'active'
-              );
-
-            }
-
-          },
-
-          onError: () => {
-
-            // Owner ne embed disable kiya
-            // ya video unavailable hai.
-            heroVideo.classList.remove(
-              'active'
-            );
-
-            console.warn(
-              'Hero trailer unavailable. Showing banner.'
-            );
-
-          }
-
-        }
-
-      });
-
-    }
-
-
-    // YouTube IFrame API load karo.
-    if (
-      window.YT &&
-      window.YT.Player
-    ) {
-
-      createHeroPlayer();
 
     } else {
 
-      window.onYouTubeIframeAPIReady =
-        createHeroPlayer;
-
-      const script =
-        document.createElement('script');
-
-      script.src =
-        'https://www.youtube.com/iframe_api';
-
-      script.async = true;
-
-      document.head.appendChild(
-        script
+      params.set(
+        'primary_release_year',
+        String(config.year)
       );
 
     }
+
+  }
+
+
+  /*
+   * TV-SPECIFIC SAFETY
+   */
+
+  if (type === 'tv') {
+
+    params.set(
+      'include_null_first_air_dates',
+      'false'
+    );
+
+  }
+
+
+  return `/api/discover/${type}?${params.toString()}`;
+}
+
+
+/* =========================
+   DISCOVER CATEGORY
+========================= */
+
+async function discoverCategory(
+  category
+) {
+
+  const config =
+    CATEGORY_CONFIG[category];
+
+  if (!config) {
+
+    console.warn(
+      `Unknown MovieHub category: ${category}`
+    );
+
+    return [];
+
+  }
+
+
+  try {
+
+    const url =
+      buildDiscoverURL(config);
+
+    const data =
+      await api(url);
+
+    const results =
+      Array.isArray(data?.results)
+        ? data.results
+        : [];
+
+
+    return results
+      .filter(Boolean)
+      .filter(item => {
+
+        /*
+         * STRICT MEDIA TYPE
+         */
+
+        if (config.type === 'tv') {
+
+          return (
+            item.name !== undefined &&
+            item.title === undefined
+          );
+
+        }
+
+
+        return (
+          item.title !== undefined &&
+          item.name === undefined
+        );
+
+      })
+      .map(item => ({
+
+        ...item,
+
+        media_type:
+          config.type
+
+      }));
 
   } catch (error) {
 
-    // Kisi bhi error par banner hi rahega.
-    heroVideo.classList.remove(
-      'active'
-    );
-
     console.warn(
-      'Hero trailer unavailable. Showing banner:',
+      `Category failed: ${category}`,
       error
     );
 
+    return [];
+
   }
 }
+
+
 /* =========================
-   HOME DATA
+   CATEGORY CACHE
 ========================= */
 
-async function load() {
-  try {
-
-    /* =========================
-       MOVIE DISCOVERY
-    ========================= */
-
-    const requests = [
-
-      /* Trending Today */
-      api('/api/trending'),
-
-      /* Highly Rated */
-      api('/api/discover/movie?sort_by=vote_average.desc&vote_count.gte=300'),
-
-      /* New Releases */
-      api('/api/discover/movie?sort_by=primary_release_date.desc&primary_release_date.lte=' + new Date().toISOString().slice(0, 10)),
-
-      /* Webseries */
-      api('/api/discover/tv?sort_by=popularity.desc'),
-
-      /* Romance */
-      api('/api/discover/movie?with_genres=10749&sort_by=popularity.desc'),
-
-      /* Action */
-      api('/api/discover/movie?with_genres=28&sort_by=popularity.desc'),
-
-      /* Horror */
-      api('/api/discover/movie?with_genres=27&sort_by=popularity.desc'),
-
-      /* Mind-Bending */      
-api('/api/discover/movie?with_genres=878%7C9648&sort_by=popularity.desc'),
-      /* Based on True Stories */
-      api('/api/discover/movie?with_keywords=9672&sort_by=popularity.desc'),
-
-      /* Family Night */
-      api('/api/discover/movie?with_genres=10751&sort_by=popularity.desc'),
-
-      /* Hollywood */
-      api('/api/discover/movie?with_original_language=en&sort_by=popularity.desc'),
-
-      /* Late Night Movies */
-api('/api/discover/movie?with_runtime.gte=90&with_runtime.lte=180&sort_by=popularity.desc'),
-
-      /* Korean Drama */
-      api('/api/discover/tv?with_original_language=ko&sort_by=popularity.desc'),
-
-      /* China */
-      api('/api/discover/movie?with_original_language=zh&sort_by=popularity.desc'),
-
-      /* Japanese */
-      api('/api/discover/movie?with_original_language=ja&sort_by=popularity.desc'),
-
-      /* Indian */
-api('/api/discover/movie?with_origin_country=IN&sort_by=popularity.desc'),
-
-      /* Coming Soon */
-      api('/api/upcoming')
-
-    ];
+const categoryCache =
+  new Map();
 
 
-    const results =
-      await Promise.allSettled(requests);
-console.log('MOVIEHUB DISCOVERY RESULTS:', results);
+async function getCategory(
+  category
+) {
 
-results.forEach((result, index) => {
-  console.log(
-    `DISCOVERY ${index}:`,
-    result.status,
-    result.status === 'fulfilled'
-      ? result.value
-      : result.reason
+  if (
+    categoryCache.has(category)
+  ) {
+
+    return categoryCache.get(
+      category
+    );
+
+  }
+
+
+  const promise =
+    discoverCategory(category);
+
+
+  categoryCache.set(
+    category,
+    promise
   );
-});
 
-    const get = (index) => {
 
-      const result =
-        results[index];
+  return promise;
+}
 
-      if (
-        result &&
-        result.status === 'fulfilled'
-      ) {
-        return result.value || {};
+
+/* =========================
+   CATEGORY RAIL MAP
+========================= */
+
+const CATEGORY_RAILS = {
+
+  action:
+    '#actionRail',
+
+  adventure:
+    '#adventureRail',
+
+  animation:
+    '#animationRail',
+
+  comedy:
+    '#comedyRail',
+
+  crime:
+    '#crimeRail',
+
+  documentary:
+    '#documentaryRail',
+
+  drama:
+    '#dramaRail',
+
+  family:
+    '#familyRail',
+
+  fantasy:
+    '#fantasyRail',
+
+  history:
+    '#historyRail',
+
+  horror:
+    '#horrorRail',
+
+  music:
+    '#musicRail',
+
+  mystery:
+    '#mysteryRail',
+
+  romance:
+    '#romanceRail',
+
+  thriller:
+    '#thrillerRail',
+
+  'science-fiction':
+    '#scienceFictionRail',
+
+  'mind-bending':
+    '#mindBendingRail',
+
+  'action-adventure':
+    '#actionAdventureRail',
+
+  indian:
+    '#indianRail',
+
+  korean:
+    '#koreanRail',
+
+  japanese:
+    '#japaneseRail',
+
+  chinese:
+    '#chineseRail',
+
+  hollywood:
+    '#hollywoodRail',
+
+  webseries:
+    '#webseriesRail'
+
+};
+
+
+/* =========================
+   UNIQUE TITLES
+========================= */
+
+function uniqueTitles(
+  items = []
+) {
+
+  const seen =
+    new Set();
+
+  return items.filter(
+    item => {
+
+      if (!item || !item.id) {
+        return false;
       }
 
-      return {};
-    };
+      const type =
+        isTV(item)
+          ? 'tv'
+          : 'movie';
 
+      const key =
+        `${type}:${item.id}`;
 
-    /* =========================
-       DISCOVERY DATA
-    ========================= */
+      if (seen.has(key)) {
+        return false;
+      }
 
-    const discovery = {
+      seen.add(key);
 
-      trending:
-        get(0).results || [],
+      return true;
 
-      highlyRated:
-        get(1).results || [],
-
-      newReleases:
-        get(2).results || [],
-
-      webseries:
-        get(3).results || [],
-
-      romance:
-        get(4).results || [],
-
-      action:
-        get(5).results || [],
-
-      horror:
-        get(6).results || [],
-
-      mindBending:
-        get(7).results || [],
-
-      trueStories:
-        get(8).results || [],
-
-      family:
-        get(9).results || [],
-
-      hollywood:
-        get(10).results || [],
-
-      lateNight:
-        get(11).results || [],
-
-      korean:
-        get(12).results || [],
-
-      china:
-        get(13).results || [],
-
-      japanese:
-        get(14).results || [],
-
-      indian:
-  get(15).results || [],
-      comingSoon:
-        get(16).results || []
-
-    };
-
-
-    /* =========================
-       HERO
-    ========================= */
-
-    const hero =
-      discovery.trending[0] ||
-      discovery.webseries[0] ||
-      discovery.highlyRated[0] ||
-      {};
-
-
-    setHero(hero);
-
-    loadHeroTrailer(hero)
-      .catch(console.warn);
-
-
-    /* =========================
-       MOVIE DISCOVERY SECTIONS
-    ========================= */
-
-    fill(
-      '#trendingRail',
-      discovery.trending,
-      'movie'
-    );
-
-    fill(
-      '#popularRail',
-      discovery.highlyRated,
-      'movie'
-    );
-
-    fill(
-      '#nowRail',
-      discovery.newReleases,
-      'movie'
-    );
-
-    fill(
-      '#upcomingRail',
-      discovery.comingSoon,
-      'movie'
-    );
-
-
-    /* =========================
-       TV / WEBSERIES
-    ========================= */
-
-    fill(
-      '#tvPopularRail',
-      discovery.webseries,
-      'tv'
-    );
-
-
-    /* =========================
-       GENRE / CATEGORY RAILS
-    ========================= */
-
-    fill(
-      '#romanceRail',
-      discovery.romance,
-      'movie'
-    );
-
-    fill(
-      '#actionRail',
-      discovery.action,
-      'movie'
-    );
-
-    fill(
-      '#horrorRail',
-      discovery.horror,
-      'movie'
-    );
-
-    fill(
-      '#mindBendingRail',
-      discovery.mindBending,
-      'movie'
-    );
-
-    fill(
-      '#trueStoriesRail',
-      discovery.trueStories,
-      'movie'
-    );
-
-    fill(
-      '#familyRail',
-      discovery.family,
-      'movie'
-    );
-
-    fill(
-      '#hollywoodRail',
-      discovery.hollywood,
-      'movie'
-    );
-
-    fill(
-      '#lateNightRail',
-      discovery.lateNight,
-      'movie'
-    );
-
-    fill(
-      '#koreanRail',
-      discovery.korean,
-      'tv'
-    );
-
-    fill(
-      '#chinaRail',
-      discovery.china,
-      'movie'
-    );
-
-    fill(
-      '#japaneseRail',
-      discovery.japanese,
-      'movie'
-    );
-
-fill(
-  '#indianRail',
-  discovery.indian,
-  'movie'
-);
-
-
-    /* =========================
-       MY WATCHLIST
-    ========================= */
-
-    loadHomeWatchlist();
-
-    bindCards();
-
-    /* REMOVE LOADING ELEMENT
-       if your HTML has one */
-
-    const loading =
-      $('#loading');
-
-    if (loading) {
-      loading.style.display = 'none';
     }
-console.log('MovieHub LOAD FINISHED');
-
-    /* Check if any request failed */
-
-    const failed =
-      results.find(
-        (x) => x.status === 'rejected'
-      );
-
-    if (failed) {
-      console.warn(
-        'Some MovieHub API requests failed:',
-        failed.reason
-      );
-    }
-
-  } catch (e) {
-
-    console.error(e);
-
-    toast(
-      'TMDB connection error: ' +
-      e.message
-    );
-  }
+  );
 }
 
 
 /* =========================
-   DETAILS
+   ONLY MOVIES
 ========================= */
 
-async function openDetails(id, type) {
+function onlyMovies(
+  items = []
+) {
 
-  try {
-
-    const endpoint =
-      type === 'tv'
-        ? `/api/tv/${id}`
-        : `/api/movie/${id}`;
-
-    const m =
-      await api(endpoint);
-
-
-    const tv =
-      type === 'tv';
-
-    const title =
-      tv ? m.name : m.title;
-
-    const date =
-      tv
-        ? m.first_air_date
-        : m.release_date;
+  return uniqueTitles(
+    items.filter(
+      item =>
+        item &&
+        !isTV(item) &&
+        item.title !== undefined
+    )
+  );
+}
 
 
-    /* TRAILER */
+/* =========================
+   ONLY TV
+========================= */
 
-    const trailer =
-      (m.videos?.results || [])
-        .find(
-          (v) =>
-            v.site === 'YouTube' &&
-            v.type === 'Trailer'
-        ) ||
+function onlyTV(
+  items = []
+) {
 
-      (m.videos?.results || [])
-        .find(
-          (v) =>
-            v.site === 'YouTube'
-        );
-
-
-    /* CAST */
-
-    const cast =
-      (m.credits?.cast || [])
-        .slice(0, 10);
+  return uniqueTitles(
+    items.filter(
+      item =>
+        item &&
+        isTV(item) &&
+        item.name !== undefined
+    )
+  );
+}
 
 
-    /* RUNTIME */
+/* =========================
+   CATEGORY RESULT CLEANER
+========================= */
 
-    const runtime =
-      tv
+function cleanCategoryResults(
+  items,
+  category
+) {
 
-        ? (
-            m.episode_run_time?.[0]
-              ? m.episode_run_time[0] +
-                ' min/episode'
-              : 'Runtime N/A'
+  const config =
+    CATEGORY_CONFIG[category];
+
+  if (!config) {
+    return [];
+  }
+
+
+  let result =
+    Array.isArray(items)
+      ? items
+      : [];
+
+
+  /*
+   * STRICT MEDIA TYPE
+   */
+
+  if (config.type === 'tv') {
+
+    result =
+      onlyTV(result);
+
+  } else {
+
+    result =
+      onlyMovies(result);
+
+  }
+
+
+  /*
+   * POSTER ONLY
+   */
+
+  result =
+    result.filter(
+      item =>
+        item &&
+        item.poster_path
+    );
+
+
+  /*
+   * Additional safety for
+   * Mind-Bending.
+   *
+   * Must contain BOTH:
+   * Sci-Fi 878
+   * Thriller 53
+   */
+
+  if (
+    category === 'mind-bending'
+  ) {
+
+    result =
+      result.filter(item => {
+
+        const genres =
+          Array.isArray(
+            item.genre_ids
           )
+            ? item.genre_ids
+            : [];
 
-        : (
-            m.runtime
-              ? m.runtime + ' min'
-              : 'Runtime N/A'
-          );
-
-
-    /* PROVIDERS */
-
-    let providers = null;
-
-    try {
-
-      providers =
-        await api(
-          `/api/${tv ? 'tv' : 'movie'}/providers/${id}?watch_region=IN`
+        return (
+          genres.includes(878) &&
+          genres.includes(53)
         );
 
-    } catch (e) {
+      });
 
-      console.warn(
-        'Provider request failed:',
-        e
-      );
-
-      providers = null;
-    }
-
-
-    const region =
-      providers?.results?.IN || {};
-
-
-    const providerList = [
-
-      ...(region.flatrate || []),
-
-      ...(region.free || []),
-
-      ...(region.ads || []),
-
-      ...(region.rent || []),
-
-      ...(region.buy || [])
-
-    ].filter(
-      (p, i, a) =>
-        a.findIndex(
-          (x) =>
-            x.provider_id ===
-            p.provider_id
-        ) === i
-    );
-
-
-    const watchLink =
-      region.link || '';
-
-
-    /* TRAILER BUTTON */
-
-    const trailerButton =
-      trailer
-
-        ? `
-          <button
-            class="btn primary"
-            onclick="playTrailer('${esc(trailer.key)}')"
-          >
-            WATCH TRAILER
-          </button>
-        `
-
-        : '';
-
-
-    /* WATCH HERE BUTTON */
-
-    const watchButton =
-      watchLink
-
-        ? `
-          <a
-            class="btn"
-            href="${esc(watchLink)}"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WATCH HERE
-          </a>
-        `
-
-        : '';
-
-
-    /* PROVIDER LIST */
-
-    const providerInfo =
-      providerList.length
-
-        ? `
-          <div
-            class="watch-providers"
-            style="margin-top:25px"
-          >
-
-            <div class="eyebrow">
-              AVAILABLE ON
-            </div>
-
-            <div
-              style="
-                display:flex;
-                flex-wrap:wrap;
-                gap:10px;
-                margin-top:12px;
-              "
-            >
-
-              ${providerList
-                .slice(0, 8)
-                .map(
-                  (p) => `
-                    <div
-                      style="
-                        display:flex;
-                        align-items:center;
-                        gap:8px;
-                        padding:8px 10px;
-                        border:1px solid #302c24;
-                        background:#11110f;
-                        border-radius:4px;
-                      "
-                    >
-
-                      ${
-                        p.logo_path
-
-                          ? `
-                            <img
-                              src="${
-                                IMG +
-                                'w92' +
-                                p.logo_path
-                              }"
-                              alt="${esc(
-                                p.provider_name
-                              )}"
-                              style="
-                                width:28px;
-                                height:28px;
-                                object-fit:contain;
-                              "
-                            >
-                          `
-
-                          : ''
-                      }
-
-                      <span
-                        style="
-                          font:10px var(--mono);
-                          color:#cfc7b8;
-                        "
-                      >
-                        ${esc(
-                          p.provider_name
-                        )}
-                      </span>
-
-                    </div>
-                  `
-                )
-                .join('')}
-
-            </div>
-
-            <small
-              style="
-                display:block;
-                margin-top:10px;
-                color:#777267;
-                font:9px var(--mono);
-              "
-            >
-              Streaming availability powered by JustWatch.
-            </small>
-
-          </div>
-        `
-
-        : '';
-
-
-    /* DETAILS HTML */
-
-    const modalBox =
-      $('#modalBox');
-
-    if (!modalBox) {
-      throw new Error(
-        'modalBox not found in index.html'
-      );
-    }
-
-
-    modalBox.innerHTML = `
-
-      <div
-        class="details-hero"
-        style="
-          background-image:url('${backdrop(m)}')
-        "
-      >
-
-        <div class="details-content">
-
-          <div class="eyebrow">
-            ${
-              tv
-                ? 'TV SHOW / DRAMA'
-                : 'FILM'
-            }
-            DETAILS
-          </div>
-
-
-          <h2>
-            ${esc(title)}
-          </h2>
-
-
-          <div class="meta">
-
-            <span class="score">
-              ${
-                m.vote_average
-                  ? Number(
-                      m.vote_average
-                    ).toFixed(1)
-                  : '—'
-              }
-            </span>
-
-            <span>★</span>
-
-            <span>
-              ${(date || '').slice(0, 4)}
-            </span>
-
-            <span>
-              ${runtime}
-            </span>
-
-            ${
-              tv &&
-              m.number_of_seasons
-
-                ? `
-                  <span>
-                    ${
-                      m.number_of_seasons
-                    }
-                    season${
-                      m.number_of_seasons > 1
-                        ? 's'
-                        : ''
-                    }
-                  </span>
-                `
-
-                : ''
-            }
-
-          </div>
-
-
-          <p class="overview">
-            ${
-              esc(
-                m.overview ||
-                'No synopsis available.'
-              )
-            }
-          </p>
-
-
-          <div class="actions">
-
-            ${trailerButton}
-
-            ${watchButton}
-
-          </div>
-
-
-          ${providerInfo}
-
-        </div>
-
-      </div>
-
-
-      <div class="details-body">
-
-        <div>
-
-          <h3>
-            Cast
-          </h3>
-
-
-          <div class="credits">
-
-${
-  cast.length
-    ? cast
-        .map(
-          (p) => `
-
-  
-<a
-  class="person"
-  href="/person.html?id=${encodeURIComponent(p.id)}"
-  data-person-id="${p.id}"
-  style="cursor:pointer; text-decoration:none;"
->
-              ${
-                p.profile_path
-                  ? `
-                    <img
-                      src="${IMG + 'w185' + p.profile_path}"
-                      alt="${esc(p.name)}"
-                    >
-                  `
-                  : `
-                    <div
-                      style="
-                        width:82px;
-                        height:110px;
-                        background:#171715;
-                        display:grid;
-                        place-items:center;
-                        color:#777;
-                        font:9px var(--mono);
-                      "
-                    >
-                      NO PHOTO
-                    </div>
-                  `
-              }
-
-              <span>${esc(p.name)}</span>
-
-              ${
-                p.character
-                  ? `
-                    <small
-                      style="
-                        display:block;
-                        margin-top:3px;
-                        color:#666;
-                        font-size:9px;
-                      "
-                    >
-                      ${esc(p.character)}
-                    </small>
-                  `
-                  : ''
-              }
-
-            </a>
-
-          `
-        )
-        .join('')
-
-    : `
-        <span
-          style="
-            color:#777;
-            font-size:11px;
-          "
-        >
-          Cast information unavailable.
-        </span>
-      `
-}
-    
-
-          </div>
-
-        </div>
-
-
-        <div class="facts">
-
-          <div>
-            <b>
-              Genres
-            </b>
-            <br>
-
-            ${
-              (m.genres || [])
-                .map(
-                  (g) =>
-                    esc(g.name)
-                )
-                .join(' · ') ||
-              '—'
-            }
-
-          </div>
-
-
-          <div>
-            <b>
-              Original title
-            </b>
-            <br>
-
-            ${
-              esc(
-                tv
-                  ? m.original_name ||
-                    '—'
-                  : m.original_title ||
-                    '—'
-              )
-            }
-
-          </div>
-
-
-          <div>
-            <b>
-              First release
-            </b>
-            <br>
-
-            ${esc(date || '—')}
-
-          </div>
-
-
-          <div>
-            <b>
-              Language
-            </b>
-            <br>
-
-            ${esc(
-              m.original_language ||
-              '—'
-            ).toUpperCase()}
-
-          </div>
-
-
-          ${
-            tv
-
-              ? `
-                <div>
-                  <b>
-                    Episodes
-                  </b>
-                  <br>
-                  ${
-                    m.number_of_episodes ||
-                    '—'
-                  }
-                </div>
-              `
-
-              : ''
-          }
-
-        </div>
-
-      </div>
-
-    `;
-modalBox
-  .querySelectorAll('.person[data-person-id]')
-  .forEach((person) => {
-
-    person.onclick = (e) => {
-
-      e.stopPropagation();
-
-      const id =
-        person.dataset.personId;
-
-      if (!id) return;
-
-      window.location.href =
-        `/person.html?id=${encodeURIComponent(id)}`;
-
-    };
-
-  });
-const modal = $('#modal');
-if (modal) {
-  modal.classList.add('open');
-}
-
-
-
-  } catch (e) {
-
-    console.error(e);
-
-    toast(
-      'Details error: ' +
-      e.message
-    );
   }
+
+
+  /*
+   * Additional safety for
+   * Action & Adventure.
+   *
+   * Must contain either:
+   * Action 28
+   * OR Adventure 12
+   */
+
+  if (
+    category === 'action-adventure'
+  ) {
+
+    result =
+      result.filter(item => {
+
+        const genres =
+          Array.isArray(
+            item.genre_ids
+          )
+            ? item.genre_ids
+            : [];
+
+        return (
+          genres.includes(28) ||
+          genres.includes(12)
+        );
+
+      });
+
+  }
+
+
+  /*
+   * COUNTRY SAFETY
+   *
+   * This prevents unrelated titles
+   * from appearing if TMDB returns
+   * unexpected data.
+   */
+
+  if (
+    config.country
+  ) {
+
+    result =
+      result.filter(item => {
+
+        const countries =
+          Array.isArray(
+            item.origin_country
+          )
+            ? item.origin_country
+            : [];
+
+        return countries.includes(
+          config.country
+        );
+
+      });
+
+  }
+
+
+  /*
+   * LANGUAGE SAFETY
+   */
+
+  if (
+    config.language
+  ) {
+
+    result =
+      result.filter(item =>
+        item.original_language ===
+        config.language
+      );
+
+  }
+
+
+  /*
+   * REMOVE DUPLICATES
+   */
+
+  result =
+    uniqueTitles(result);
+
+
+  return result;
 }
 
 
 /* =========================
-   PLAY TRAILER
+   CATEGORY DISPLAY NAME
 ========================= */
 
-function playTrailer(key) {
+function categoryDisplayName(
+  category
+) {
 
-  if (!key) {
-    toast(
-      'Trailer is not available.'
+  const names = {
+
+    action:
+      'Action',
+
+    adventure:
+      'Adventure',
+
+    animation:
+      'Animation',
+
+    comedy:
+      'Comedy',
+
+    crime:
+      'Crime',
+
+    documentary:
+      'Documentary',
+
+    drama:
+      'Drama',
+
+    family:
+      'Family',
+
+    fantasy:
+      'Fantasy',
+
+    history:
+      'History',
+
+    horror:
+      'Horror',
+
+    music:
+      'Music',
+
+    mystery:
+      'Mystery',
+
+    romance:
+      'Romance',
+
+    thriller:
+      'Thriller',
+
+    'science-fiction':
+      'Science Fiction',
+
+    'mind-bending':
+      'Mind-Bending',
+
+    'action-adventure':
+      'Action & Adventure',
+
+    indian:
+      'Indian',
+
+    korean:
+      'Korean',
+
+    japanese:
+      'Japanese',
+
+    chinese:
+      'Chinese',
+
+    hollywood:
+      'Hollywood',
+
+    webseries:
+      'Web Series'
+
+  };
+
+
+  return (
+    names[category] ||
+    category
+  );
+}
+
+
+/* =========================
+   CATEGORY VISIBILITY
+========================= */
+
+function updateCategorySection(
+  category,
+  results
+) {
+
+  const railSelector =
+    CATEGORY_RAILS[category];
+
+  if (!railSelector) return;
+
+
+  const rail =
+    $(railSelector);
+
+  if (!rail) return;
+
+
+  const section =
+    rail.closest('section');
+
+  if (!section) return;
+
+
+  const valid =
+    cleanCategoryResults(
+      results,
+      category
     );
+
+
+  if (!valid.length) {
+
+    section.style.display =
+      'none';
 
     return;
   }
 
 
-  const modalBox =
-    $('#modalBox');
-
-  if (!modalBox) return;
+  section.style.display =
+    '';
 
 
-  /*
-    Trailer only starts AFTER
-    user clicks WATCH TRAILER.
-  */
+  const heading =
+    section.querySelector('h2');
 
-  modalBox.innerHTML = `
 
-    <div class="video">
+  if (
+    heading &&
+    heading.dataset.autoCategory !== 'true'
+  ) {
 
-      <iframe
-        src="https://www.youtube.com/embed/${encodeURIComponent(
-          key
-        )}?autoplay=1&rel=0"
-        title="Movie Trailer"
-        allow="
-          accelerometer;
-          autoplay;
-          clipboard-write;
-          encrypted-media;
-          gyroscope;
-          picture-in-picture;
-          web-share
-        "
-        allowfullscreen
-      ></iframe>
+    return;
+  }
 
-    </div>
 
-  `;
+  if (heading) {
+
+    heading.textContent =
+      categoryDisplayName(
+        category
+      );
+
+    heading.dataset.autoCategory =
+      'true';
+
+  }
 }
 
 
 /* =========================
-   CARD TRAILER
-   Optional helper
+   RENDER CATEGORY
 ========================= */
 
-async function playCardTrailer(
-  id,
+async function renderCategorySafe(
+  category
+) {
+
+  const selector =
+    CATEGORY_RAILS[category];
+
+  if (!selector) return;
+
+
+  const rail =
+    $(selector);
+
+  if (!rail) return;
+
+
+  rail.innerHTML = `
+    <div class="loading">
+      Loading...
+    </div>
+  `;
+
+
+  try {
+
+    const data =
+      await getCategory(
+        category
+      );
+
+
+    const results =
+      cleanCategoryResults(
+        data,
+        category
+      );
+
+
+    updateCategorySection(
+      category,
+      results
+    );
+
+
+    if (!results.length) {
+
+      rail.innerHTML = '';
+
+      return;
+    }
+
+
+    const config =
+      CATEGORY_CONFIG[category];
+
+
+    rail.innerHTML =
+      results
+        .slice(0, 14)
+        .map(item =>
+          card(
+            item,
+            config.type
+          )
+        )
+        .join('');
+
+
+    bindCards(rail);
+
+  } catch (error) {
+
+    console.warn(
+      `Could not render ${category}:`,
+      error
+    );
+
+    rail.innerHTML = '';
+
+  }
+}
+
+
+/* =========================
+   LOAD CATEGORIES
+========================= */
+
+async function loadImportantCategories() {
+
+  const categories = [
+
+    'action',
+
+    'adventure',
+
+    'animation',
+
+    'comedy',
+
+    'crime',
+
+    'documentary',
+
+    'drama',
+
+    'family',
+
+    'fantasy',
+
+    'history',
+
+    'horror',
+
+    'music',
+
+    'mystery',
+
+    'romance',
+
+    'thriller',
+
+    'science-fiction',
+
+    'mind-bending',
+
+    'action-adventure',
+
+    'indian',
+
+    'korean',
+
+    'japanese',
+
+    'chinese',
+
+    'hollywood',
+
+    'webseries'
+
+  ];
+
+
+  await Promise.allSettled(
+
+    categories.map(
+      category =>
+        renderCategorySafe(
+          category
+        )
+    )
+
+  );
+}
+
+
+/* =========================
+   GENERIC COLLECTION
+========================= */
+
+async function loadCollection(
+  endpoint,
   type
 ) {
 
   try {
 
-    const m =
-      await api(
-        `/api/${
-          type === 'tv'
-            ? 'tv'
-            : 'movie'
-        }/${id}`
-      );
+    const data =
+      await api(endpoint);
 
+    const results =
+      Array.isArray(data?.results)
+        ? data.results
+        : [];
 
-    const v =
-      (m.videos?.results || [])
-        .find(
-          (x) =>
-            x.site === 'YouTube' &&
-            x.type === 'Trailer'
-        )
 
-      ||
+    return results
+      .filter(Boolean)
+      .filter(item => {
 
-      (m.videos?.results || [])
-        .find(
-          (x) =>
-            x.site === 'YouTube' &&
-            x.type === 'Teaser'
-        )
+        if (type === 'tv') {
 
-      ||
-
-      (m.videos?.results || [])
-        .find(
-          (x) =>
-            x.site === 'YouTube'
-        );
-
-
-    if (!v) {
-
-      toast(
-        'No trailer is listed for this title.'
-      );
-
-      return;
-    }
-
-
-    $('#modal')?.classList.add(
-      'open'
-    );
-
-    playTrailer(v.key);
-
-  } catch (e) {
-
-    toast(e.message);
-
-  }
-}
-
-
-/* =========================
-   HERO TRAILER
-========================= */
-
-async function heroAction() {
-
-  if (!state.hero) return;
-
-
-  const type =
-    isTV(state.hero)
-      ? 'tv'
-      : 'movie';
-
-
-  try {
-
-    const m =
-      await api(
-        `/api/${type}/${state.hero.id}`
-      );
-
-
-    const v =
-      (m.videos?.results || [])
-        .find(
-          (x) =>
-            x.site === 'YouTube' &&
-            x.type === 'Trailer'
-        )
-
-      ||
-
-      (m.videos?.results || [])
-        .find(
-          (x) =>
-            x.site === 'YouTube'
-        );
-
-
-    if (!v) {
-
-      toast(
-        'No trailer is listed for this title.'
-      );
-
-      return;
-    }
-
-
-    await openDetails(
-      state.hero.id,
-      type
-    );
-
-
-    playTrailer(v.key);
-
-  } catch (e) {
-
-    toast(e.message);
-
-  }
-}
-
-
-/* =========================
-   BUTTONS
-========================= */
-
-const trailerBtn =
-  $('#trailerBtn');
-
-if (trailerBtn) {
-  trailerBtn.onclick =
-    heroAction;
-}
-
-
-const detailsBtn =
-  $('#detailsBtn');
-
-if (detailsBtn) {
-
-  detailsBtn.onclick = () => {
-
-    if (!state.hero) return;
-
-    openDetails(
-      state.hero.id,
-      isTV(state.hero)
-        ? 'tv'
-        : 'movie'
-    );
-
-  };
-}
-
-
-/* =========================
-   MODAL CLOSE
-========================= */
-
-const modalClose =
-  $('#modalClose');
-
-if (modalClose) {
-
-  modalClose.onclick = () => {
-
-    $('#modal')?.classList.remove(
-      'open'
-    );
-
-    if ($('#modalBox')) {
-      $('#modalBox').innerHTML = '';
-    }
-
-  };
-
-}
-
-
-const modalCloseOverlay =
-  $('#modal');
-
-if (modalCloseOverlay) {
-
-  modalCloseOverlay.onclick = (e) => {
-
-    if (
-      e.target.id === 'modal'
-    ) {
-      modalClose?.click();
-    }
-
-  };
-
-}
-
-/* =========================
-   SMART SEARCH
-========================= */
-
-const searchBtn = $('#searchBtn');
-const searchPanel = $('#searchPanel');
-const searchInput = $('#searchInput');
-const searchSubmit = $('#searchSubmit');
-const searchClose = $('#searchClose');
-const searchResults = $('#searchResults');
-
-let currentSearchFilter = 'all';
-
-
-/* OPEN SEARCH */
-
-if (searchBtn) {
-  searchBtn.onclick = () => {
-
-    searchPanel?.classList.add('open');
-
-    setTimeout(() => {
-      searchInput?.focus();
-    }, 250);
-
-  };
-}
-
-
-/* CLOSE SEARCH */
-
-function closeSearch() {
-
-  searchPanel?.classList.remove('open');
-
-  if (searchInput) {
-    searchInput.value = '';
-  }
-
-  if (searchResults) {
-    searchResults.innerHTML = '';
-  }
-
-}
-
-
-if (searchClose) {
-  searchClose.onclick = closeSearch;
-}
-
-
-/* ESC KEY */
-
-document.addEventListener('keydown', (e) => {
-
-  if (
-    e.key === 'Escape' &&
-    searchPanel?.classList.contains('open')
-  ) {
-    closeSearch();
-  }
-
-});
-
-
-/* SEARCH SKELETON */
-
-function showSearchSkeleton() {
-
-  if (!searchResults) return;
-
-  searchResults.innerHTML = '';
-
-  for (let i = 0; i < 12; i++) {
-
-    const skeleton =
-      document.createElement('div');
-
-    skeleton.className =
-      'search-skeleton';
-
-    skeleton.style.setProperty(
-      '--i',
-      i
-    );
-
-    searchResults.appendChild(
-      skeleton
-    );
-
-  }
-
-}
-
-
-/* SMART QUERY PARSER */
-
-function parseSmartQuery(query) {
-
-  const original = query.trim();
-
-  let text = original;
-
-  const filters = {
-    year: null,
-    genre: null,
-    type: null,
-    minRating: null
-  };
-
-
-  /* YEAR */
-
-  const yearMatch =
-    text.match(/\b(19|20)\d{2}\b/);
-
-  if (yearMatch) {
-
-    filters.year =
-      Number(yearMatch[0]);
-
-    text =
-      text.replace(
-        yearMatch[0],
-        ''
-      );
-
-  }
-
-
-  /* RATING */
-
-  const ratingMatch =
-    text.match(
-      /\b(?:rating|rated|score|above)\s*(?:of|over|above|:)?\s*(\d(?:\.\d)?)\b/i
-    );
-
-  if (ratingMatch) {
-
-    filters.minRating =
-      Number(ratingMatch[1]);
-
-    text =
-      text.replace(
-        ratingMatch[0],
-        ''
-      );
-
-  }
-
-
-  /* TV */
-
-  if (
-    /\b(tv|tv shows|tv series|series|shows)\b/i.test(text)
-  ) {
-
-    filters.type = 'tv';
-
-    text =
-      text.replace(
-        /\b(tv shows|tv series|tv|series|shows)\b/gi,
-        ''
-      );
-
-  }
-
-
-  /* MOVIE */
-
-  if (
-    /\b(movie|movies|film|films)\b/i.test(text)
-  ) {
-
-    filters.type = 'movie';
-
-    text =
-      text.replace(
-        /\b(movies|movie|films|film)\b/gi,
-        ''
-      );
-
-  }
-
-
-  /* GENRES */
-
-  const genres = {
-
-    action: 28,
-    adventure: 12,
-    animation: 16,
-    comedy: 35,
-    crime: 80,
-    documentary: 99,
-    drama: 18,
-    family: 10751,
-    fantasy: 14,
-    horror: 27,
-    mystery: 9648,
-    romance: 10749,
-    'science fiction': 878,
-    'sci fi': 878,
-    'sci-fi': 878,
-    thriller: 53,
-    war: 10752,
-    western: 37
-
-  };
-
-
-  for (const [name, id] of Object.entries(genres)) {
-
-    const regex =
-      new RegExp(
-        `\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
-        'i'
-      );
-
-    if (regex.test(text)) {
-
-      filters.genre = id;
-
-      text =
-        text.replace(
-          regex,
-          ''
-        );
-
-      break;
-
-    }
-
-  }
-
-
-  /* REMOVE COMMON SEARCH WORDS */
-
-  text =
-    text
-      .replace(
-        /\b(best|top|good|popular|highly rated|latest|new|recent|movies|movie|films|film|shows|show|series|tv)\b/gi,
-        ' '
-      )
-      .replace(
-        /\s+/g,
-        ' '
-      )
-      .trim();
-
-
-  return {
-    original,
-    searchText: text || original,
-    filters
-  };
-
-}
-
-
-/* RENDER SEARCH RESULTS */
-
-function renderSmartResults(
-  results
-) {
-
-  if (!searchResults) return;
-
-
-  const filtered =
-    results.filter((item) => {
-
-      if (
-        currentSearchFilter === 'movie' &&
-        item.media_type !== 'movie'
-      ) {
-        return false;
-      }
-
-      if (
-        currentSearchFilter === 'tv' &&
-        item.media_type !== 'tv'
-      ) {
-        return false;
-      }
-
-      if (
-        currentSearchFilter === 'person' &&
-        item.media_type !== 'person'
-      ) {
-        return false;
-      }
-
-      return true;
-
-    });
-
-
-  if (!filtered.length) {
-
-    searchResults.innerHTML = `
-      <div
-        class="empty"
-        style="
-          grid-column:1/-1;
-          height:180px;
-        "
-      >
-        NO RESULTS FOUND
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  searchResults.innerHTML =
-    filtered
-      .slice(0, 30)
-      .map((item, index) => {
-
-        if (
-          item.media_type === 'person'
-        ) {
-
-          return `
-            <article
-              class="card"
-              data-person-id="${item.id}"
-              style="--i:${index}"
-            >
-
-              <div class="poster">
-
-                ${
-                  item.profile_path
-
-                    ? `
-                      <img
-                        loading="lazy"
-                        src="${IMG}w500${item.profile_path}"
-                        alt="${esc(item.name)}"
-                      >
-                    `
-
-                    : `
-                      <div class="empty">
-                        NO PHOTO
-                      </div>
-                    `
-                }
-
-              </div>
-
-              <div class="card-info">
-
-                <span class="card-title">
-                  ${esc(item.name)}
-                </span>
-
-                <span class="year">
-                  PERSON
-                </span>
-
-              </div>
-
-            </article>
-          `;
+          return (
+            item.name !== undefined &&
+            item.title === undefined
+          );
 
         }
 
-
-        return `
-          <div style="--i:${index}">
-            ${card(
-              item,
-              item.media_type
-            )}
-          </div>
-        `;
+        return (
+          item.title !== undefined &&
+          item.name === undefined
+        );
 
       })
-      .join('');
+      .map(item => ({
 
+        ...item,
 
-  bindCards(searchResults);
+        media_type:
+          type
 
-
-  searchResults
-    .querySelectorAll(
-      '[data-person-id]'
-    )
-    .forEach((personCard) => {
-
-      personCard.onclick = () => {
-
-        const id =
-          personCard.dataset.personId;
-
-        location.href =
-          `/person.html?id=${encodeURIComponent(id)}`;
-
-      };
-
-    });
-
-}
-
-
-/* SMART SEARCH */
-
-
-    
-async function performSearch() {
-  const rawQuery = searchInput?.value.trim();
-
-  if (!rawQuery) return;
-
-  showSearchSkeleton();
-
-  try {
-    const parsed = parseSmartQuery(rawQuery);
-
-    const hasSmartFilters =
-  parsed.filters.year ||
-  parsed.filters.minRating ||
-  parsed.filters.genre ||
-  parsed.filters.type;
-
-    let results = [];
-
-    /*
-      NORMAL SEARCH
-      Example:
-      Spider man
-      Korean drama
-      Interstellar
-      Tom Cruise
-    */
-    if (!hasSmartFilters) {
-      const [movieRes, tvRes, personRes] =
-        await Promise.allSettled([
-          fetch(`/api/search/movie?query=${encodeURIComponent(rawQuery)}&page=1`),
-          fetch(`/api/search/tv?query=${encodeURIComponent(rawQuery)}&page=1`),
-          fetch(`/api/search/person?query=${encodeURIComponent(rawQuery)}&page=1`)
-        ]);
-
-      const movieData =
-        movieRes.status === 'fulfilled' && movieRes.value.ok
-          ? await movieRes.value.json()
-          : { results: [] };
-
-      const tvData =
-        tvRes.status === 'fulfilled' && tvRes.value.ok
-          ? await tvRes.value.json()
-          : { results: [] };
-
-      const personData =
-        personRes.status === 'fulfilled' && personRes.value.ok
-          ? await personRes.value.json()
-          : { results: [] };
-
-      results = [
-        ...(movieData.results || []).map(item => ({
-          ...item,
-          media_type: 'movie'
-        })),
-
-        ...(tvData.results || []).map(item => ({
-          ...item,
-          media_type: 'tv'
-        })),
-
-        ...(personData.results || []).map(item => ({
-          ...item,
-          media_type: 'person'
-        }))
-      ];
-
-      /*
-        Put exact text matches first.
-        This makes searches like "Spider man"
-        show Spider-Man results before unrelated results.
-      */
-      const q = rawQuery.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-
-      results.sort((a, b) => {
-        const aName = (
-          a.title ||
-          a.name ||
-          ''
-        ).toLowerCase();
-
-        const bName = (
-          b.title ||
-          b.name ||
-          ''
-        ).toLowerCase();
-
-        const aClean = aName.replace(/[^a-z0-9]+/g, ' ').trim();
-        const bClean = bName.replace(/[^a-z0-9]+/g, ' ').trim();
-
-        const aExact = aClean === q;
-        const bExact = bClean === q;
-
-        const aStarts = aClean.startsWith(q);
-        const bStarts = bClean.startsWith(q);
-
-        if (aExact !== bExact) {
-          return aExact ? -1 : 1;
-        }
-
-        if (aStarts !== bStarts) {
-          return aStarts ? -1 : 1;
-        }
-
-        return (b.popularity || 0) - (a.popularity || 0);
-      });
-    }
-
-    /*
-      SMART SEARCH
-      Example:
-      Best action movies
-      2025 comedy movies
-      Best sci-fi TV shows
-    */
-    else {
-      const params = new URLSearchParams();
-
-      if (parsed.filters.year) {
-  params.set(
-    'primary_release_year',
-    parsed.filters.year
-  );
-}
-
-if (parsed.filters.minRating) {
-  params.set(
-    'vote_average.gte',
-    parsed.filters.minRating
-  );
-}
-
-if (parsed.filters.genre) {
-  params.set(
-    'with_genres',
-    parsed.filters.genre
-  );
-}
-
-      params.set('sort_by', 'popularity.desc');
-
-      const endpoints = [];
-
-      if (
-  !parsed.filters.type ||
-  parsed.filters.type === 'movie'
-) {
-        endpoints.push(
-          `/api/discover/movie?${params.toString()}`
-        );
-      }
-
-      if (
-  !parsed.filters.type ||
-  parsed.filters.type === 'tv'
-) {
-        const tvParams = new URLSearchParams();
-
-if (parsed.filters.year) {
-  tvParams.set(
-    'first_air_date_year',
-    parsed.filters.year
-  );
-}
-
-if (parsed.filters.minRating) {
-  tvParams.set(
-    'vote_average.gte',
-    parsed.filters.minRating
-  );
-}
-
-if (parsed.filters.genre) {
-  tvParams.set(
-    'with_genres',
-    parsed.filters.genre
-  );
-}
-
-tvParams.set('sort_by', 'popularity.desc');
-
-endpoints.push(
-          `/api/discover/tv?${tvParams.toString()}`
-        );
-      }
-
-      const responses = await Promise.all(
-        endpoints.map(url =>
-          fetch(url).then(res =>
-            res.ok ? res.json() : { results: [] }
-          )
-        )
-      );
-
-      responses.forEach((data, index) => {
-        const type =
-          endpoints[index].includes('/movie/')
-            ? 'movie'
-            : 'tv';
-
-        results.push(
-          ...(data.results || []).map(item => ({
-            ...item,
-            media_type: type
-          }))
-        );
-      });
-    }
-
-    /*
-      Remove duplicates
-    */
-    const unique = new Map();
-
-    results.forEach(item => {
-      const key =
-        `${item.media_type}-${item.id}`;
-
-      if (!unique.has(key)) {
-        unique.set(key, item);
-      }
-    });
-
-    results = Array.from(unique.values());
-
-    /*
-      Current filter button
-    */
-    if (currentSearchFilter !== 'all') {
-      results = results.filter(item => {
-        if (currentSearchFilter === 'movie') {
-          return item.media_type === 'movie';
-        }
-
-        if (currentSearchFilter === 'tv') {
-          return item.media_type === 'tv';
-        }
-
-        return true;
-      });
-    }
-
-    renderSmartResults(results);
+      }));
 
   } catch (error) {
-    console.error('Smart search error:', error);
 
-    if (searchResults) {
-      searchResults.innerHTML = `
-        <div style="
-          padding:40px 20px;
-          text-align:center;
-          color:#aaa;
-        ">
-          Search failed. Please try again.
-        </div>
-      `;
-    }
+    console.warn(
+      `Collection failed: ${endpoint}`,
+      error
+    );
+
+    return [];
   }
 }
 
-/* SEARCH BUTTON */
 
-if (searchSubmit) {
-
-  searchSubmit.onclick =
-    performSearch;
-
-}
-
-
-/* ENTER KEY */
-
-if (searchInput) {
-
-  searchInput.onkeydown =
-    (e) => {
-
-      if (e.key === 'Enter') {
-
-        e.preventDefault();
-
-        performSearch();
-
-      }
-
-    };
-
-}
 /* =========================
-   LOAD & RENDER GENRES
+   HOME COLLECTIONS
+========================= */
+
+async function loadHomeCollections() {
+
+  const results =
+    await Promise.allSettled([
+
+      loadCollection(
+        '/api/trending',
+        'movie'
+      ),
+
+      loadCollection(
+        '/api/popular',
+        'movie'
+      ),
+
+      loadCollection(
+        '/api/now-playing',
+        'movie'
+      ),
+
+      loadCollection(
+        '/api/upcoming',
+        'movie'
+      ),
+
+      loadCollection(
+        '/api/tv/popular',
+        'tv'
+      ),
+
+      loadCollection(
+        '/api/tv/trending',
+        'tv'
+      ),
+
+      loadCollection(
+        '/api/tv/today',
+        'tv'
+      )
+
+    ]);
+
+
+  const value =
+    (index) =>
+      results[index]?.status ===
+      'fulfilled'
+        ? results[index].value
+        : [];
+
+
+  state.trending =
+    value(0);
+
+  state.popular =
+    value(1);
+
+  state.now =
+    value(2);
+
+  state.upcoming =
+    value(3);
+
+  state.tvPopular =
+    value(4);
+
+  state.tvTrending =
+    value(5);
+
+  state.tvToday =
+    value(6);
+}
+
+
+/* =========================
+   GENRES
 ========================= */
 
 async function loadGenres() {
 
-  const genresList = $('#genresList');
+  const results =
+    await Promise.allSettled([
 
-  if (!genresList) return;
+      api('/api/genres'),
+
+      api('/api/tv/genres')
+
+    ]);
+
+
+  state.genres =
+    results[0]?.status === 'fulfilled'
+      ? (
+          Array.isArray(
+            results[0].value?.genres
+          )
+            ? results[0].value.genres
+            : []
+        )
+      : [];
+
+
+  state.tvGenres =
+    results[1]?.status === 'fulfilled'
+      ? (
+          Array.isArray(
+            results[1].value?.genres
+          )
+            ? results[1].value.genres
+            : []
+        )
+      : [];
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+function pickHero() {
+
+  const candidates = [
+
+    ...(state.trending || []),
+
+    ...(state.popular || []),
+
+    ...(state.tvTrending || []),
+
+    ...(state.tvPopular || [])
+
+  ];
+
+
+  const item =
+    candidates.find(
+      x =>
+        x &&
+        x.backdrop_path
+    );
+
+
+  state.hero =
+    item || null;
+
+
+  return state.hero;
+}
+
+
+/* =========================
+   HERO RENDER
+========================= */
+
+function renderHero() {
+
+  const hero =
+    $('.hero');
+
+  if (!hero) return;
+
+
+  const item =
+    state.hero || pickHero();
+
+  if (!item) return;
+
+
+  const tv =
+    isTV(item);
+
+  const title =
+    getTitle(
+      item,
+      tv ? 'tv' : 'movie'
+    );
+
+  const date =
+    getDate(
+      item,
+      tv ? 'tv' : 'movie'
+    );
+
+
+  hero.style.backgroundImage =
+    item.backdrop_path
+      ? `
+        linear-gradient(
+          90deg,
+          rgba(0,0,0,.96) 0%,
+          rgba(0,0,0,.76) 34%,
+          rgba(0,0,0,.25) 70%,
+          rgba(0,0,0,.05) 100%
+        ),
+        linear-gradient(
+          0deg,
+          #08090d 0%,
+          transparent 42%
+        ),
+        url("${backdrop(item)}")
+      `
+      : '';
+
+
+  const titleEl =
+    hero.querySelector(
+      '[data-hero-title]'
+    );
+
+  const overviewEl =
+    hero.querySelector(
+      '[data-hero-overview]'
+    );
+
+  const metaEl =
+    hero.querySelector(
+      '[data-hero-meta]'
+    );
+
+
+  if (titleEl) {
+
+    titleEl.textContent =
+      title || 'Untitled';
+
+  }
+
+
+  if (overviewEl) {
+
+    overviewEl.textContent =
+      item.overview ||
+      'Discover movies and TV shows on MovieHub.';
+
+  }
+
+
+  if (metaEl) {
+
+    metaEl.innerHTML = `
+      <span>
+        ${esc(
+          (date || '').slice(0, 4)
+        )}
+      </span>
+
+      ${
+        item.vote_average
+          ? `
+            <span>•</span>
+
+            <span>
+              ★ ${Number(
+                item.vote_average
+              ).toFixed(1)}
+            </span>
+          `
+          : ''
+      }
+
+      <span>•</span>
+
+      <span>
+        ${tv ? 'TV' : 'FILM'}
+      </span>
+    `;
+
+  }
+
+
+  const details =
+    hero.querySelector(
+      '[data-hero-details]'
+    );
+
+
+  if (details) {
+
+    details.onclick = () => {
+
+      window.location.href =
+        `/movie.html?id=${encodeURIComponent(
+          item.id
+        )}&type=${encodeURIComponent(
+          tv ? 'tv' : 'movie'
+        )}`;
+
+    };
+
+  }
+
+
+  const trailer =
+    hero.querySelector(
+      '[data-hero-trailer]'
+    );
+
+
+  if (trailer) {
+
+    trailer.onclick = () => {
+
+      window.location.href =
+        `/movie.html?id=${encodeURIComponent(
+          item.id
+        )}&type=${encodeURIComponent(
+          tv ? 'tv' : 'movie'
+        )}`;
+
+    };
+
+  }
+}
+
+
+/* =========================
+   STANDARD SECTIONS
+========================= */
+
+function renderStandardSections() {
+
+  fill(
+    '#trendingRail',
+    state.trending,
+    'movie'
+  );
+
+
+  fill(
+    '#popularRail',
+    state.popular,
+    'movie'
+  );
+
+
+  fill(
+    '#nowPlayingRail',
+    state.now,
+    'movie'
+  );
+
+
+  fill(
+    '#upcomingRail',
+    state.upcoming,
+    'movie'
+  );
+
+
+  fill(
+    '#tvPopularRail',
+    state.tvPopular,
+    'tv'
+  );
+
+
+  fill(
+    '#tvTrendingRail',
+    state.tvTrending,
+    'tv'
+  );
+
+
+  fill(
+    '#tvTodayRail',
+    state.tvToday,
+    'tv'
+  );
+
+
+  bindCards();
+}
+
+
+/* =========================
+   GENRE NAVIGATION
+========================= */
+
+function bindGenreLinks() {
+
+  document
+    .querySelectorAll(
+      '[data-genre]'
+    )
+    .forEach(link => {
+
+      link.onclick = (
+        event
+      ) => {
+
+        event.preventDefault();
+
+
+        const genre =
+          link.dataset.genre;
+
+
+        if (!genre) return;
+
+
+        window.location.href =
+          `/search.html?genre=${encodeURIComponent(
+            genre
+          )}`;
+
+      };
+
+    });
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+function bindSearch() {
+
+  const forms =
+    document.querySelectorAll(
+      'form[data-search]'
+    );
+
+
+  forms.forEach(form => {
+
+    form.addEventListener(
+      'submit',
+      event => {
+
+        event.preventDefault();
+
+
+        const input =
+          form.querySelector(
+            'input[name="q"], input[type="search"]'
+          );
+
+
+        const query =
+          input?.value?.trim();
+
+
+        if (!query) return;
+
+
+        window.location.href =
+          `/search.html?q=${encodeURIComponent(
+            query
+          )}`;
+
+      }
+    );
+
+  });
+
+
+  const searchButtons =
+    document.querySelectorAll(
+      '[data-search-button]'
+    );
+
+
+  searchButtons.forEach(button => {
+
+    button.onclick = () => {
+
+      const input =
+        document.querySelector(
+          'input[name="q"], input[type="search"]'
+        );
+
+
+      const query =
+        input?.value?.trim();
+
+
+      if (!query) {
+
+        window.location.href =
+          '/search.html';
+
+        return;
+
+      }
+
+
+      window.location.href =
+        `/search.html?q=${encodeURIComponent(
+          query
+        )}`;
+
+    };
+
+  });
+}
+
+
+/* =========================
+   VIEW ALL
+========================= */
+
+function bindViewAll() {
+
+  document
+    .querySelectorAll(
+      '[data-view-all]'
+    )
+    .forEach(link => {
+
+      link.onclick = (
+        event
+      ) => {
+
+        event.preventDefault();
+
+
+        const category =
+          link.dataset.viewAll;
+
+
+        if (!category) return;
+
+
+        window.location.href =
+          `/search.html?category=${encodeURIComponent(
+            category
+          )}`;
+
+      };
+
+    });
+}
+
+
+/* =========================
+   HOME INIT
+========================= */
+
+async function initHome() {
 
   try {
 
-    const results = await Promise.allSettled([
-      api('/api/genres'),
-      api('/api/tv/genres')
+    await Promise.allSettled([
+
+      loadHomeCollections(),
+
+      loadGenres()
+
     ]);
 
-    const allGenres = [];
 
-    results.forEach((result) => {
+    renderStandardSections();
 
-      if (
-        result.status === 'fulfilled' &&
-        Array.isArray(result.value?.genres)
-      ) {
-        allGenres.push(
-          ...result.value.genres
-        );
-      }
+    renderHero();
 
-    });
+    loadHomeWatchlist();
 
-    const uniqueGenres =
-      Array.from(
-        new Map(
-          allGenres.map((genre) => [
-            genre.id,
-            genre
-          ])
-        ).values()
-      );
 
-    uniqueGenres.sort((a, b) =>
-      String(a.name).localeCompare(
-        String(b.name)
-      )
-    );
+    await loadImportantCategories();
 
-    genresList.innerHTML =
-      uniqueGenres
-        .map((genre) => `
-          <button
-            type="button"
-            class="genre"
-            data-genre="${genre.id}"
-          >
-            ${esc(genre.name)}
-          </button>
-        `)
-        .join('');
 
-    console.log(
-      'MovieHub genres loaded:',
-      uniqueGenres
-    );
+    bindGenreLinks();
+
+    bindSearch();
+
+    bindViewAll();
+
+    bindCards();
 
   } catch (error) {
 
     console.error(
-      'Genre loading failed:',
+      'MovieHub home initialization failed:',
       error
     );
 
-    genresList.innerHTML = '';
   }
 }
-/* =========================
-   GENRE BUTTONS
-========================= */
 
-const genresList =
-  $('#genresList');
-
-if (genresList) {
-
-  genresList.onclick = (e) => {
-
-    const b =
-      e.target.closest(
-        '.genre'
-      );
-
-
-    if (!b) return;
-
-
-    location.href =
-  `/genre.html?id=${encodeURIComponent(b.dataset.genre)}&name=${encodeURIComponent(b.textContent.trim())}`;
-  };
-}
 
 /* =========================
-   TOAST
+   PAGE START
 ========================= */
 
-function toast(t) {
+if (
+  document.readyState ===
+  'loading'
+) {
 
-  const el =
-    $('#toast');
+  document.addEventListener(
+    'DOMContentLoaded',
+    () => {
 
-  if (!el) return;
+      initHome();
 
-
-  el.textContent = t;
-
-  el.classList.add('show');
-
-
-  setTimeout(
-    () =>
-      el.classList.remove(
-        'show'
-      ),
-    3500
+    },
+    {
+      once: true
+    }
   );
 
+} else {
+
+  initHome();
+
 }
-
-
-/* =========================
-   GLOBAL FUNCTIONS
-========================= */
-
-window.playTrailer =
-  playTrailer;
-
-window.openDetails =
-  openDetails;
-
-window.playCardTrailer =
-  playCardTrailer;
-
-/* =========================
-   START MOVIEHUB
-========================= */
-
-async function startMovieHub() {
-  const movieLoader =
-    document.getElementById('movieLoader');
-
-  try {
-    await load();
-await loadGenres();
-    // Movies/hero/sections render hone ke baad
-    // hi main animated loader hide hoga.
-    if (movieLoader) {
-      movieLoader.classList.add('hide');
-
-      setTimeout(() => {
-        movieLoader.remove();
-      }, 500);
-    }
-
-  } catch (error) {
-    console.error('MovieHub startup error:', error);
-  }
-}
-
-startMovieHub();
-
