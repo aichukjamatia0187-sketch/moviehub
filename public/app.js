@@ -589,282 +589,89 @@ async function load() {
        MOVIE DISCOVERY
     ========================= */
 
-    const requests = [
-
-      /* Trending Today */
-      api('/api/trending'),
-
-      /* Highly Rated */
-      api('/api/discover/movie?sort_by=vote_average.desc&vote_count.gte=300'),
-
-      /* New Releases */
-      api('/api/discover/movie?sort_by=primary_release_date.desc&primary_release_date.lte=' + new Date().toISOString().slice(0, 10)),
-
-      /* Webseries */
-      api('/api/discover/tv?sort_by=popularity.desc'),
-
-      /* Romance */
-      api('/api/discover/movie?with_genres=10749&sort_by=popularity.desc'),
-
-      /* Action */
-      api('/api/discover/movie?with_genres=28&sort_by=popularity.desc'),
-
-      /* Horror */
-      api('/api/discover/movie?with_genres=27&sort_by=popularity.desc'),
-
-      /* Mind-Bending */      
-api('/api/discover/movie?with_genres=878%7C9648&sort_by=popularity.desc'),
-      /* Based on True Stories */
-      api('/api/discover/movie?with_keywords=9672&sort_by=popularity.desc'),
-
-      /* Family Night */
-      api('/api/discover/movie?with_genres=10751&sort_by=popularity.desc'),
-
-      /* Hollywood */
-      api('/api/discover/movie?with_original_language=en&sort_by=popularity.desc'),
-
-      /* Late Night Movies */
-api('/api/discover/movie?with_runtime.gte=90&with_runtime.lte=180&sort_by=popularity.desc'),
-
-      /* Korean Drama */
-      api('/api/discover/tv?with_original_language=ko&sort_by=popularity.desc'),
-
-      /* China */
-      api('/api/discover/movie?with_original_language=zh&sort_by=popularity.desc'),
-
-      /* Japanese */
-      api('/api/discover/movie?with_original_language=ja&sort_by=popularity.desc'),
-
-      /* Indian */
-api('/api/discover/movie?with_origin_country=IN&sort_by=popularity.desc'),
-
-      /* Coming Soon */
-      api('/api/upcoming')
-
-    ];
-
-
-    const results =
-      await Promise.allSettled(requests);
-console.log('MOVIEHUB DISCOVERY RESULTS:', results);
-
-results.forEach((result, index) => {
-  console.log(
-    `DISCOVERY ${index}:`,
-    result.status,
-    result.status === 'fulfilled'
-      ? result.value
-      : result.reason
-  );
-});
-
-    const get = (index) => {
-
-      const result =
-        results[index];
-
-      if (
-        result &&
-        result.status === 'fulfilled'
-      ) {
-        return result.value || {};
-      }
-
-      return {};
-    };
-
-
     /* =========================
-       DISCOVERY DATA
+       SECTIONS: sections.js se banate hain
+       (har category ka naam sirf ek baar)
     ========================= */
 
-    const discovery = {
+    const SECTIONS = window.MH_SECTIONS || [];
+    const host = $('#homeSections');
 
-      trending:
-        get(0).results || [],
+    if (host) {
+      host.innerHTML = SECTIONS.map((s) => `
+        <section class="section" id="sec-${s.key}">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">${s.group}</div>
+              <h2>${s.icon} ${s.title}</h2>
+            </div>
+            <a class="see view-all" href="/browse.html?type=${s.key}">VIEW ALL</a>
+          </div>
+          <div class="rail" id="rail-${s.key}"></div>
+        </section>
+      `).join('');
+    }
 
-      highlyRated:
-        get(1).results || [],
+    const toQuery = (o) => Object.entries(o || {})
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .join('&');
 
-      newReleases:
-        get(2).results || [],
-
-      webseries:
-        get(3).results || [],
-
-      romance:
-        get(4).results || [],
-
-      action:
-        get(5).results || [],
-
-      horror:
-        get(6).results || [],
-
-      mindBending:
-        get(7).results || [],
-
-      trueStories:
-        get(8).results || [],
-
-      family:
-        get(9).results || [],
-
-      hollywood:
-        get(10).results || [],
-
-      lateNight:
-        get(11).results || [],
-
-      korean:
-        get(12).results || [],
-
-      china:
-        get(13).results || [],
-
-      japanese:
-        get(14).results || [],
-
-      indian:
-  get(15).results || [],
-      comingSoon:
-        get(16).results || []
-
+    const fetchSection = async (s) => {
+      // multi-query section (International): sab ko merge karke popularity se sort
+      if (s.queries) {
+        const parts = await Promise.allSettled(
+          s.queries.map((p) => api(s.endpoint + '?' + toQuery(p)))
+        );
+        const all = [];
+        parts.forEach((r) => {
+          if (r.status === 'fulfilled') all.push(...((r.value && r.value.results) || []));
+        });
+        all.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+        return { results: all };
+      }
+      const q = toQuery(window.MH_RESOLVE(s));
+      return api(s.endpoint + (q ? '?' + q : ''));
     };
 
+    const results = await Promise.allSettled(SECTIONS.map(fetchSection));
+
+    /* =========================
+       DEDUPE: ek movie/show sirf ek hi section me
+       (upar wale section ko priority)
+    ========================= */
+
+    const seen = { movie: new Set(), tv: new Set() };
+    const discovery = {};
+
+    SECTIONS.forEach((s, i) => {
+      const r = results[i];
+      const list = (r.status === 'fulfilled' && r.value && r.value.results) || [];
+      const unique = list.filter((x) => x.poster_path && !seen[s.mode].has(x.id));
+      unique.slice(0, 14).forEach((x) => seen[s.mode].add(x.id));
+      discovery[s.key] = unique;
+      fill('#rail-' + s.key, unique, s.mode);
+    });
+
+    // Section jo bilkul khali ho, use chhupa do
+    SECTIONS.forEach((s) => {
+      if (!discovery[s.key].length) {
+        const el = $('#sec-' + s.key);
+        if (el) el.style.display = 'none';
+      }
+    });
 
     /* =========================
        HERO
     ========================= */
 
     const hero =
-      discovery.trending[0] ||
-      discovery.webseries[0] ||
-      discovery.highlyRated[0] ||
+      (discovery.trending || [])[0] ||
+      (discovery['trending-series'] || [])[0] ||
+      (discovery['top-rated'] || [])[0] ||
       {};
 
-
     setHero(hero);
-
-    loadHeroTrailer(hero)
-      .catch(console.warn);
-
-
-    /* =========================
-       MOVIE DISCOVERY SECTIONS
-    ========================= */
-
-    fill(
-      '#trendingRail',
-      discovery.trending,
-      'movie'
-    );
-
-    fill(
-      '#popularRail',
-      discovery.highlyRated,
-      'movie'
-    );
-
-    fill(
-      '#nowRail',
-      discovery.newReleases,
-      'movie'
-    );
-
-    fill(
-      '#upcomingRail',
-      discovery.comingSoon,
-      'movie'
-    );
-
-
-    /* =========================
-       TV / WEBSERIES
-    ========================= */
-
-    fill(
-      '#tvPopularRail',
-      discovery.webseries,
-      'tv'
-    );
-
-
-    /* =========================
-       GENRE / CATEGORY RAILS
-    ========================= */
-
-    fill(
-      '#romanceRail',
-      discovery.romance,
-      'movie'
-    );
-
-    fill(
-      '#actionRail',
-      discovery.action,
-      'movie'
-    );
-
-    fill(
-      '#horrorRail',
-      discovery.horror,
-      'movie'
-    );
-
-    fill(
-      '#mindBendingRail',
-      discovery.mindBending,
-      'movie'
-    );
-
-    fill(
-      '#trueStoriesRail',
-      discovery.trueStories,
-      'movie'
-    );
-
-    fill(
-      '#familyRail',
-      discovery.family,
-      'movie'
-    );
-
-    fill(
-      '#hollywoodRail',
-      discovery.hollywood,
-      'movie'
-    );
-
-    fill(
-      '#lateNightRail',
-      discovery.lateNight,
-      'movie'
-    );
-
-    fill(
-      '#koreanRail',
-      discovery.korean,
-      'tv'
-    );
-
-    fill(
-      '#chinaRail',
-      discovery.china,
-      'movie'
-    );
-
-    fill(
-      '#japaneseRail',
-      discovery.japanese,
-      'movie'
-    );
-
-fill(
-  '#indianRail',
-  discovery.indian,
-  'movie'
-);
+    loadHeroTrailer(hero).catch(console.warn);
 
 
     /* =========================
