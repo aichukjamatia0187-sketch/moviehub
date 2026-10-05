@@ -403,7 +403,6 @@ function loadHomeWatchlist() {
 ========================= */
 
 function bindCards(root = document) {
-
   root
     .querySelectorAll('.card[data-id]')
     .forEach((c) => {
@@ -420,12 +419,10 @@ function bindCards(root = document) {
 
         window.location.href =
           `/movie.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
-
       };
 
     });
 }
-
 
 /* =========================
    SECTION HELPERS
